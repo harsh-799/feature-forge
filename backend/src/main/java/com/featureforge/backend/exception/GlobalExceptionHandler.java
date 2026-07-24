@@ -2,8 +2,10 @@ package com.featureforge.backend.exception;
 
 import com.featureforge.backend.dto.response.ErrorDetails;
 import com.featureforge.backend.dto.response.ValidationResponse;
+import org.springframework.boot.web.error.Error;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -42,6 +44,16 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDetails);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorDetails> handleBadCredentialsException(BadCredentialsException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message("Invalid credentials")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
     }
 
 

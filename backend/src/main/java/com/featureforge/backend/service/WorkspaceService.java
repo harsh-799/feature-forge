@@ -1,7 +1,9 @@
 package com.featureforge.backend.service;
 
+import com.featureforge.backend.dto.request.AcceptMemberRequest;
 import com.featureforge.backend.dto.request.InviteMemberRequest;
 import com.featureforge.backend.dto.request.WorkspaceCreationRequest;
+import com.featureforge.backend.dto.response.AcceptMemberResponse;
 import com.featureforge.backend.dto.response.InviteMemberResponse;
 import com.featureforge.backend.dto.response.WorkspaceCreationResponse;
 import com.featureforge.backend.entity.User;
@@ -125,5 +127,46 @@ public class WorkspaceService {
                 "Invitation has been sent successfully."
         );
 
+    }
+
+    @Transactional
+    public AcceptMemberResponse acceptMemberForWorkspace(AcceptMemberRequest acceptMemberRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceInvitation invitation = workspaceInvitationRepository.findByToken(
+                acceptMemberRequest.getToken()
+        ).orElseThrow(() -> new InvalidInviteTokenException("Token is invalid"));
+
+        boolean isAlreadyMember = workspaceMembershipRepository.existsByWorkspaceIdAndUserEmail(
+                invitation.getWorkspace().getId(),
+                loggedInUser.getEmail()
+        );
+
+        if (isAlreadyMember)
+            throw new UserAlreadyMemberException("The user is already a member of this workspace.");
+
+        if (invitation.getStatus() != InvitationStatus.PENDING)
+            throw new InvalidInvitationStateException("Invitation is not in a pending state. Action cannot be performed.");
+
+        if (LocalDateTime.now().isAfter(invitation.getExpiresAt()))
+            throw new TokenAlreadyExpiredException("Token has already expired. Please request a new invitation.");
+
+        if (!loggedInUser.getEmail().equals(invitation.getEmail()))
+            throw new UnauthorizedInvitationAcceptanceException("Invitation cannot be accepted. This token was issued to a different user account.");
+
+        WorkspaceMembership workspaceMembership = new WorkspaceMembership();
+        workspaceMembership.setWorkspace(invitation.getWorkspace());
+        workspaceMembership.setUser(loggedInUser);
+        workspaceMembership.setRole(invitation.getRole());
+
+        workspaceMembershipRepository.save(workspaceMembership);
+
+        invitation.setStatus(InvitationStatus.ACCEPTED);
+
+        return new AcceptMemberResponse(
+                true,
+                "Invitation accepted successfully. You have joined the workspace."
+        );
     }
 }

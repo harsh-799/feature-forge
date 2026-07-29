@@ -95,6 +95,37 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(InvalidInviteTokenException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidInviteTokenException(InvalidInviteTokenException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(InvalidInvitationStateException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidInvitationStateException(InvalidInvitationStateException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(TokenAlreadyExpiredException.class)
+    public ResponseEntity<ErrorDetails> handleTokenAlreadyExpiredException(TokenAlreadyExpiredException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+
 
 
 

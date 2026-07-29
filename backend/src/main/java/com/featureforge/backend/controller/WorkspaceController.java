@@ -1,12 +1,15 @@
 package com.featureforge.backend.controller;
 
+import com.featureforge.backend.dto.request.AcceptMemberRequest;
 import com.featureforge.backend.dto.request.InviteMemberRequest;
 import com.featureforge.backend.dto.request.WorkspaceCreationRequest;
+import com.featureforge.backend.dto.response.AcceptMemberResponse;
 import com.featureforge.backend.dto.response.InviteMemberResponse;
 import com.featureforge.backend.dto.response.WorkspaceCreationResponse;
 import com.featureforge.backend.service.WorkspaceService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,5 +32,10 @@ public class WorkspaceController {
     @PostMapping("/invite")
     public ResponseEntity<InviteMemberResponse> invite(@Valid @RequestBody InviteMemberRequest inviteMemberRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(workspaceService.inviteMemberToWorkspace(inviteMemberRequest));
+    }
+
+    @PostMapping("/accept")
+    public ResponseEntity<AcceptMemberResponse> accept(@Valid @RequestBody AcceptMemberRequest acceptMemberRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(workspaceService.acceptMemberForWorkspace(acceptMemberRequest));
     }
 }

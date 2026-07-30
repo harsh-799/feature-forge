@@ -6,17 +6,12 @@ import com.featureforge.backend.dto.request.WorkspaceCreationRequest;
 import com.featureforge.backend.dto.response.AcceptMemberResponse;
 import com.featureforge.backend.dto.response.InviteMemberResponse;
 import com.featureforge.backend.dto.response.WorkspaceCreationResponse;
-import com.featureforge.backend.entity.User;
-import com.featureforge.backend.entity.Workspace;
-import com.featureforge.backend.entity.WorkspaceInvitation;
-import com.featureforge.backend.entity.WorkspaceMembership;
+import com.featureforge.backend.entity.*;
+import com.featureforge.backend.enums.EnvironmentName;
 import com.featureforge.backend.enums.InvitationStatus;
 import com.featureforge.backend.enums.Role;
 import com.featureforge.backend.exception.*;
-import com.featureforge.backend.repository.UserRepository;
-import com.featureforge.backend.repository.WorkspaceInvitationRepository;
-import com.featureforge.backend.repository.WorkspaceMembershipRepository;
-import com.featureforge.backend.repository.WorkspaceRepository;
+import com.featureforge.backend.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +32,7 @@ public class WorkspaceService {
     private final WorkspaceMembershipRepository workspaceMembershipRepository;
     private final UserRepository userRepository;
     private final WorkspaceInvitationRepository workspaceInvitationRepository;
+    private final EnvironmentRepository environmentRepository;
 
     @Value("${invitation.expiry.days}")
     private int INVITATION_EXPIRY_DAYS;
@@ -48,6 +44,18 @@ public class WorkspaceService {
 
         return customUserDetails.getUser();
 
+    }
+
+    private void createDefaultEnvironment(Workspace workspace, EnvironmentName environmentName) {
+        Environment environment = new Environment();
+
+        environment.setWorkspace(workspace);
+        environment.setName(environmentName);
+
+        String apiKey = "ff_" + UUID.randomUUID();
+        environment.setApiKey(apiKey);
+
+        environmentRepository.save(environment);
     }
 
     @Transactional
@@ -66,6 +74,10 @@ public class WorkspaceService {
         workspaceMembership.setRole(Role.ADMIN);
 
         workspaceMembershipRepository.save(workspaceMembership);
+
+        createDefaultEnvironment(workspace,EnvironmentName.DEVELOPMENT);
+        createDefaultEnvironment(workspace,EnvironmentName.STAGING);
+        createDefaultEnvironment(workspace,EnvironmentName.PRODUCTION);
 
         return WorkspaceCreationResponse.builder()
                 .status(true)

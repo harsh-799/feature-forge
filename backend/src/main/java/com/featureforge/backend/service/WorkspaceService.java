@@ -18,6 +18,7 @@ import com.featureforge.backend.repository.WorkspaceInvitationRepository;
 import com.featureforge.backend.repository.WorkspaceMembershipRepository;
 import com.featureforge.backend.repository.WorkspaceRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ import java.util.UUID;
 
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
@@ -38,7 +39,7 @@ public class WorkspaceService {
     private final WorkspaceInvitationRepository workspaceInvitationRepository;
 
     @Value("${invitation.expiry.days}")
-    private final int INVITATION_EXPIRY_DAYS;
+    private int INVITATION_EXPIRY_DAYS;
 
     private User fetchAuthenticatedUser() {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext()

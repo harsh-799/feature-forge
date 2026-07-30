@@ -4,6 +4,7 @@ import com.featureforge.backend.dto.response.ErrorDetails;
 import com.featureforge.backend.dto.response.ValidationResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -65,7 +66,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler(InsufficientPrivilegesException.class)
     public ResponseEntity<ErrorDetails> handleInsufficientPrivilegesException(InsufficientPrivilegesException ex) {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .success(false)
@@ -85,7 +86,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
-    @ExceptionHandler(UserAlreadyMemberException.class)
+    @ExceptionHandler(PendingInvitationAlreadyExistsException.class)
     public ResponseEntity<ErrorDetails> handlePendingInvitationAlreadyExistsException(PendingInvitationAlreadyExistsException ex) {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .success(false)
@@ -120,6 +121,26 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .success(false)
                 .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(UnauthorizedInvitationAcceptanceException.class)
+    public ResponseEntity<ErrorDetails> handleUnauthorizedInvitationAcceptanceException(UnauthorizedInvitationAcceptanceException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorDetails> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message("Invalid invitation token format.")
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);

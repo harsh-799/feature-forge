@@ -2,6 +2,8 @@ package com.featureforge.backend.entity;
 
 import com.featureforge.backend.enums.FeatureStatus;
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
@@ -14,6 +16,8 @@ import java.time.LocalDateTime;
                 )
         }
 )
+@Builder
+@Getter
 public class Feature {
 
     @Id

@@ -51,7 +51,7 @@ public class FeatureService {
         FeatureEnvironmentConfig featureEnvironmentConfig = FeatureEnvironmentConfig.builder()
                 .feature(feature)
                 .environment(environment)
-                .rolloutPercentage(0)
+                .rolloutPercentage(environment.getName() == EnvironmentName.PRODUCTION ? 0 : null)
                 .isEnabled(false)
                 .build();
 

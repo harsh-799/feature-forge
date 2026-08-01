@@ -3,11 +3,15 @@ package com.featureforge.backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.Builder;
+import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class FeatureEnvironmentConfig {
 
@@ -31,5 +35,5 @@ public class FeatureEnvironmentConfig {
     private boolean isEnabled;
 
     @UpdateTimestamp
-    private LocalDateTime localDateTime;
+    private LocalDateTime updatedAt;
 }

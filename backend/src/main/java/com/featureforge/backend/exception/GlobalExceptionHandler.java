@@ -141,7 +141,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .success(false)
-                .message("Invalid invitation token format.")
+                .message(ex.getMessage())
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);

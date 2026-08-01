@@ -1,22 +1,21 @@
 package com.featureforge.backend.service;
 
 import com.featureforge.backend.dto.request.FeatureCreationRequest;
+import com.featureforge.backend.dto.request.PromoteToStagingRequest;
 import com.featureforge.backend.dto.response.FeatureCreationResponse;
+import com.featureforge.backend.dto.response.PromoteToStagingResponse;
 import com.featureforge.backend.dto.response.FeatureSummaryResponse;
 import com.featureforge.backend.dto.response.FeaturesPageResponse;
 import com.featureforge.backend.entity.*;
 import com.featureforge.backend.enums.EnvironmentName;
 import com.featureforge.backend.enums.FeatureStatus;
 import com.featureforge.backend.enums.Role;
-import com.featureforge.backend.exception.AccessDeniedException;
-import com.featureforge.backend.exception.EnvironmentNotFoundException;
-import com.featureforge.backend.exception.FeatureAlreadyExistsException;
+import com.featureforge.backend.exception.*;
 import com.featureforge.backend.repository.EnvironmentRepository;
 import com.featureforge.backend.repository.FeatureEnviromentConfigRepository;
 import com.featureforge.backend.repository.FeatureRepository;
 import com.featureforge.backend.repository.WorkspaceMembershipRepository;
 import lombok.AllArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -223,5 +221,54 @@ public class FeatureService {
                 .totalElements(featuresPage.getTotalElements())
                 .isLast(featuresPage.isLast())
                 .build();
+    }
+
+    @Transactional
+    public PromoteToStagingResponse promoteToStaging(int featureId, PromoteToStagingRequest promoteToStagingRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspaceIdAndUser(
+                        promoteToStagingRequest.getWorkspaceID(),
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        if (member.getRole() != Role.ADMIN && member.getRole() != Role.DEVELOPER)
+            throw new AccessDeniedException("Unauthorized Access: You do not have permission to perform this action");
+
+        Feature feature = featureRepository.findById(featureId).orElseThrow(
+                () -> new FeatureNotFoundException("feature not found")
+        );
+
+        if (!feature.getWorkspace().getId().equals(memberWorkspace.getId()))
+            throw new WorkspaceMismatchException("Access denied. Feature is not associated with your workspace.");
+
+        if (feature.getStatus() != FeatureStatus.IN_DEVELOPMENT)
+            throw new FeatureStatusMismatchException("Feature status must be IN_DEVELOPMENT to perform this action.");
+
+        feature.setStatus(FeatureStatus.READY_FOR_QA);
+
+        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnviromentConfigRepository.
+                findByFeature_IdAndEnvironment_Name(
+                        feature.getId(),
+                        EnvironmentName.STAGING
+                )
+                .orElseThrow(
+                        () -> new FeatureEnvironmentConfigNotFoundException("No environment configuration found for feature")
+                );
+
+        featureEnvironmentConfig.setEnabled(true);
+
+        PromoteToStagingResponse promoteToStagingResponse = new PromoteToStagingResponse();
+        promoteToStagingResponse.setSuccess(true);
+        promoteToStagingResponse.setMessage("feature status Updated to READY_FOR_QA");
+        promoteToStagingResponse.setFeatureId(feature.getId());
+
+        return promoteToStagingResponse;
     }
 }

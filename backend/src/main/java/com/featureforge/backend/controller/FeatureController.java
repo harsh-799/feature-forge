@@ -1,7 +1,9 @@
 package com.featureforge.backend.controller;
 
 import com.featureforge.backend.dto.request.FeatureCreationRequest;
+import com.featureforge.backend.dto.request.PromoteToStagingRequest;
 import com.featureforge.backend.dto.response.FeatureCreationResponse;
+import com.featureforge.backend.dto.response.PromoteToStagingResponse;
 import com.featureforge.backend.service.FeatureService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -20,4 +22,13 @@ public class FeatureController {
     public ResponseEntity<FeatureCreationResponse> create(@Valid @RequestBody FeatureCreationRequest featureCreationRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(featureService.createFeature(featureCreationRequest));
     }
+
+    @PatchMapping("/{featureId}/promote")
+    public ResponseEntity<PromoteToStagingResponse> promote(@PathVariable(name = "featureId") int featureId,
+                                                            @Valid @RequestBody PromoteToStagingRequest promoteToStagingRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.promoteToStaging(featureId, promoteToStagingRequest));
+    }
+
+
 }

@@ -2,6 +2,8 @@ package com.featureforge.backend.service;
 
 import com.featureforge.backend.dto.request.FeatureCreationRequest;
 import com.featureforge.backend.dto.response.FeatureCreationResponse;
+import com.featureforge.backend.dto.response.FeatureSummaryResponse;
+import com.featureforge.backend.dto.response.FeaturesPageResponse;
 import com.featureforge.backend.entity.*;
 import com.featureforge.backend.enums.EnvironmentName;
 import com.featureforge.backend.enums.FeatureStatus;
@@ -14,12 +16,18 @@ import com.featureforge.backend.repository.FeatureEnviromentConfigRepository;
 import com.featureforge.backend.repository.FeatureRepository;
 import com.featureforge.backend.repository.WorkspaceMembershipRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -107,6 +115,55 @@ public class FeatureService {
                 .description(savedFeature.getDescription())
                 .status(savedFeature.getStatus())
                 .createdAt(savedFeature.getCreatedAt())
+                .build();
+    }
+
+    public FeaturesPageResponse getAllFeaturesOfWorkspace(int page, int size, FeatureStatus status, UUID workspaceId) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspaceIdAndUser(
+                        workspaceId,
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<Feature> featuresPage;
+
+        if (status == null)
+            featuresPage = featureRepository.findByWorkspace(memberWorkspace, pageable);
+        else
+            featuresPage = featureRepository.findByWorkspaceAndStatus(memberWorkspace, status, pageable);
+
+        List<Feature> features = featuresPage.getContent();
+        List<FeatureSummaryResponse> featuresList = new ArrayList<>();
+
+        for (Feature feature: features) {
+            FeatureSummaryResponse featureSummaryResponse = FeatureSummaryResponse
+                    .builder()
+                    .featureId(feature.getId())
+                    .name(feature.getName())
+                    .description(feature.getDescription())
+                    .status(feature.getStatus())
+                    .createdAt(feature.getCreatedAt())
+                    .build();
+
+            featuresList.add(featureSummaryResponse);
+        }
+
+        return FeaturesPageResponse.builder()
+                .success(true)
+                .message("Data fetched successfully")
+                .features(featuresList)
+                .page(featuresPage.getNumber())
+                .size(featuresPage.getSize())
+                .totalElements(featuresPage.getTotalElements())
+                .isLast(featuresPage.isLast())
                 .build();
     }
 }

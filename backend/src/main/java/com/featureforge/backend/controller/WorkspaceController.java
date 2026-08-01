@@ -46,13 +46,34 @@ public class WorkspaceController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
             @RequestParam(required = false) FeatureStatus status
-            ) {
+    ) {
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 featureService.getAllFeaturesOfWorkspace(
                         page,
                         size,
-                        status,workspaceId
+                        status,
+                        workspaceId
+                )
+        );
+    }
+
+    @GetMapping("/{workspaceId}/features/search")
+    public ResponseEntity<FeaturesPageResponse> getFeaturesByKeyword(
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(required = false) FeatureStatus status,
+            @RequestParam(defaultValue = "") String keyword
+    ) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                featureService.getAllFeaturesOfWorkspaceByKeyword(
+                        page,
+                        size,
+                        status,
+                        workspaceId,
+                        keyword
                 )
         );
     }

@@ -9,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 
@@ -164,6 +165,30 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorDetails> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+
+        if (ex.getRequiredType() != null && ex.getRequiredType().isEnum()) {
+
+            String message = "Invalid value '" + ex.getValue()
+                    + "' for parameter '" + ex.getName() + "'.";
+
+            ErrorDetails errorDetails = ErrorDetails.builder()
+                    .success(false)
+                    .message(message)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+        }
+
+        ErrorDetails errorDetailsGeneral = ErrorDetails.builder()
+                .success(false)
+                .message("Invalid request parameter.")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetailsGeneral);
     }
 
 

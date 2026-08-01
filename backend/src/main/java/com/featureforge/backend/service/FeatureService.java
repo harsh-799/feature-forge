@@ -16,6 +16,7 @@ import com.featureforge.backend.repository.FeatureEnviromentConfigRepository;
 import com.featureforge.backend.repository.FeatureRepository;
 import com.featureforge.backend.repository.WorkspaceMembershipRepository;
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -139,6 +140,63 @@ public class FeatureService {
             featuresPage = featureRepository.findByWorkspace(memberWorkspace, pageable);
         else
             featuresPage = featureRepository.findByWorkspaceAndStatus(memberWorkspace, status, pageable);
+
+        List<Feature> features = featuresPage.getContent();
+        List<FeatureSummaryResponse> featuresList = new ArrayList<>();
+
+        for (Feature feature: features) {
+            FeatureSummaryResponse featureSummaryResponse = FeatureSummaryResponse
+                    .builder()
+                    .featureId(feature.getId())
+                    .name(feature.getName())
+                    .description(feature.getDescription())
+                    .status(feature.getStatus())
+                    .createdAt(feature.getCreatedAt())
+                    .build();
+
+            featuresList.add(featureSummaryResponse);
+        }
+
+        return FeaturesPageResponse.builder()
+                .success(true)
+                .message("Data fetched successfully")
+                .features(featuresList)
+                .page(featuresPage.getNumber())
+                .size(featuresPage.getSize())
+                .totalElements(featuresPage.getTotalElements())
+                .isLast(featuresPage.isLast())
+                .build();
+    }
+
+    public FeaturesPageResponse getAllFeaturesOfWorkspaceByKeyword(int page, int size, FeatureStatus status, UUID workspaceId, String keyword) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspaceIdAndUser(
+                        workspaceId,
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<Feature> featuresPage;
+
+        keyword = keyword.trim();
+
+        if (status == null && keyword.isEmpty())
+            featuresPage = featureRepository.findByWorkspace(memberWorkspace, pageable);
+        else if (status != null && keyword.isEmpty())
+            featuresPage = featureRepository.findByWorkspaceAndStatus(memberWorkspace, status, pageable);
+        else if (status != null && !keyword.isEmpty())
+            featuresPage = featureRepository.
+                    findByWorkspaceAndStatusAndNameContainingIgnoreCase(memberWorkspace, status, keyword, pageable);
+        else
+            featuresPage = featureRepository.findByWorkspaceAndNameContainingIgnoreCase(memberWorkspace, keyword, pageable);
+
 
         List<Feature> features = featuresPage.getContent();
         List<FeatureSummaryResponse> featuresList = new ArrayList<>();

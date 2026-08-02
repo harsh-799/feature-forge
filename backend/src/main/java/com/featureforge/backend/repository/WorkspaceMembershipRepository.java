@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMembership, Integer> {
 
-    Optional<WorkspaceMembership> findByWorkspaceIdAndUser(UUID workspaceId, User user);
+    Optional<WorkspaceMembership> findByWorkspace_IdAndUser(UUID workspaceId, User user);
 
     boolean existsByWorkspaceIdAndUserEmail(UUID workspaceId, String email);
 

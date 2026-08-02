@@ -62,7 +62,7 @@ public class FeatureService {
         User loggedInUser = fetchAuthenticatedUser();
 
         WorkspaceMembership member = workspaceMembershipRepository
-                .findByWorkspaceIdAndUser(
+                .findByWorkspace_IdAndUser(
                 featureCreationRequest.getWorkspaceId(),
                         loggedInUser
         ).orElseThrow(() -> new AccessDeniedException("Access denied: You are not a member of this workspace."));
@@ -120,7 +120,7 @@ public class FeatureService {
         User loggedInUser = fetchAuthenticatedUser();
 
         WorkspaceMembership member = workspaceMembershipRepository
-                .findByWorkspaceIdAndUser(
+                .findByWorkspace_IdAndUser(
                         workspaceId,
                         loggedInUser
                 ).orElseThrow(
@@ -169,7 +169,7 @@ public class FeatureService {
         User loggedInUser = fetchAuthenticatedUser();
 
         WorkspaceMembership member = workspaceMembershipRepository
-                .findByWorkspaceIdAndUser(
+                .findByWorkspace_IdAndUser(
                         workspaceId,
                         loggedInUser
                 ).orElseThrow(
@@ -228,7 +228,7 @@ public class FeatureService {
         User loggedInUser = fetchAuthenticatedUser();
 
         WorkspaceMembership member = workspaceMembershipRepository
-                .findByWorkspaceIdAndUser(
+                .findByWorkspace_IdAndUser(
                         promoteToStagingRequest.getWorkspaceID(),
                         loggedInUser
                 ).orElseThrow(
@@ -276,7 +276,7 @@ public class FeatureService {
         User loggedInUser = fetchAuthenticatedUser();
 
         WorkspaceMembership member = workspaceMembershipRepository
-                .findByWorkspaceIdAndUser(
+                .findByWorkspace_IdAndUser(
                         featureQAVerificationRequest.getWorkspaceId(),
                         loggedInUser
                 ).orElseThrow(

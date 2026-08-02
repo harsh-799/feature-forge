@@ -92,7 +92,7 @@ public class WorkspaceService {
 
         // Getting the user with respective workspace
         WorkspaceMembership membership = workspaceMembershipRepository
-                .findByWorkspaceIdAndUser(
+                .findByWorkspace_IdAndUser(
                         inviteMemberRequest.getWorkspaceId(),
                         user)
                 .orElseThrow(() ->

@@ -1,8 +1,10 @@
 package com.featureforge.backend.controller;
 
 import com.featureforge.backend.dto.request.FeatureCreationRequest;
+import com.featureforge.backend.dto.request.FeatureQAVerificationRequest;
 import com.featureforge.backend.dto.request.PromoteToStagingRequest;
 import com.featureforge.backend.dto.response.FeatureCreationResponse;
+import com.featureforge.backend.dto.response.FeatureQAVerificationResponse;
 import com.featureforge.backend.dto.response.PromoteToStagingResponse;
 import com.featureforge.backend.service.FeatureService;
 import jakarta.validation.Valid;
@@ -30,5 +32,10 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.promoteToStaging(featureId, promoteToStagingRequest));
     }
 
+    @PatchMapping("/{featureId}/accept")
+    public ResponseEntity<FeatureQAVerificationResponse> verify(@PathVariable(name = "featureId") int featureId,
+                                                                @Valid @RequestBody FeatureQAVerificationRequest featureQAVerificationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.verifyFeatureByQA(featureId, featureQAVerificationRequest));
+    }
 
 }

@@ -1,11 +1,9 @@
 package com.featureforge.backend.service;
 
 import com.featureforge.backend.dto.request.FeatureCreationRequest;
+import com.featureforge.backend.dto.request.FeatureQAVerificationRequest;
 import com.featureforge.backend.dto.request.PromoteToStagingRequest;
-import com.featureforge.backend.dto.response.FeatureCreationResponse;
-import com.featureforge.backend.dto.response.PromoteToStagingResponse;
-import com.featureforge.backend.dto.response.FeatureSummaryResponse;
-import com.featureforge.backend.dto.response.FeaturesPageResponse;
+import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.entity.*;
 import com.featureforge.backend.enums.EnvironmentName;
 import com.featureforge.backend.enums.FeatureStatus;
@@ -270,5 +268,41 @@ public class FeatureService {
         promoteToStagingResponse.setFeatureId(feature.getId());
 
         return promoteToStagingResponse;
+    }
+
+    @Transactional
+    public FeatureQAVerificationResponse verifyFeatureByQA(int featureId, FeatureQAVerificationRequest featureQAVerificationRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspaceIdAndUser(
+                        featureQAVerificationRequest.getWorkspaceId(),
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (member.getRole() != Role.QA)
+            throw new AccessDeniedException("Unauthorized Access: You do not have permission to perform this action");
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(() -> new FeatureNotFoundException("feature not found")
+        );
+
+        if (!feature.getWorkspace().getId().equals(member.getWorkspace().getId()))
+            throw new WorkspaceMismatchException("Access denied. Feature is not associated with your workspace.");
+
+        FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.QA_VERIFIED);
+
+        feature.setStatus(FeatureStatus.QA_VERIFIED);
+
+        FeatureQAVerificationResponse featureQAVerificationResponse = new FeatureQAVerificationResponse();
+        featureQAVerificationResponse.setSuccess(true);
+        featureQAVerificationResponse.setMessage("feature status changed to QA_VERIFIED");
+        featureQAVerificationResponse.setFeatureId(feature.getId());
+
+        return featureQAVerificationResponse;
     }
 }

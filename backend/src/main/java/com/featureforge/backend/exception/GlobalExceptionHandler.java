@@ -191,6 +191,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetailsGeneral);
     }
 
+    @ExceptionHandler(InvalidFlowTransitionException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidFlowTransitionException(InvalidFlowTransitionException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+
 
 
 

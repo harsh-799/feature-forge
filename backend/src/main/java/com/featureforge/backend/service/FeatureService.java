@@ -1,6 +1,7 @@
 package com.featureforge.backend.service;
 
 import com.featureforge.backend.dto.request.FeatureCreationRequest;
+import com.featureforge.backend.dto.request.FeatureQARejectionRequest;
 import com.featureforge.backend.dto.request.FeatureQAVerificationRequest;
 import com.featureforge.backend.dto.request.PromoteToStagingRequest;
 import com.featureforge.backend.dto.response.*;
@@ -304,5 +305,41 @@ public class FeatureService {
         featureQAVerificationResponse.setFeatureId(feature.getId());
 
         return featureQAVerificationResponse;
+    }
+
+    @Transactional
+    public FeatureQARejectionResponse rejectFeatureByQA(int featureId, FeatureQARejectionRequest featureQARejectionRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        featureQARejectionRequest.getWorkspaceId(),
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (member.getRole() != Role.QA)
+            throw new AccessDeniedException("Unauthorized Access: You do not have permission to perform this action");
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(() -> new FeatureNotFoundException("feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(member.getWorkspace().getId()))
+            throw new WorkspaceMismatchException("Access denied. Feature is not associated with your workspace.");
+
+        FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.QA_REJECTED);
+
+        feature.setStatus(FeatureStatus.QA_REJECTED);
+
+        FeatureQARejectionResponse featureQARejectionResponse = new FeatureQARejectionResponse();
+        featureQARejectionResponse.setStatus(true);
+        featureQARejectionResponse.setMessage("feature status changed to QA_VERIFIED");
+        featureQARejectionResponse.setFeatureId(feature.getId());
+
+        return featureQARejectionResponse;
     }
 }

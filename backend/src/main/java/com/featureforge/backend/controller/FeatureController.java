@@ -1,9 +1,11 @@
 package com.featureforge.backend.controller;
 
 import com.featureforge.backend.dto.request.FeatureCreationRequest;
+import com.featureforge.backend.dto.request.FeatureQARejectionRequest;
 import com.featureforge.backend.dto.request.FeatureQAVerificationRequest;
 import com.featureforge.backend.dto.request.PromoteToStagingRequest;
 import com.featureforge.backend.dto.response.FeatureCreationResponse;
+import com.featureforge.backend.dto.response.FeatureQARejectionResponse;
 import com.featureforge.backend.dto.response.FeatureQAVerificationResponse;
 import com.featureforge.backend.dto.response.PromoteToStagingResponse;
 import com.featureforge.backend.service.FeatureService;
@@ -36,6 +38,12 @@ public class FeatureController {
     public ResponseEntity<FeatureQAVerificationResponse> verify(@PathVariable(name = "featureId") int featureId,
                                                                 @Valid @RequestBody FeatureQAVerificationRequest featureQAVerificationRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.verifyFeatureByQA(featureId, featureQAVerificationRequest));
+    }
+
+    @PatchMapping("/{featureId}/reject")
+    public ResponseEntity<FeatureQARejectionResponse> reject(@PathVariable(name = "featureId") int featureId,
+                                                             @Valid @RequestBody FeatureQARejectionRequest featureQARejectionRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.rejectFeatureByQA(featureId, featureQARejectionRequest));
     }
 
 }

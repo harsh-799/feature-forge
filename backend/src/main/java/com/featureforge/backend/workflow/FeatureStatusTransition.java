@@ -13,7 +13,7 @@ public class FeatureStatusTransition {
                 FeatureStatus.IN_DEVELOPMENT, Set.of(FeatureStatus.READY_FOR_QA),
                 FeatureStatus.READY_FOR_QA, Set.of(FeatureStatus.QA_VERIFIED, FeatureStatus.QA_REJECTED),
                 FeatureStatus.QA_VERIFIED, Set.of(FeatureStatus.IN_PRODUCTION),
-                FeatureStatus.QA_REJECTED, Set.of(FeatureStatus.IN_DEVELOPMENT)
+                FeatureStatus.QA_REJECTED, Set.of(FeatureStatus.READY_FOR_QA)
         );
 
     public static void validateTransition(FeatureStatus currentStatus, FeatureStatus newStatus) {

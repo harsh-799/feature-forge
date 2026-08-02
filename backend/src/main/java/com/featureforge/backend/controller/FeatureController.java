@@ -46,4 +46,11 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.rejectFeatureByQA(featureId, featureQARejectionRequest));
     }
 
+    @PatchMapping("/{featureId}/re-promote")
+    public ResponseEntity<PromoteToStagingResponse> repromote(@PathVariable(name = "featureId") int featureId,
+                                                            @Valid @RequestBody PromoteToStagingRequest promoteToStagingRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.promoteToStaging(featureId, promoteToStagingRequest));
+    }
+
 }

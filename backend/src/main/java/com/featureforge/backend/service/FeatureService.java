@@ -334,6 +334,7 @@ public class FeatureService {
         FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.QA_REJECTED);
 
         feature.setStatus(FeatureStatus.QA_REJECTED);
+        feature.setRejectionReason(featureQARejectionRequest.getRejectionReason().trim());
 
         FeatureQARejectionResponse featureQARejectionResponse = new FeatureQARejectionResponse();
         featureQARejectionResponse.setStatus(true);

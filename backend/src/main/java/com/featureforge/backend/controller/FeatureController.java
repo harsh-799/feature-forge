@@ -1,13 +1,7 @@
 package com.featureforge.backend.controller;
 
-import com.featureforge.backend.dto.request.FeatureCreationRequest;
-import com.featureforge.backend.dto.request.FeatureQARejectionRequest;
-import com.featureforge.backend.dto.request.FeatureQAVerificationRequest;
-import com.featureforge.backend.dto.request.PromoteToStagingRequest;
-import com.featureforge.backend.dto.response.FeatureCreationResponse;
-import com.featureforge.backend.dto.response.FeatureQARejectionResponse;
-import com.featureforge.backend.dto.response.FeatureQAVerificationResponse;
-import com.featureforge.backend.dto.response.PromoteToStagingResponse;
+import com.featureforge.backend.dto.request.*;
+import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.service.FeatureService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -51,6 +45,12 @@ public class FeatureController {
                                                             @Valid @RequestBody PromoteToStagingRequest promoteToStagingRequest
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.promoteToStaging(featureId, promoteToStagingRequest));
+    }
+
+    @PatchMapping("/{featureId}/approve")
+    public ResponseEntity<FeatureProductionApprovalResponse> approve(@PathVariable(name = "featureId") int featureId,
+                                                                     @Valid @RequestBody FeatureProductionApprovalRequest featureProductionApprovalRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.approveFeatureToProduction(featureId, featureProductionApprovalRequest));
     }
 
 }

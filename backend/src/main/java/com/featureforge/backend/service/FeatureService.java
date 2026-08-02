@@ -1,9 +1,6 @@
 package com.featureforge.backend.service;
 
-import com.featureforge.backend.dto.request.FeatureCreationRequest;
-import com.featureforge.backend.dto.request.FeatureQARejectionRequest;
-import com.featureforge.backend.dto.request.FeatureQAVerificationRequest;
-import com.featureforge.backend.dto.request.PromoteToStagingRequest;
+import com.featureforge.backend.dto.request.*;
 import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.entity.*;
 import com.featureforge.backend.enums.EnvironmentName;
@@ -15,7 +12,9 @@ import com.featureforge.backend.repository.FeatureEnviromentConfigRepository;
 import com.featureforge.backend.repository.FeatureRepository;
 import com.featureforge.backend.repository.WorkspaceMembershipRepository;
 import com.featureforge.backend.workflow.FeatureStatusTransition;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -342,5 +341,41 @@ public class FeatureService {
         featureQARejectionResponse.setFeatureId(feature.getId());
 
         return featureQARejectionResponse;
+    }
+
+    @Transactional
+    public FeatureProductionApprovalResponse approveFeatureToProduction(int featureId, FeatureProductionApprovalRequest featureProductionApprovalRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository.findByWorkspace_IdAndUser(
+                featureProductionApprovalRequest.getWorkspaceId(),
+                loggedInUser
+        ).orElseThrow(
+                () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+        );
+
+        if (member.getRole() != Role.ADMIN)
+            throw new AccessDeniedException("Unauthorized Access: You do not have permission to perform this action");
+
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(() -> new FeatureNotFoundException("feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(member.getWorkspace().getId()))
+            throw new WorkspaceMismatchException("Access denied. Feature is not associated with your workspace.");
+
+        FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.IN_PRODUCTION);
+
+        feature.setStatus(FeatureStatus.IN_PRODUCTION);
+
+        FeatureProductionApprovalResponse featureProductionApprovalResponse = new FeatureProductionApprovalResponse();
+        featureProductionApprovalResponse.setSuccess(true);
+        featureProductionApprovalResponse.setMessage("Feature is approved for the PRODUCTION");
+        featureProductionApprovalResponse.setFeatureId(feature.getId());
+
+        return featureProductionApprovalResponse;
     }
 }

@@ -15,6 +15,7 @@ import com.featureforge.backend.repository.EnvironmentRepository;
 import com.featureforge.backend.repository.FeatureEnviromentConfigRepository;
 import com.featureforge.backend.repository.FeatureRepository;
 import com.featureforge.backend.repository.WorkspaceMembershipRepository;
+import com.featureforge.backend.workflow.FeatureStatusTransition;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -248,8 +249,7 @@ public class FeatureService {
         if (!feature.getWorkspace().getId().equals(memberWorkspace.getId()))
             throw new WorkspaceMismatchException("Access denied. Feature is not associated with your workspace.");
 
-        if (feature.getStatus() != FeatureStatus.IN_DEVELOPMENT)
-            throw new FeatureStatusMismatchException("Feature status must be IN_DEVELOPMENT to perform this action.");
+        FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.READY_FOR_QA);
 
         feature.setStatus(FeatureStatus.READY_FOR_QA);
 

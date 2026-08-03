@@ -12,7 +12,9 @@ import com.featureforge.backend.repository.FeatureEnvironmentConfigRepository;
 import com.featureforge.backend.repository.FeatureRepository;
 import com.featureforge.backend.repository.WorkspaceMembershipRepository;
 import com.featureforge.backend.workflow.FeatureStatusTransition;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -429,4 +431,57 @@ public class FeatureService {
     }
 
 
+    @Transactional
+    public FeatureProductionRolloutResponse updateRolloutInProduction(int featureId, FeatureProductionRolloutRequest featureProductionRolloutRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        featureProductionRolloutRequest.getWorkspaceId(),
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (member.getRole() != Role.ADMIN)
+            throw new AccessDeniedException("Unauthorized Access: You do not have permission to perform this action");
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(() -> new FeatureNotFoundException("feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(memberWorkspace.getId()))
+            throw new WorkspaceMismatchException("Access denied. Feature is not associated with your workspace.");
+
+        if (feature.getStatus() != FeatureStatus.IN_PRODUCTION)
+            throw new InvalidFeatureStatusException("Feature is not in PRODUCTION.");
+
+        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository
+                .findByFeature_IdAndEnvironment_Name(
+                        feature.getId(),
+                        EnvironmentName.PRODUCTION
+                ).orElseThrow(
+                        () -> new FeatureEnvironmentConfigNotFoundException("No environment configuration found for this feature")
+                );
+
+        if (!featureEnvironmentConfig.isEnabled())
+            throw new FeatureNotEnabledException("Feature is not active in production.");
+
+        if (featureEnvironmentConfig.getRolloutPercentage().equals(featureProductionRolloutRequest.getRolloutPercentage()))
+            throw new UnchangedRolloutPercentageException("Rollout percentage is already set to " +  featureEnvironmentConfig.getRolloutPercentage() + ". No update required.");
+
+        featureEnvironmentConfig.setRolloutPercentage(featureProductionRolloutRequest.getRolloutPercentage());
+
+        FeatureProductionRolloutResponse featureProductionRolloutResponse = new FeatureProductionRolloutResponse();
+        featureProductionRolloutResponse.setSuccess(true);
+        featureProductionRolloutResponse.setMessage("feature rollout percentage is updated");
+        featureProductionRolloutResponse.setFeatureId(feature.getId());
+        featureProductionRolloutResponse.setRolloutPercentage(featureEnvironmentConfig.getRolloutPercentage());
+
+        return featureProductionRolloutResponse;
+    }
 }

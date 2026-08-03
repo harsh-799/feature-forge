@@ -59,4 +59,10 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.activateFeatureInProduction(featureId, featureProductionActivationRequest));
     }
 
+    @PatchMapping("/{featureId}/production/rollout")
+    public ResponseEntity<FeatureProductionRolloutResponse> updateRollout(@PathVariable(name = "featureId") int featureId,
+                                                                        @Valid @RequestBody FeatureProductionRolloutRequest featureProductionRolloutRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.updateRolloutInProduction(featureId, featureProductionRolloutRequest));
+    }
+
 }

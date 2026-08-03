@@ -12,5 +12,5 @@ public interface EnvironmentRepository extends JpaRepository<Environment, Intege
 
     List<Environment> findByWorkspace(Workspace workspace);
 
-    Optional<Environment> findByApiKey(String apiKey);
+    Optional<Environment> findByApiKeyHash(String apiKeyHash);
 }

@@ -39,7 +39,7 @@ public class FeatureEvaluationService {
 
     public FeatureEvaluationResponse evaluateFeature(FeatureEvaluationRequest featureEvaluationRequest, String apiKey) {
         Environment clientEnvironment = environmentRepository
-                .findByApiKey(apiKey)
+                .findByApiKeyHash(apiKey)
                 .orElseThrow(
                         () -> new InvalidApiKeyException("Invalid API key provided")
                 );

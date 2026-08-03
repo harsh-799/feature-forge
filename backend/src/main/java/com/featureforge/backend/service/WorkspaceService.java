@@ -12,6 +12,7 @@ import com.featureforge.backend.enums.InvitationStatus;
 import com.featureforge.backend.enums.Role;
 import com.featureforge.backend.exception.*;
 import com.featureforge.backend.repository.*;
+import com.featureforge.backend.util.ApiKeyManager;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +36,7 @@ public class WorkspaceService {
     private final UserRepository userRepository;
     private final WorkspaceInvitationRepository workspaceInvitationRepository;
     private final EnvironmentRepository environmentRepository;
+    private final ApiKeyManager apiKeyManager;
 
     @Value("${invitation.expiry.days}")
     private int INVITATION_EXPIRY_DAYS;
@@ -46,16 +50,19 @@ public class WorkspaceService {
 
     }
 
-    private void createDefaultEnvironment(Workspace workspace, EnvironmentName environmentName) {
+    private String createDefaultEnvironment(Workspace workspace, EnvironmentName environmentName) {
         Environment environment = new Environment();
 
         environment.setWorkspace(workspace);
         environment.setName(environmentName);
 
         String apiKey = "ff_" + UUID.randomUUID();
-        environment.setApiKey(apiKey);
+        String hashedApiKey = apiKeyManager.hashApiKey(apiKey);
+
+        environment.setApiKeyHash(hashedApiKey);
 
         environmentRepository.save(environment);
+        return apiKey;
     }
 
     @Transactional
@@ -75,14 +82,17 @@ public class WorkspaceService {
 
         workspaceMembershipRepository.save(workspaceMembership);
 
-        createDefaultEnvironment(workspace,EnvironmentName.DEVELOPMENT);
-        createDefaultEnvironment(workspace,EnvironmentName.STAGING);
-        createDefaultEnvironment(workspace,EnvironmentName.PRODUCTION);
+        Map<EnvironmentName, String> environmentMap = new HashMap<>();
+
+        environmentMap.put(EnvironmentName.DEVELOPMENT, createDefaultEnvironment(workspace,EnvironmentName.DEVELOPMENT));
+        environmentMap.put(EnvironmentName.STAGING, createDefaultEnvironment(workspace,EnvironmentName.STAGING));
+        environmentMap.put(EnvironmentName.PRODUCTION, createDefaultEnvironment(workspace,EnvironmentName.PRODUCTION));
 
         return WorkspaceCreationResponse.builder()
                 .status(true)
                 .message("workspace created successfully")
                 .workspaceId(savedWorkspace.getId())
+                .apiKeys(environmentMap)
                 .build();
     }
 

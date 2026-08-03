@@ -31,8 +31,8 @@ public class Environment {
     @Column(nullable = false)
     private EnvironmentName name;
 
-    @Column(unique = true, nullable = false)
-    private String apiKey;
+    @Column(name = "api_key_hash", nullable = false, unique = true)
+    private String apiKeyHash;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

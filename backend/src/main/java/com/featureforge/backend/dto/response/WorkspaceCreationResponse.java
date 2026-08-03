@@ -1,10 +1,12 @@
 package com.featureforge.backend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.featureforge.backend.enums.EnvironmentName;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -15,4 +17,5 @@ public class WorkspaceCreationResponse {
     private Boolean status;
     private String message;
     private UUID workspaceId;
+    private Map<EnvironmentName, String> apiKeys;
 }

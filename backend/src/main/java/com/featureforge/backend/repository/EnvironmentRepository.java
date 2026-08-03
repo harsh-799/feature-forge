@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface EnvironmentRepository extends JpaRepository<Environment, Integer> {
 
     List<Environment> findByWorkspace(Workspace workspace);
+
+    Optional<Environment> findByApiKey(String apiKey);
 }

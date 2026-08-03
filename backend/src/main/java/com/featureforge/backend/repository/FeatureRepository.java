@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface FeatureRepository extends JpaRepository<Feature,Integer> {
 
     boolean existsByWorkspaceAndName(Workspace workspace, String featureName);
@@ -19,4 +21,6 @@ public interface FeatureRepository extends JpaRepository<Feature,Integer> {
     Page<Feature> findByWorkspaceAndStatusAndNameContainingIgnoreCase(Workspace workspace, FeatureStatus status, String keyword, Pageable pageable);
 
     Page<Feature> findByWorkspaceAndNameContainingIgnoreCase(Workspace workspace, String keyword, Pageable pageable);
+
+    Optional<Feature> findByWorkspaceAndKey(Workspace workspace, String featureKey);
 }

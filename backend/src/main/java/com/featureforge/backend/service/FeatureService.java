@@ -8,13 +8,11 @@ import com.featureforge.backend.enums.FeatureStatus;
 import com.featureforge.backend.enums.Role;
 import com.featureforge.backend.exception.*;
 import com.featureforge.backend.repository.EnvironmentRepository;
-import com.featureforge.backend.repository.FeatureEnviromentConfigRepository;
+import com.featureforge.backend.repository.FeatureEnvironmentConfigRepository;
 import com.featureforge.backend.repository.FeatureRepository;
 import com.featureforge.backend.repository.WorkspaceMembershipRepository;
 import com.featureforge.backend.workflow.FeatureStatusTransition;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +31,7 @@ public class FeatureService {
 
     private final WorkspaceMembershipRepository workspaceMembershipRepository;
     private final EnvironmentRepository environmentRepository;
-    private final FeatureEnviromentConfigRepository featureEnviromentConfigRepository;
+    private final FeatureEnvironmentConfigRepository featureEnvironmentConfigRepository;
     private final FeatureRepository featureRepository;
 
     private User fetchAuthenticatedUser() {
@@ -52,7 +50,7 @@ public class FeatureService {
                 .isEnabled(false)
                 .build();
 
-        featureEnviromentConfigRepository.save(featureEnvironmentConfig);
+        featureEnvironmentConfigRepository.save(featureEnvironmentConfig);
     }
 
 
@@ -251,7 +249,7 @@ public class FeatureService {
 
         feature.setStatus(FeatureStatus.READY_FOR_QA);
 
-        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnviromentConfigRepository.
+        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository.
                 findByFeature_IdAndEnvironment_Name(
                         feature.getId(),
                         EnvironmentName.STAGING
@@ -378,4 +376,57 @@ public class FeatureService {
 
         return featureProductionApprovalResponse;
     }
+
+    @Transactional
+    public FeatureProductionActivationResponse activateFeatureInProduction(int featureId, FeatureProductionActivationRequest featureProductionActivationRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        featureProductionActivationRequest.getWorkspaceId(),
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (member.getRole() != Role.ADMIN)
+            throw new AccessDeniedException("Unauthorized Access: You do not have permission to perform this action");
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(() -> new FeatureNotFoundException("feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(memberWorkspace.getId()))
+            throw new WorkspaceMismatchException("Access denied. Feature is not associated with your workspace.");
+
+        if (feature.getStatus() != FeatureStatus.IN_PRODUCTION)
+            throw new InvalidFeatureStatusException("Feature is not in PRODUCTION.");
+
+        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository
+                .findByFeature_IdAndEnvironment_Name(
+                        feature.getId(),
+                        EnvironmentName.PRODUCTION
+                ).orElseThrow(
+                        () -> new FeatureEnvironmentConfigNotFoundException("No environment configuration found for this feature")
+                );
+
+        if (featureEnvironmentConfig.isEnabled())
+            throw new FeatureAlreadyActiveException("Feature is already active in production.");
+
+        featureEnvironmentConfig.setEnabled(true);
+        featureEnvironmentConfig.setRolloutPercentage(featureProductionActivationRequest.getRolloutPercentage());
+
+        FeatureProductionActivationResponse featureProductionActivationResponse = new FeatureProductionActivationResponse();
+        featureProductionActivationResponse.setSuccess(true);
+        featureProductionActivationResponse.setMessage("Feature activated in production.");
+        featureProductionActivationResponse.setFeatureId(feature.getId());
+
+        return featureProductionActivationResponse;
+    }
+
+
 }

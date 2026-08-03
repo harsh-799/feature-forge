@@ -53,4 +53,10 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.approveFeatureToProduction(featureId, featureProductionApprovalRequest));
     }
 
+    @PatchMapping("/{featureId}/production/activate")
+    public ResponseEntity<FeatureProductionActivationResponse> activate(@PathVariable(name = "featureId") int featureId,
+                                                                     @Valid @RequestBody FeatureProductionActivationRequest featureProductionActivationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.activateFeatureInProduction(featureId, featureProductionActivationRequest));
+    }
+
 }

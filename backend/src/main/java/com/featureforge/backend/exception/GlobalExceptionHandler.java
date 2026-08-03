@@ -221,6 +221,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(FeatureNotEnabledException.class)
+    public ResponseEntity<ErrorDetails> handleFeatureNotEnabledException(FeatureNotEnabledException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(InvalidFeatureStatusException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidFeatureStatusException(InvalidFeatureStatusException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
 
 
 

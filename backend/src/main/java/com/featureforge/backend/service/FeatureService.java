@@ -484,4 +484,54 @@ public class FeatureService {
 
         return featureProductionRolloutResponse;
     }
+
+    @Transactional
+    public FeatureProductionDeactivationResponse deactivateFeatureInProduction(int featureId, FeatureProductionDeactivationRequest featureProductionDeactivationRequest) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        featureProductionDeactivationRequest.getWorkspaceId(),
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (member.getRole() != Role.ADMIN)
+            throw new AccessDeniedException("Unauthorized Access: You do not have permission to perform this action");
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(() -> new FeatureNotFoundException("feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(memberWorkspace.getId()))
+            throw new WorkspaceMismatchException("Access denied. Feature is not associated with your workspace.");
+
+        if (feature.getStatus() != FeatureStatus.IN_PRODUCTION)
+            throw new InvalidFeatureStatusException("Feature is not in PRODUCTION.");
+
+        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository
+                .findByFeature_IdAndEnvironment_Name(
+                        feature.getId(),
+                        EnvironmentName.PRODUCTION
+                ).orElseThrow(
+                        () -> new FeatureEnvironmentConfigNotFoundException("No environment configuration found for this feature")
+                );
+
+        if (!featureEnvironmentConfig.isEnabled())
+            throw new FeatureNotEnabledException("Feature is not active in production.");
+
+        featureEnvironmentConfig.setEnabled(false);
+
+        FeatureProductionDeactivationResponse featureProductionDeactivationResponse = new FeatureProductionDeactivationResponse();
+        featureProductionDeactivationResponse.setSuccess(true);
+        featureProductionDeactivationResponse.setMessage("Feature deactivated in production.");
+        featureProductionDeactivationResponse.setFeatureId(feature.getId());
+
+        return featureProductionDeactivationResponse;
+
+    }
 }

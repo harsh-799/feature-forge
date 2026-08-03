@@ -65,4 +65,10 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.updateRolloutInProduction(featureId, featureProductionRolloutRequest));
     }
 
+    @PatchMapping("/{featureId}/production/deactivate")
+    public ResponseEntity<FeatureProductionDeactivationResponse> deactivate(@PathVariable(name = "featureId") int featureId,
+                                                                        @Valid @RequestBody FeatureProductionDeactivationRequest featureProductionDeactivationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.deactivateFeatureInProduction(featureId, featureProductionDeactivationRequest));
+    }
+
 }

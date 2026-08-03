@@ -26,4 +26,6 @@ public class FeatureCreationResponse {
 
     private LocalDateTime createdAt;
 
+    private String featureKey;
+
 }

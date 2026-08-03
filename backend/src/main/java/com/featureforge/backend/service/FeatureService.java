@@ -55,6 +55,12 @@ public class FeatureService {
         featureEnvironmentConfigRepository.save(featureEnvironmentConfig);
     }
 
+    public static String generateFeatureKey(String featureName) {
+        return featureName
+                .trim()
+                .toUpperCase()
+                .replaceAll("\\s+", "_");
+    }
 
     @Transactional
     public FeatureCreationResponse createFeature(FeatureCreationRequest featureCreationRequest) {
@@ -82,6 +88,8 @@ public class FeatureService {
         String name = featureCreationRequest.getName().trim();
         String description = featureCreationRequest.getDescription();
 
+        String key = generateFeatureKey(name);
+
         if (description != null) {
             description = description.trim();
 
@@ -91,6 +99,7 @@ public class FeatureService {
 
         Feature feature = Feature.builder()
                 .name(name)
+                .key(key)
                 .description(description)
                 .status(FeatureStatus.IN_DEVELOPMENT)
                 .workspace(workspace)

@@ -11,7 +11,12 @@ import java.time.LocalDateTime;
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(
-                        columnNames = {"workspace_id","name"}
+                        name = "uk_workspace_feature_name",
+                        columnNames = {"workspace_id", "name"}
+                ),
+                @UniqueConstraint(
+                        name = "uk_workspace_feature_key",
+                        columnNames = {"workspace_id", "feature_key"}
                 )
         }
 )
@@ -32,6 +37,9 @@ public class Feature {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(name = "feature_key", nullable = false, updatable = false)
+    private String key;
 
     private String description;
 

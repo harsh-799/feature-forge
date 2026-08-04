@@ -77,4 +77,10 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.scheduleFeatureInProduction(featureId, featureProductionScheduleRequest));
     }
 
+    @PatchMapping("/{featureId}/edit")
+    public ResponseEntity<FeatureUpdationResponse> update(@PathVariable(name = "featureId") int featureId,
+                                                          @Valid @RequestBody FeatureUpdationRequest featureUpdationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.updateFeature(featureId, featureUpdationRequest));
+    }
+
 }

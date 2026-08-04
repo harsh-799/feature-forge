@@ -643,4 +643,70 @@ public class FeatureService {
 
         return response;
     }
+
+    @Transactional
+    public FeatureUpdationResponse updateFeature(int featureId, FeatureUpdationRequest featureUpdationRequest) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        if ((featureUpdationRequest.getName() == null || featureUpdationRequest.getName().isBlank()) &&
+                (featureUpdationRequest.getDescription() == null || featureUpdationRequest.getDescription().isBlank())) {
+
+            throw new InvalidFeatureUpdateRequestException(
+                    "At least one field (name or description) must be provided."
+            );
+        }
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        featureUpdationRequest.getWorkspaceId(),
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (member.getRole() != Role.ADMIN && member.getRole() != Role.DEVELOPER)
+            throw new AccessDeniedException(
+                    "Unauthorized Access: You do not have permission to perform this action"
+            );
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(
+                        () -> new FeatureNotFoundException("Feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(member.getWorkspace().getId())) {
+            throw new WorkspaceMismatchException(
+                    "Access denied. Feature is not associated with your workspace."
+            );
+        }
+
+        if (feature.getStatus() != FeatureStatus.IN_DEVELOPMENT)
+            throw new FeatureModificationNotAllowedException("Feature can only be modified while in DEVELOPMENT status.");
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        if (featureUpdationRequest.getName() != null && !featureUpdationRequest.getName().isBlank()) {
+            boolean featureAlreadyExist = featureRepository.existsByWorkspaceAndName(
+                    memberWorkspace,
+                    featureUpdationRequest.getName()
+            );
+
+            if (featureAlreadyExist)
+                throw new FeatureAlreadyExistsException("Feature already exists with this Name in the workspace.");
+
+            feature.setName(featureUpdationRequest.getName());
+        }
+
+        if (featureUpdationRequest.getDescription() != null && !featureUpdationRequest.getDescription().isBlank()) {
+            feature.setDescription(featureUpdationRequest.getDescription());
+        }
+
+        FeatureUpdationResponse featureUpdationResponse = new FeatureUpdationResponse();
+        featureUpdationResponse.setSuccess(true);
+        featureUpdationResponse.setFeatureId(feature.getId());
+        featureUpdationResponse.setMessage("feature updated successfully");
+
+        return featureUpdationResponse;
+    }
 }

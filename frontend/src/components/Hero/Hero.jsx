@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { 
   FiArrowRight, 
   FiExternalLink, 
@@ -10,6 +11,7 @@ import { handleNavLinkClick } from '../../utils/scroll'
 import './Hero.css'
 
 export default function Hero() {
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const stageRef = useRef(null);
@@ -68,7 +70,7 @@ export default function Hero() {
           </p>
           
           <div className="hero-button-group">
-            <button className="btn-primary-accent" onClick={(e) => handleNavLinkClick(e, 'get-started-section')}>
+            <button className="btn-primary-accent" onClick={() => navigate('/signup')}>
               <span className="btn-text-crop roll-up">
                 <span className="link-text-container">
                   <span className="link-text-primary">

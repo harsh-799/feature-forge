@@ -1,0 +1,2 @@
+/* Signup page styling (extends and reuses Login.css styles) */
+@import '../Login/Login.css';

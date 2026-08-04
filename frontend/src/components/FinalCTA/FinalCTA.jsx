@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { FiArrowRight } from 'react-icons/fi'
 import { handleNavLinkClick } from '../../utils/scroll'
 import './FinalCTA.css'
@@ -92,14 +93,14 @@ export default function FinalCTA() {
               <p className="cta-description">
                 Decouple feature releases from deployments and roll out changes with confidence.
               </p>
-              <a href="#get-started-section" className="btn-get-started-pill cta-btn" onClick={(e) => handleNavLinkClick(e, 'get-started-section')}>
+              <Link to="/signup" className="btn-get-started-pill cta-btn">
                 <span className="btn-text-crop roll-up">
                   <span className="link-text-container">
                     <span className="link-text-primary">Get Started <FiArrowRight size={15} style={{ marginLeft: '4px', verticalAlign: 'middle' }} /></span>
                     <span className="link-text-secondary">Get Started <FiArrowRight size={15} style={{ marginLeft: '4px', verticalAlign: 'middle' }} /></span>
                   </span>
                 </span>
-              </a>
+              </Link>
             </div>
 
             {/* Right Column: Handcrafted Feature Flag Control */}

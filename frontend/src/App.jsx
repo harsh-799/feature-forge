@@ -1,54 +1,36 @@
-import { useEffect } from 'react'
-import Navbar from './components/Navbar/Navbar'
-import Hero from './components/Hero/Hero'
-import HowItWorks from './components/HowItWorks/HowItWorks'
-import Features from './components/Features/Features'
-import DeveloperSection from './components/DeveloperSection/DeveloperSection'
-import FinalCTA from './components/FinalCTA/FinalCTA'
-import Footer from './components/Footer/Footer'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import LandingPage from './pages/LandingPage/LandingPage'
+import Login from './pages/Login/Login'
+import Signup from './pages/Signup/Signup'
+
+// Import base React-Toastify styling
+import 'react-toastify/dist/ReactToastify.css'
 import './App.css'
 
 function App() {
-  // Global IntersectionObserver to apply .in-view to any .reveal-on-scroll elements
-  useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px 0px -8% 0px',
-      threshold: 0.05
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-
-    const revealElements = document.querySelectorAll('.reveal-on-scroll');
-    revealElements.forEach((el) => observer.observe(el));
-
-    return () => {
-      revealElements.forEach((el) => observer.unobserve(el));
-    };
-  }, []);
-
   return (
-    <div className="landing-layout" id="top">
-      <Navbar />
-      <main>
-        <Hero />
-        <HowItWorks />
-        <Features />
-        <DeveloperSection />
-        <FinalCTA />
-      </main>
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+
+      {/* Globally configured Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3500}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover
+        theme="light"
+      />
+    </BrowserRouter>
   )
 }
 

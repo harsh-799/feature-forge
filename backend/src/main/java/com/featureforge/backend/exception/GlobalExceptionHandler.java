@@ -251,6 +251,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(WorkspaceAlreadyExistsException.class)
+    public ResponseEntity<ErrorDetails> handleWorkspaceAlreadyExistsException(WorkspaceAlreadyExistsException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
 
 
 

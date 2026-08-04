@@ -70,6 +70,16 @@ public class WorkspaceService {
 
         User user = fetchAuthenticatedUser();
 
+        boolean alreadyExists = workspaceMembershipRepository
+                .existsByUserAndRoleAndWorkspace_Name(
+                        user,
+                        Role.ADMIN,
+                        workspaceCreationRequest.getWorkspaceName()
+                );
+
+        if (alreadyExists)
+            throw new WorkspaceAlreadyExistsException("You already own a workspace with this name.");
+
         Workspace workspace = new Workspace();
         workspace.setName(workspaceCreationRequest.getWorkspaceName());
 

@@ -71,4 +71,10 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.deactivateFeatureInProduction(featureId, featureProductionDeactivationRequest));
     }
 
+    @PatchMapping("/{featureId}/production/schedule")
+    public ResponseEntity<FeatureProductionScheduleResponse> schedule(@PathVariable(name = "featureId") int featureId,
+                                                                      @Valid @RequestBody FeatureProductionScheduleRequest featureProductionScheduleRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.scheduleFeatureInProduction(featureId, featureProductionScheduleRequest));
+    }
+
 }

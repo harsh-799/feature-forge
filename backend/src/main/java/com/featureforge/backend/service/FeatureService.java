@@ -3,14 +3,9 @@ package com.featureforge.backend.service;
 import com.featureforge.backend.dto.request.*;
 import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.entity.*;
-import com.featureforge.backend.enums.EnvironmentName;
-import com.featureforge.backend.enums.FeatureStatus;
-import com.featureforge.backend.enums.Role;
+import com.featureforge.backend.enums.*;
 import com.featureforge.backend.exception.*;
-import com.featureforge.backend.repository.EnvironmentRepository;
-import com.featureforge.backend.repository.FeatureEnvironmentConfigRepository;
-import com.featureforge.backend.repository.FeatureRepository;
-import com.featureforge.backend.repository.WorkspaceMembershipRepository;
+import com.featureforge.backend.repository.*;
 import com.featureforge.backend.workflow.FeatureStatusTransition;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -35,6 +30,7 @@ public class FeatureService {
     private final EnvironmentRepository environmentRepository;
     private final FeatureEnvironmentConfigRepository featureEnvironmentConfigRepository;
     private final FeatureRepository featureRepository;
+    private final FeatureScheduleRepository featureScheduleRepository;
 
     private User fetchAuthenticatedUser() {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext()
@@ -542,5 +538,109 @@ public class FeatureService {
 
         return featureProductionDeactivationResponse;
 
+    }
+
+    @Transactional
+    public FeatureProductionScheduleResponse scheduleFeatureInProduction(
+            int featureId,
+            FeatureProductionScheduleRequest featureProductionScheduleRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        featureProductionScheduleRequest.getWorkspaceId(),
+                        loggedInUser
+                )
+                .orElseThrow(
+                        () -> new AccessDeniedException(
+                                "Access denied: You are not a member of this workspace."
+                        )
+                );
+
+        if (member.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException(
+                    "Unauthorized Access: You do not have permission to perform this action"
+            );
+        }
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(
+                        () -> new FeatureNotFoundException("Feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(member.getWorkspace().getId())) {
+            throw new WorkspaceMismatchException(
+                    "Access denied. Feature is not associated with your workspace."
+            );
+        }
+
+        // Scheduling production actions only makes sense after
+        // the feature has been approved for production.
+        if (feature.getStatus() != FeatureStatus.IN_PRODUCTION) {
+            throw new InvalidFeatureStatusException(
+                    "Feature is not in PRODUCTION."
+            );
+        }
+
+        FeatureEnvironmentConfig prodConfig = featureEnvironmentConfigRepository
+                .findByFeature_IdAndEnvironment_Name(
+                        feature.getId(),
+                        EnvironmentName.PRODUCTION
+                )
+                .orElseThrow(
+                        () -> new FeatureEnvironmentConfigNotFoundException(
+                                "No production environment configuration found for this feature"
+                        )
+                );
+
+        ScheduledAction action = featureProductionScheduleRequest.getAction();
+
+        switch (action) {
+
+            case ACTIVATE -> {
+
+                if (featureProductionScheduleRequest.getTargetRollout() == null) {
+                    throw new RolloutPercentageRequiredException(
+                            "Target rollout percentage is required for scheduled activation."
+                    );
+                }
+            }
+
+            case UPDATE_ROLLOUT -> {
+
+                if (featureProductionScheduleRequest.getTargetRollout() == null) {
+                    throw new RolloutPercentageRequiredException(
+                            "Target rollout percentage is required for scheduled rollout update."
+                    );
+                }
+            }
+
+            case DEACTIVATE -> {
+            }
+        }
+
+        FeatureSchedule featureSchedule = FeatureSchedule.builder()
+                .feature(feature)
+                .environment(prodConfig.getEnvironment())
+                .action(action)
+                .rolloutPercentage(featureProductionScheduleRequest.getTargetRollout())
+                .scheduledAt(featureProductionScheduleRequest.getScheduledAt())
+                .status(ScheduleStatus.PENDING)
+                .build();
+
+        FeatureSchedule savedFeatureSchedule =
+                featureScheduleRepository.save(featureSchedule);
+
+        FeatureProductionScheduleResponse response =
+                new FeatureProductionScheduleResponse();
+
+        response.setSuccess(true);
+        response.setMessage("Feature action scheduled successfully.");
+        response.setFeatureId(feature.getId());
+        response.setScheduledAt(savedFeatureSchedule.getScheduledAt());
+
+        return response;
     }
 }

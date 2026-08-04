@@ -1,0 +1,141 @@
+@import '../Overview/Overview.css';
+
+.environments-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.environments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.environment-card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(38, 37, 33, 0.01);
+  display: flex;
+  flex-direction: column;
+}
+
+.env-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.env-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.env-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.env-title-group h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.01em;
+}
+
+.env-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.env-badge.active {
+  color: #10B981;
+  background-color: rgba(16, 185, 129, 0.08);
+}
+
+.env-description {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+  flex: 1;
+}
+
+.env-key-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.env-key-label {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+.env-key-box {
+  display: flex;
+  align-items: center;
+  background-color: #FAF8F3;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.env-key-value {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.env-key-action-btn {
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border-color);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.env-key-action-btn.copy {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.env-key-action-btn.copy:hover {
+  background-color: var(--secondary-bg);
+  color: var(--text-heading);
+}
+
+.env-key-action-btn.locked {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.env-key-note {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-primary);
+  opacity: 0.7;
+  line-height: 1.4;
+  margin-top: 4px;
+}

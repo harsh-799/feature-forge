@@ -50,6 +50,10 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  border: 1px solid var(--border-color) !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .footer-logo-circle:hover {

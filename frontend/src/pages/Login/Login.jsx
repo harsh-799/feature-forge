@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { login, getErrorMessage } from '../../api/authApi'
+import { listWorkspaces } from '../../api/workspaceApi'
 import AuthLayout from '../../components/AuthLayout/AuthLayout'
 import './Login.css'
 
@@ -46,10 +47,11 @@ export default function Login() {
 
     try {
       const response = await login({ email, password });
-      
+
       // Persist authenticating JWT token if returned
       if (response.token) {
         localStorage.setItem('token', response.token);
+        localStorage.setItem('userEmail', email);
       }
 
       toast.success(response.message || 'Successfully signed in.', {
@@ -60,6 +62,16 @@ export default function Login() {
           </svg>
         )
       });
+
+      // Redirect check based on workspaces existence
+      const workspaces = await listWorkspaces();
+      if (workspaces && workspaces.length > 0) {
+        localStorage.setItem('currentWorkspaceId', workspaces[0].workspaceId);
+        localStorage.setItem('currentWorkspaceName', workspaces[0].workspaceName);
+        navigate('/app/features');
+      } else {
+        navigate('/app/onboarding');
+      }
     } catch (err) {
       const msg = getErrorMessage(err);
       toast.error(msg, {

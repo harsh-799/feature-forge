@@ -1,0 +1,700 @@
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #FAF8F3; /* Warm off-white page background */
+}
+
+/* Sidebar Panel Styling */
+.app-sidebar {
+  width: 260px;
+  background-color: #F2EFE7; /* Tonal side panel beige matching auth visual */
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px 20px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.sidebar-brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  padding-left: 4px;
+}
+
+/* Reusing exact brand logo shape from landing page header */
+.navbar-logo-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background-color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(38, 37, 33, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.sidebar-brand-logo:hover .navbar-logo-circle {
+  transform: rotate(-10deg) scale(1.05);
+  border-color: #CFCDBF;
+}
+
+.sidebar-brand-name {
+  font-family: var(--heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.03em;
+}
+
+/* Workspace Selector layout wrapper */
+.workspace-selector-container-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.workspace-selector-container {
+  flex: 1;
+  position: relative;
+}
+
+.workspace-selector-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.workspace-selector-btn:hover {
+  border-color: #CFCDBF;
+  background-color: #FAF8F3;
+}
+
+.workspace-btn-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.workspace-icon {
+  color: var(--text-primary);
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.workspace-name-text {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron-icon {
+  color: var(--text-primary);
+  opacity: 0.6;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.workspace-selector-btn[aria-expanded="true"] .chevron-icon {
+  transform: rotate(180deg);
+}
+
+/* Workspace Option Options Trigger Button */
+.workspace-options-menu-container {
+  position: relative;
+}
+
+.workspace-options-btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.workspace-options-btn:hover,
+.workspace-options-btn[aria-expanded="true"] {
+  border-color: #CFCDBF;
+  background-color: #FAF8F3;
+  color: var(--text-heading);
+}
+
+/* Option actions dropdown menu */
+.workspace-options-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 170px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(38, 37, 33, 0.06);
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform-origin: top right;
+  animation: dropdownEnter 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.options-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+}
+
+.options-item:hover {
+  background-color: var(--secondary-bg);
+  color: var(--text-heading);
+}
+
+.options-item.destructive {
+  color: #EF4444;
+}
+
+.options-item.destructive:hover {
+  background-color: rgba(239, 68, 68, 0.04);
+}
+
+.options-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 4px 2px;
+}
+
+/* Workspace Dropdown Panel */
+.workspace-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(38, 37, 33, 0.06);
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform-origin: top;
+  animation: dropdownEnter 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.workspace-dropdown-header {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  opacity: 0.5;
+  padding: 6px 10px 4px;
+}
+
+.workspace-list-items {
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workspace-item-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.workspace-item-btn:hover {
+  background-color: var(--secondary-bg);
+}
+
+.workspace-item-btn.active {
+  background-color: rgba(249, 115, 22, 0.05);
+}
+
+.workspace-item-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: 2px;
+}
+
+.workspace-item-name {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workspace-item-role {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-primary);
+  opacity: 0.6;
+}
+
+.checkmark {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.workspace-dropdown-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 4px 2px;
+}
+
+.workspace-create-new-btn {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.workspace-create-new-btn:hover {
+  background-color: var(--secondary-bg);
+}
+
+/* Sidebar Navigation Items */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-link-item {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border-left: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-icon {
+  font-size: 16px;
+  opacity: 0.8;
+  flex-shrink: 0;
+  transition: color 0.25s ease;
+}
+
+.nav-link-item.active .nav-icon {
+  color: var(--accent);
+}
+
+.nav-link-item:hover {
+  color: var(--text-heading);
+  background-color: rgba(38, 37, 33, 0.02);
+}
+
+/* Premium Active Nav State (Ivory background + subtle orange accent) */
+.nav-link-item.active {
+  color: var(--text-heading);
+  background-color: #FAF8F3; /* Warm ivory/cream background */
+  border-left: 3px solid var(--accent); /* Subtle orange accent border */
+  border-radius: 0 8px 8px 0; /* Let it connect nicely */
+  padding-left: 11px; /* Adjust spacing to account for border */
+}
+
+/* Bottom Left Account Pill */
+.sidebar-bottom-pill-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.sidebar-account-pill-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background-color: #FAF7F0; /* Soft warm ivory surface */
+  border: 1px solid var(--border-color);
+  border-radius: 30px; /* Highly rounded pill appearance */
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.sidebar-account-pill-btn:hover {
+  border-color: #CFCDBF;
+  background-color: #FFFFFF;
+}
+
+.pill-left-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.pill-avatar {
+  width: 28px;
+  height: 28px;
+  background-color: var(--charcoal);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: var(--heading);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pill-text-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+.pill-user-name {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.pill-user-role {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-primary);
+  opacity: 0.7;
+}
+
+.pill-dots {
+  font-size: 8px;
+  color: var(--text-primary);
+  opacity: 0.5;
+  margin-right: 4px;
+  letter-spacing: 0.05em;
+}
+
+/* Upward Profile Dropdown */
+.account-upward-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 -8px 30px rgba(38, 37, 33, 0.06);
+  padding: 6px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform-origin: bottom;
+  animation: dropdownUpwardEnter 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownUpwardEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.dropdown-user-header {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropdown-user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.dropdown-user-email {
+  font-size: 11px;
+  color: var(--text-primary);
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-menu-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 4px 2px;
+}
+
+.dropdown-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+}
+
+.dropdown-menu-item:hover {
+  background-color: var(--secondary-bg);
+  color: var(--text-heading);
+}
+
+.dropdown-menu-item .item-icon {
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.dropdown-menu-item.logout {
+  color: #EF4444;
+}
+
+.dropdown-menu-item.logout:hover {
+  background-color: rgba(239, 68, 68, 0.04);
+  color: #EF4444;
+}
+
+/* Main Viewport */
+.app-main-viewport {
+  margin-left: 260px; /* Shift for sidebar */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #FAF8F3;
+  padding: 40px;
+  transition: opacity 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-main-viewport.workspace-transitioning {
+  opacity: 0.5;
+}
+
+/* Route entrance transitions (page content fade/slide on navigation) */
+.app-main-content-fade-wrapper {
+  animation: pageEnter 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Skeleton Loaders */
+.layout-skeleton-screen {
+  display: flex;
+  min-height: 100vh;
+  background-color: #FAF8F3;
+}
+
+.layout-skeleton-sidebar {
+  width: 260px;
+  background-color: #F2EFE7;
+  border-right: 1px solid var(--border-color);
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.layout-skeleton-content {
+  flex: 1;
+  padding: 40px;
+}
+
+.skeleton-logo {
+  width: 130px;
+  height: 28px;
+  background-color: rgba(38, 37, 33, 0.05);
+  border-radius: 8px;
+}
+
+.skeleton-selector {
+  width: 100%;
+  height: 38px;
+  background-color: rgba(38, 37, 33, 0.05);
+  border-radius: 12px;
+}
+
+.skeleton-nav {
+  width: 80%;
+  height: 34px;
+  background-color: rgba(38, 37, 33, 0.05);
+  border-radius: 8px;
+}
+
+.skeleton-header {
+  width: 100%;
+  height: 48px;
+  background-color: rgba(38, 37, 33, 0.03);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.skeleton-body {
+  width: 100%;
+  height: 400px;
+  background-color: rgba(38, 37, 33, 0.03);
+  border-radius: 20px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@media (max-width: 960px) {
+  .app-sidebar {
+    width: 76px;
+    padding: 24px 10px;
+    align-items: center;
+  }
+  .sidebar-brand-name,
+  .workspace-selector-container-wrapper,
+  .nav-link-item,
+  .pill-text-details,
+  .pill-dots {
+    display: none !important;
+  }
+  .sidebar-account-pill-btn {
+    border-radius: 50%;
+    padding: 6px;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+  }
+  .pill-left-content {
+    gap: 0;
+  }
+  .app-main-viewport {
+    margin-left: 76px;
+    padding: 24px;
+  }
+  .account-upward-dropdown {
+    width: 200px;
+    left: 10px;
+  }
+}

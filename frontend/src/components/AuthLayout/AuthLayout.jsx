@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import gsap from 'gsap'
 import AuthVisual from '../AuthVisual/AuthVisual'
+import { BrandMark } from '../Brand/Brand'
 import './AuthLayout.css'
 
 export default function AuthLayout({ children }) {
@@ -70,12 +71,7 @@ export default function AuthLayout({ children }) {
         
         {/* Top-left: Brand Logo and Title */}
         <Link to="/" className="auth-brand-logo animate-logo" onClick={handleLogoClick}>
-          <div className="navbar-logo-circle auth-logo-circle">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#F97316" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="5.5" fill="#F97316" stroke="#F97316" />
-              <path d="M2.5 13.5c4-2 11-4 17.5-6.5M4.5 17c4.5-2 11.5-4.5 16-8.5" stroke="#121212" strokeWidth="2.2" />
-            </svg>
-          </div>
+          <BrandMark className="auth-logo-circle" />
           <span className="auth-brand-name">FeatureForge</span>
         </Link>
 

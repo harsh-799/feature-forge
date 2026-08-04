@@ -51,6 +51,10 @@
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
               width 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
               height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border-color);
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .site-header.scrolled .navbar-logo-circle {

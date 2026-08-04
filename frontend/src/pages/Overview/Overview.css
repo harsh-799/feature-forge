@@ -1,0 +1,93 @@
+.overview-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Visual Identity Heading Hierarchy */
+.page-header-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-header-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent); /* Orange heading */
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+
+.page-header-description {
+  font-size: 14px;
+  color: var(--text-primary);
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+/* Polished coming soon card */
+.coming-soon-card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 48px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(38, 37, 33, 0.01);
+  max-width: 480px;
+  margin: 40px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.coming-soon-icon-container {
+  width: 48px;
+  height: 48px;
+  background-color: var(--secondary-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.coming-soon-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 8px;
+}
+
+.coming-soon-card p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+  max-width: 320px;
+}
+
+.coming-soon-decoration {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.coming-soon-line {
+  width: 40px;
+  height: 2px;
+  background-color: var(--border-color);
+  border-radius: 2px;
+}
+
+.coming-soon-line.short {
+  width: 20px;
+}
+
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  width: 100%;
+}

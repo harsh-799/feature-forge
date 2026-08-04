@@ -15,4 +15,5 @@ public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMe
 
     boolean existsByUserAndRoleAndWorkspace_Name(User user, Role role, String workspaceName);
 
+    java.util.List<WorkspaceMembership> findByUser(User user);
 }

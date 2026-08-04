@@ -202,4 +202,16 @@ public class WorkspaceService {
                 "Invitation accepted successfully. You have joined the workspace."
         );
     }
+
+    public java.util.List<com.featureforge.backend.dto.response.UserWorkspaceResponse> getUserWorkspaces() {
+        User user = fetchAuthenticatedUser();
+        return workspaceMembershipRepository.findByUser(user)
+                .stream()
+                .map(membership -> com.featureforge.backend.dto.response.UserWorkspaceResponse.builder()
+                        .workspaceId(membership.getWorkspace().getId())
+                        .workspaceName(membership.getWorkspace().getName())
+                        .role(membership.getRole())
+                        .build())
+                .toList();
+    }
 }

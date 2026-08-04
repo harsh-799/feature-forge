@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { FiExternalLink } from 'react-icons/fi'
 import { handleNavLinkClick } from '../../utils/scroll'
+import { BrandMark } from '../Brand/Brand'
 import './Footer.css'
 
 export default function Footer() {
@@ -21,12 +22,7 @@ export default function Footer() {
           {/* Left Column: Brand, Tagline and Developer Badge */}
           <div className="footer-brand-col">
             <div className="footer-logo">
-              <div className="navbar-logo-circle footer-logo-circle">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#F97316" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5.5" fill="#F97316" stroke="#F97316" />
-                  <path d="M2.5 13.5c4-2 11-4 17.5-6.5M4.5 17c4.5-2 11.5-4.5 16-8.5" stroke="#121212" strokeWidth="2.2" />
-                </svg>
-              </div>
+              <BrandMark className="footer-logo-circle" />
               <span className="footer-brand-name">FeatureForge</span>
             </div>
             <p className="footer-tagline">Ship features without shipping risk.</p>

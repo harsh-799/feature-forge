@@ -33,6 +33,10 @@
   justify-content: center;
   border-radius: 50%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid var(--border-color) !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .auth-brand-name {

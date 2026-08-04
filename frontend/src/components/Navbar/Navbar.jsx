@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { handleNavLinkClick } from '../../utils/scroll'
+import { BrandMark } from '../Brand/Brand'
 import './Navbar.css'
 
 export default function Navbar() {
@@ -25,15 +26,12 @@ export default function Navbar() {
 
   return (
     <header className={`site-header ${isScrolled ? 'scrolled' : ''}`}>
-      <Link to="/" className="navbar-logo-circle" onClick={(e) => {
+      <Link to="/" onClick={(e) => {
         if (window.location.pathname === '/') {
           handleNavLinkClick(e, 'top');
         }
       }}>
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#F97316" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="brand-logo-svg">
-          <circle cx="12" cy="12" r="5.5" fill="#F97316" stroke="#F97316" />
-          <path d="M2.5 13.5c4-2 11-4 17.5-6.5M4.5 17c4.5-2 11.5-4.5 16-8.5" stroke="#121212" strokeWidth="2.2" />
-        </svg>
+        <BrandMark />
       </Link>
       
       <nav className="header-nav">

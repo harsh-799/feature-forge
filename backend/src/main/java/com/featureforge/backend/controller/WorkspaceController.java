@@ -77,4 +77,9 @@ public class WorkspaceController {
                 )
         );
     }
+
+    @GetMapping("/list")
+    public ResponseEntity<java.util.List<com.featureforge.backend.dto.response.UserWorkspaceResponse>> list() {
+        return ResponseEntity.status(HttpStatus.OK).body(workspaceService.getUserWorkspaces());
+    }
 }

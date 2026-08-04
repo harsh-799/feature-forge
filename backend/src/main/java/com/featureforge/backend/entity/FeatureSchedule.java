@@ -21,11 +21,11 @@ public class FeatureSchedule {
     private Integer id;
 
     @ManyToOne
-    @Column(nullable = false)
+    @JoinColumn(nullable = false)
     private Feature feature;
 
     @ManyToOne
-    @Column(nullable = false)
+    @JoinColumn(nullable = false)
     private Environment environment;
 
     private Integer rolloutPercentage;

@@ -1,0 +1,198 @@
+/* Floating Centered Dark Pill Navbar */
+.site-header {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 60px; /* Reduced navbar height */
+  border-radius: 99px;
+  background-color: var(--charcoal); /* Warm charcoal black background */
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Very fine light border */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05); /* Softer premium shadow */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px; /* Symmetrical padding */
+  z-index: 1000;
+  width: auto;
+  min-width: 530px; /* Made tighter for better proportion */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              top 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              padding 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-header.scrolled {
+  height: 50px;
+  top: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22), 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 0 12px;
+}
+
+@media (max-width: 768px) {
+  .site-header {
+    min-width: 90vw;
+    width: 90vw;
+  }
+}
+
+.navbar-logo-circle {
+  width: 38px; /* Reduced diameter */
+  height: 38px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              width 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-header.scrolled .navbar-logo-circle {
+  width: 34px;
+  height: 34px;
+}
+
+.navbar-logo-circle:hover {
+  transform: scale(1.05) rotate(-8deg);
+}
+
+.navbar-logo-circle .brand-logo-svg {
+  transition: transform 0.3s ease;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Reduced gap */
+  margin: 0 12px; /* Balanced margins */
+}
+
+@media (max-width: 900px) {
+  .header-nav {
+    display: none;
+  }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Reduced gap */
+}
+
+/* White Pill Action Button */
+.btn-get-started-pill {
+  height: 38px; /* Matches the 38px height of the logo circle */
+  border-radius: 99px;
+  background-color: #FFFFFF;
+  color: var(--charcoal);
+  font-size: 13px; /* Slightly smaller font */
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px; /* Slimmer padding */
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  overflow: hidden;
+  position: relative;
+  transition: background-color 0.25s ease, height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-header.scrolled .btn-get-started-pill {
+  height: 34px;
+}
+
+.btn-get-started-pill:hover {
+  background-color: #FAF8F2;
+  transform: scale(1.02);
+}
+
+/* Dedicated crop wrapper inside Get Started button to fix duplication bug */
+.btn-text-crop {
+  display: inline-block;
+  height: 20px;
+  line-height: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.btn-text-crop .link-text-container {
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-text-crop .link-text-primary,
+.btn-text-crop .link-text-secondary {
+  height: 20px;
+  line-height: 20px;
+  display: block;
+}
+
+.btn-text-crop .link-text-secondary {
+  color: var(--accent); /* Orange rollout highlight on hover */
+}
+
+.btn-get-started-pill:hover .btn-text-crop.roll-up .link-text-container {
+  transform: translateY(-20px);
+}
+
+/* Rolling Hover Text Link Components */
+.navbar-link {
+  display: inline-block;
+  text-decoration: none;
+  color: #A1A1AA;
+  font-size: 13.5px;
+  font-weight: 600;
+  overflow: hidden;
+  height: 20px;
+  position: relative;
+  cursor: pointer;
+}
+
+.navbar-link.login-link {
+  color: #A1A1AA;
+}
+
+.link-text-container {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.link-text-primary,
+.link-text-secondary {
+  display: block;
+  height: 20px;
+  line-height: 20px;
+  transition: color 0.3s;
+}
+
+/* Alternating directions styles */
+.roll-up .link-text-container {
+  flex-direction: column;
+}
+
+.roll-up:hover .link-text-container {
+  transform: translateY(-20px);
+}
+
+.roll-down .link-text-container {
+  flex-direction: column-reverse;
+  transform: translateY(-20px);
+}
+
+.roll-down:hover .link-text-container {
+  transform: translateY(0);
+}
+
+.navbar-link:hover .link-text-secondary {
+  color: #FFFFFF; /* Pure white on hover */
+}

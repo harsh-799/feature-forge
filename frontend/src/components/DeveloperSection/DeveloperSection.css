@@ -1,0 +1,272 @@
+/* SECTION 3: Developer Experience */
+.dx-section {
+  padding: 64px 24px 40px; /* Reduced bottom padding from 128px to 40px for comfortable space */
+  background-color: transparent;
+}
+
+.dx-dark-container {
+  width: 100%;
+  max-width: 1100px; /* Not full-width centered container */
+  margin: 0 auto;
+  background-color: var(--charcoal); /* Warm charcoal black background */
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 64px 48px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .dx-dark-container {
+    padding: 32px 20px;
+  }
+}
+
+.dx-grid {
+  display: flex;
+  align-items: center;
+  gap: 64px;
+}
+
+@media (max-width: 960px) {
+  .dx-grid {
+    flex-direction: column;
+    gap: 48px;
+  }
+}
+
+.dx-code-col {
+  flex: 1.2;
+  width: 100%;
+}
+
+.dx-text-col {
+  flex: 0.8;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.dx-subtitle {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.dx-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.dx-description {
+  font-size: 15px;
+  color: #A1A1AA;
+  line-height: 1.6;
+  margin-bottom: 36px;
+}
+
+/* Beautiful Editor window mockup */
+.code-editor-window {
+  background-color: #1B1A17; /* Darker warm charcoal matching the container */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.editor-titlebar {
+  height: 36px;
+  background-color: #151412; /* Harmonized window titlebar background */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: relative;
+}
+
+.editor-controls {
+  display: flex;
+  gap: 6px;
+  position: absolute;
+  left: 16px;
+}
+
+.editor-controls .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.editor-controls .dot.red { background-color: rgba(255, 95, 86, 0.7); }
+.editor-controls .dot.yellow { background-color: rgba(255, 189, 46, 0.7); }
+.editor-controls .dot.green { background-color: rgba(39, 201, 63, 0.7); }
+
+.editor-filename {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: #71717A;
+  margin: 0 auto;
+}
+
+.editor-body {
+  padding: 24px;
+  overflow-x: auto;
+  text-align: left;
+}
+
+.code-content {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 13px; /* Slightly more compact font size for premium editor scaling */
+  line-height: 1.7;
+  color: #E4E4E7;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Override and clean up index.css code styles inside the DX editor */
+.code-content code {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  display: block !important;
+  box-shadow: none !important;
+}
+
+/* Code tokens */
+.token-keyword {
+  color: var(--accent); /* Orange keyword */
+  font-weight: 600;
+}
+
+.token-method {
+  color: #38BDF8; /* Light blue method */
+}
+
+.token-string {
+  color: #34D399; /* Green string */
+}
+
+/* Feature Benefits list */
+.dx-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dx-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.dx-item-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  background-color: rgba(249, 115, 22, 0.08);
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  min-width: 36px;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.dx-item-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.dx-item-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.dx-item-desc {
+  font-size: 12.5px;
+  color: #A1A1AA;
+  line-height: 1.5;
+}
+
+/* Code editor line wrapping and line numbers */
+.code-line {
+  display: block;
+  white-space: pre;
+}
+
+.line-num {
+  display: inline-block;
+  width: 18px;
+  text-align: right;
+  margin-right: 14px;
+  color: #52525B;
+  user-select: none;
+}
+
+/* Section 3 (Developer DX) Content Stagger */
+.dx-dark-container.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.dx-dark-container.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dx-dark-container.reveal-on-scroll .dx-code-col,
+.dx-dark-container.reveal-on-scroll .dx-text-col {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.dx-dark-container.in-view .dx-code-col {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 200ms;
+}
+
+.dx-dark-container.in-view .dx-text-col {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 350ms;
+}
+
+/* Stagger DX feature items inside container */
+.dx-dark-container.reveal-on-scroll .dx-feature-item {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.dx-dark-container.in-view .dx-feature-item:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 450ms; }
+.dx-dark-container.in-view .dx-feature-item:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 550ms; }
+.dx-dark-container.in-view .dx-feature-item:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 650ms; }

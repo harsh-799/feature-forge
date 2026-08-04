@@ -2,12 +2,12 @@
   --bg-warm: #FAF8F3; /* Warm Off White page background */
   --bg-canvas: #FAF8F3; /* Match page background for layout sections */
   --bg-card: #FFFFFF; /* Soft White container background */
-  --charcoal: #121212; /* Charcoal Black primary text */
+  --charcoal: #262521; /* Warm Charcoal Black primary text */
   --accent: #F97316; /* Warm Orange accent */
   --accent-hover: #EA580C;
   --secondary-bg: #F4F2EB; /* Soft Beige */
   --border-color: #E6E4DD; /* Very Light Warm Gray border */
-  --text-heading: #121212;
+  --text-heading: #262521;
   --text-primary: #5A5852;
   
   --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

@@ -17,28 +17,40 @@ export default function FeatureFlags() {
 
   const canCreate = role === 'ADMIN' || role === 'DEVELOPER';
 
-  const fetchFeatures = async () => {
+  const fetchFeatures = async (targetPage = page, targetFilter = statusFilter, targetKeyword = keyword) => {
     if (!currentWorkspaceId) return;
 
     setIsLoading(true);
+    const startTime = Date.now();
     try {
       let response;
-      if (keyword.trim()) {
+      const kw = targetKeyword.trim();
+      const pg = targetPage;
+      const sf = targetFilter || null;
+
+      if (kw) {
         response = await searchFeatures(currentWorkspaceId, {
-          keyword: keyword.trim(),
-          page,
+          keyword: kw,
+          page: pg,
           size: 6,
-          status: statusFilter || null
+          status: sf
         });
       } else {
         response = await listFeatures(currentWorkspaceId, {
-          page,
+          page: pg,
           size: 6,
-          status: statusFilter || null
+          status: sf
         });
       }
 
       if (response && response.success) {
+        // Enforce a minimum loader duration of 350ms to prevent skeleton screen flashing/flicker
+        const elapsed = Date.now() - startTime;
+        const minDelay = 350;
+        if (elapsed < minDelay) {
+          await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
+        }
+
         setFeatures(response.features || []);
         const totalElements = response.totalElements || 0;
         setTotalPages(Math.ceil(totalElements / 6) || 1);
@@ -51,23 +63,26 @@ export default function FeatureFlags() {
     }
   };
 
-  useEffect(() => {
-    setPage(0);
-    fetchFeatures();
-  }, [currentWorkspaceId, statusFilter]);
+  const [debouncedKeyword, setDebouncedKeyword] = useState(keyword);
 
+  // Debounce keyword search input
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      setPage(0);
-      fetchFeatures();
+    const timer = setTimeout(() => {
+      setDebouncedKeyword(keyword);
     }, 400);
-
-    return () => clearTimeout(delayDebounce);
+    return () => clearTimeout(timer);
   }, [keyword]);
 
+  // Reset page to 0 when workspace changes
   useEffect(() => {
-    fetchFeatures();
-  }, [page]);
+    setPage(0);
+  }, [currentWorkspaceId]);
+
+  // Main features fetch effect
+  useEffect(() => {
+    if (!currentWorkspaceId) return;
+    fetchFeatures(page, statusFilter, debouncedKeyword);
+  }, [currentWorkspaceId, page, statusFilter, debouncedKeyword]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 0 && newPage < totalPages) {
@@ -113,7 +128,7 @@ export default function FeatureFlags() {
             type="text"
             placeholder="Search by flag name or key..."
             value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            onChange={(e) => { setKeyword(e.target.value); setPage(0); }}
             className="filter-search-input"
           />
         </div>
@@ -121,7 +136,7 @@ export default function FeatureFlags() {
         <div className="filter-select-wrapper">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
             className="filter-status-select"
           >
             <option value="">All Statuses</option>

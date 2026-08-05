@@ -50,8 +50,17 @@ export default function FeatureDetails() {
     if (!id || !currentWorkspaceId) return;
 
     setIsLoading(true);
+    const startTime = Date.now();
     try {
       const data = await getFeatureDetails(id, currentWorkspaceId);
+      
+      // Enforce a minimum loader duration of 350ms to prevent skeleton screen flashing/flicker
+      const elapsed = Date.now() - startTime;
+      const minDelay = 350;
+      if (elapsed < minDelay) {
+        await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
+      }
+
       setFeature(data);
       setEditName(data.name);
       setEditDesc(data.description || '');

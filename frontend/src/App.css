@@ -88,18 +88,18 @@
   }
 }
 
-.Toastify__toast {
-  background-color: #F8F3EA !important; /* Warm Cream / Ivory */
-  color: var(--text-heading) !important; /* Warm Charcoal */
-  border: 1px solid #E5E3DB !important; /* Subtle neutral border */
+.Toastify__toast-container .Toastify__toast {
+  background-color: var(--charcoal) !important; /* Warm Charcoal Black */
+  color: #FAF8F5 !important; /* Warm Off-White text */
+  border: 1px solid rgba(255, 255, 255, 0.08) !important; /* Muted border */
   border-radius: 14px !important;
-  box-shadow: 0 10px 30px rgba(18, 18, 18, 0.06) !important;
+  box-shadow: 0 10px 30px rgba(18, 18, 18, 0.1) !important;
   font-family: var(--sans) !important;
   font-size: 13.5px !important;
   font-weight: 600 !important;
-  padding: 14px 18px !important;
-  min-height: unset !important;
-  margin-bottom: 12px !important;
+  padding: 12px 18px; /* Thinner padding for a modern, sleek profile */
+  min-height: unset;   /* Overrides Toastify's 64px min-height without !important */
+  margin-bottom: 12px; /* Overrides Toastify's default margin without !important */
 }
 
 .Toastify__toast-body {
@@ -111,7 +111,7 @@
 }
 
 .Toastify__close-button {
-  color: var(--text-primary) !important;
+  color: #FAF8F5 !important;
   opacity: 0.5;
   align-self: center !important;
 }
@@ -167,26 +167,4 @@
   animation: toastExit 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-/* Specific overrides for Dark Theme Success Toast */
-.Toastify__toast.Toastify__toast--success {
-  background-color: var(--charcoal) !important; /* Near-black FeatureForge charcoal */
-  color: #FAF8F5 !important; /* White / off-white text */
-  border: 1px solid rgba(255, 255, 255, 0.08) !important; /* Muted border */
-  border-radius: 16px !important; /* Premium rounded shape */
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Custom Success Icon SVG styling */
-.Toastify__toast.Toastify__toast--success svg {
-  color: #FAF8F5 !important; /* Outlined checkmark is white */
-}
-
-/* Success Close Button overrides */
-.Toastify__toast.Toastify__toast--success .Toastify__close-button {
-  color: #FAF8F5 !important;
-  opacity: 0.5;
-}
-
-.Toastify__toast.Toastify__toast--success .Toastify__close-button:hover {
-  opacity: 0.85;
-}
+/* Toast styles consolidated globally */

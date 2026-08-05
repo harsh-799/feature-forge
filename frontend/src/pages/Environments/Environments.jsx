@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom'
-import { FiCopy, FiCheck, FiKey, FiLock, FiInfo } from 'react-icons/fi'
+import { FiCopy, FiCheck, FiKey, FiLock, FiInfo, FiEye, FiEyeOff } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import './Environments.css'
 
@@ -8,6 +8,14 @@ export default function Environments() {
   const { currentWorkspaceId, currentWorkspaceName } = useOutletContext();
   const [copiedEnv, setCopiedEnv] = useState(null);
   const [envKeys, setEnvKeys] = useState(null);
+  const [revealKeys, setRevealKeys] = useState({});
+
+  const toggleReveal = (envName) => {
+    setRevealKeys(prev => ({
+      ...prev,
+      [envName]: !prev[envName]
+    }));
+  };
 
   useEffect(() => {
     if (currentWorkspaceId) {
@@ -88,13 +96,24 @@ export default function Environments() {
                 
                 <div className="env-key-box">
                   <code className="env-key-value">
-                    {hasKey ? keyValue : 'ff_••••••••••••••••••••••••••••••••'}
+                    {hasKey ? (revealKeys[env.name] ? keyValue : 'ff_••••••••••••••••••••••••••••••••') : 'ff_••••••••••••••••••••••••••••••••'}
                   </code>
+                  {hasKey && (
+                    <button
+                      onClick={() => toggleReveal(env.name)}
+                      className="env-key-action-btn toggle-reveal"
+                      title={revealKeys[env.name] ? "Hide Key" : "Show Key"}
+                      type="button"
+                    >
+                      {revealKeys[env.name] ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+                    </button>
+                  )}
                   {hasKey ? (
                     <button
                       onClick={() => handleCopy(env.name, keyValue)}
                       className="env-key-action-btn copy"
                       title="Copy Key"
+                      type="button"
                     >
                       {copiedEnv === env.name ? <FiCheck size={14} style={{ color: '#10B981' }} /> : <FiCopy size={14} />}
                     </button>

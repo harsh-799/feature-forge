@@ -56,9 +56,7 @@ export default function Signup() {
     if (isLoading) return; // Prevent duplicate submissions
 
     if (!validateForm()) {
-      toast.error('Please correct the validation errors in the form.', {
-        icon: <FiAlertCircle size={18} style={{ color: 'var(--accent)' }} />
-      });
+      toast.error('Please correct the validation errors in the form.');
       return;
     }
 
@@ -72,14 +70,7 @@ export default function Signup() {
         password
       });
 
-      toast.success('Account created successfully.', {
-        icon: (
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="9 11 12 14 17 8" />
-          </svg>
-        )
-      });
+      toast.success('Account created successfully.');
 
       // Smoothly exit and navigate to login
       setIsExiting(true);
@@ -88,9 +79,7 @@ export default function Signup() {
       }, 1000);
     } catch (err) {
       const msg = getErrorMessage(err);
-      toast.error(msg, {
-        icon: <FiAlertCircle size={18} style={{ color: 'var(--accent)' }} />
-      });
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

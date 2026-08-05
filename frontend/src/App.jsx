@@ -79,6 +79,26 @@ function App() {
         draggable={false}
         pauseOnHover
         theme="light"
+        icon={({ type }) => {
+          if (type === 'success') {
+            return (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#FAF8F5' }}>
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="9 11 12 14 17 8" />
+              </svg>
+            );
+          }
+          if (type === 'error') {
+            return (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#EF4444' }}>
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            );
+          }
+          return true; // default icon for other types
+        }}
       />
     </BrowserRouter>
   )

@@ -115,12 +115,14 @@
   color: var(--text-primary);
 }
 
-.env-key-action-btn.copy {
+.env-key-action-btn.copy,
+.env-key-action-btn.toggle-reveal {
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.env-key-action-btn.copy:hover {
+.env-key-action-btn.copy:hover,
+.env-key-action-btn.toggle-reveal:hover {
   background-color: var(--secondary-bg);
   color: var(--text-heading);
 }

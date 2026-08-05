@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { FiFolder, FiCheck, FiChevronDown, FiPlus, FiUser, FiHelpCircle, FiLogOut, FiAlertTriangle, FiGrid, FiToggleLeft, FiLayers, FiClock } from 'react-icons/fi'
+import { FiFolder, FiCheck, FiChevronDown, FiPlus, FiUser, FiHelpCircle, FiLogOut, FiAlertTriangle, FiGrid, FiToggleLeft, FiLayers, FiClock, FiUsers, FiTrash2 } from 'react-icons/fi'
 import { listWorkspaces } from '../../api/workspaceApi'
 import { toast } from 'react-toastify'
 import { BrandMark } from '../Brand/Brand'
@@ -17,7 +17,7 @@ export default function DashboardLayout() {
   const [userEmail, setUserEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isWorkspaceChanging, setIsWorkspaceChanging] = useState(false);
-  
+
   const dropdownRef = useRef(null);
   const profileRef = useRef(null);
   const optionsRef = useRef(null);
@@ -75,7 +75,7 @@ export default function DashboardLayout() {
   const handleWorkspaceChange = (workspace) => {
     setIsWorkspaceChanging(true);
     setIsDropdownOpen(false);
-    
+
     setTimeout(() => {
       setActiveWorkspace(workspace);
       localStorage.setItem('currentWorkspaceId', workspace.workspaceId);
@@ -182,36 +182,40 @@ export default function DashboardLayout() {
               )}
             </div>
 
-            {/* Admin actions trigger button */}
-            {isAdmin && (
-              <div className="workspace-options-menu-container" ref={optionsRef}>
-                <button
-                  onClick={() => setIsOptionsOpen(!isOptionsOpen)}
-                  className="workspace-options-btn"
-                  title="Workspace Options"
-                  aria-expanded={isOptionsOpen}
-                >
-                  •••
-                </button>
-                {isOptionsOpen && (
-                  <div className="workspace-options-dropdown">
-                    <button
-                      className="options-item"
-                      onClick={() => {
-                        setIsOptionsOpen(false);
-                        toast.info('Workspace Settings are coming soon.');
-                      }}
-                    >
-                      Workspace Settings
-                    </button>
-                    <div className="options-divider"></div>
-                    <button className="options-item destructive" onClick={handleDeleteWorkspace}>
-                      Delete Workspace
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Workspace Options trigger button */}
+            <div className="workspace-options-menu-container" ref={optionsRef}>
+              <button
+                onClick={() => setIsOptionsOpen(!isOptionsOpen)}
+                className="workspace-options-btn"
+                title="Workspace Options"
+                aria-expanded={isOptionsOpen}
+              >
+                •••
+              </button>
+              {isOptionsOpen && (
+                <div className="workspace-options-dropdown">
+                  <button
+                    className="options-item"
+                    onClick={() => {
+                      setIsOptionsOpen(false);
+                      navigate('/app/workspace/members');
+                    }}
+                  >
+                    <FiUsers className="item-icon" style={{ marginRight: '8px' }} />
+                    <span>Manage Members</span>
+                  </button>
+                  {isAdmin && (
+                    <>
+                      <div className="options-divider"></div>
+                      <button className="options-item destructive" onClick={handleDeleteWorkspace}>
+                        <FiTrash2 className="item-icon" style={{ marginRight: '8px' }} />
+                        <span>Delete Workspace</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Navigation Links */}
@@ -256,7 +260,7 @@ export default function DashboardLayout() {
                 <span className="dropdown-user-email">{userEmail}</span>
               </div>
               <div className="dropdown-menu-divider"></div>
-              
+
               <button
                 className="dropdown-menu-item"
                 onClick={() => {
@@ -267,7 +271,7 @@ export default function DashboardLayout() {
                 <FiUser className="item-icon" />
                 <span>Account Settings</span>
               </button>
-              
+
               <button
                 className="dropdown-menu-item"
                 onClick={() => {
@@ -278,9 +282,9 @@ export default function DashboardLayout() {
                 <FiHelpCircle className="item-icon" />
                 <span>Help Center</span>
               </button>
-              
+
               <div className="dropdown-menu-divider"></div>
-              
+
               <button onClick={handleLogout} className="dropdown-menu-item logout">
                 <FiLogOut className="item-icon" />
                 <span>Logout</span>

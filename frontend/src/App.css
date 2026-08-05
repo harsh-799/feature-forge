@@ -168,3 +168,29 @@
 }
 
 /* Toast styles consolidated globally */
+
+/* Global Back Button Hover Animations */
+.back-nav-link {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+  width: fit-content;
+}
+
+.back-nav-link:hover {
+  color: var(--text-heading);
+  transform: translateX(-3px);
+}
+
+.back-nav-link svg {
+  transition: transform 0.2s ease;
+}
+
+.back-nav-link:hover svg {
+  transform: translateX(-2px);
+}

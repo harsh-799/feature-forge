@@ -326,119 +326,135 @@ export default function FeatureDetails() {
 
       <div className="details-content-grid">
         <div className="details-left-pane">
-          {/* Flag Info */}
+          {/* Flag Details Card */}
           <div className="details-section-card">
-            <div className="card-header-with-action">
-              <h3>Flag Information</h3>
-              {feature.status === 'IN_DEVELOPMENT' && isAdminOrDev && !isEditing && (
-                <button onClick={() => setIsEditing(true)} className="inline-edit-btn">
-                  <FiEdit3 size={13} style={{ marginRight: '6px' }} /> Edit
-                </button>
-              )}
-            </div>
+            <h3>Flag Details</h3>
+            <form onSubmit={handleEditSubmit} className="details-form">
+              <div className="details-form-group">
+                <label htmlFor="featureName" className="details-form-label">FEATURE NAME</label>
+                <input
+                  type="text"
+                  id="featureName"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="details-form-input"
+                  disabled={feature.status !== 'IN_DEVELOPMENT' || isSubmitting}
+                  required
+                />
+              </div>
+              <div className="details-form-group">
+                <label htmlFor="featureDesc" className="details-form-label">DESCRIPTION</label>
+                <textarea
+                  id="featureDesc"
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                  className="details-form-textarea"
+                  rows={3}
+                  disabled={feature.status !== 'IN_DEVELOPMENT' || isSubmitting}
+                  placeholder="Describe what this feature flag does..."
+                />
+              </div>
 
-            {isEditing ? (
-              <form onSubmit={handleEditSubmit} className="inline-edit-form">
-                <div className="edit-form-group">
-                  <label htmlFor="editName" className="edit-form-label">FEATURE NAME</label>
-                  <input
-                    type="text"
-                    id="editName"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="edit-form-input"
-                    disabled={isSubmitting}
-                    required
-                  />
-                </div>
-                <div className="edit-form-group">
-                  <label htmlFor="editDesc" className="edit-form-label">DESCRIPTION</label>
-                  <textarea
-                    id="editDesc"
-                    value={editDesc}
-                    onChange={(e) => setEditDesc(e.target.value)}
-                    className="edit-form-textarea"
-                    rows={3}
-                    disabled={isSubmitting}
-                  />
-                </div>
-                <div className="edit-form-actions">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditing(false)}
-                    className="edit-cancel-btn"
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </button>
+              {feature.status === 'IN_DEVELOPMENT' ? (
+                <div className="details-actions-row">
                   <button
                     type="submit"
-                    className="edit-save-btn"
-                    disabled={isSubmitting}
+                    className="details-save-btn"
+                    disabled={isSubmitting || (editName.trim() === feature.name && editDesc.trim() === (feature.description || ''))}
                   >
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
-              </form>
-            ) : (
-              <div className="flag-details-info-display">
-                <div className="info-display-item">
-                  <div className="info-label">DESCRIPTION</div>
-                  <div className="info-value">
-                    {feature.description || <span className="muted-italic">No description provided.</span>}
-                  </div>
+              ) : (
+                <div className="metadata-locked-banner">
+                  <FiLock size={14} className="lock-icon" />
+                  <span>Name and description are locked because this flag has progressed beyond Development.</span>
                 </div>
-              </div>
-            )}
+              )}
+            </form>
           </div>
 
-          {/* Env states */}
-          <div className="details-section-card">
-            <h3>Environment Configurations</h3>
-            
-            <div className="env-configs-stack">
-              <div className="env-config-row">
-                <div className="env-row-left">
-                  <div className="env-row-status-dot dev"></div>
-                  <div>
-                    <span className="env-row-name">DEVELOPMENT</span>
-                    <span className="env-row-desc">Evaluates to true during development lifecycle.</span>
+          {/* Release Configuration Section */}
+          <div className="details-section-card release-config-card">
+            <h3>Release Configuration</h3>
+            <p className="section-subtitle">Manage evaluation rules, toggle states, and progressive rollout boundaries across pipeline environments.</p>
+
+            <div className="environments-configs-stack">
+              {/* DEVELOPMENT Config */}
+              <div className="env-config-group">
+                <div className="env-config-header">
+                  <div className="env-header-left">
+                    <span className="env-dot dev"></span>
+                    <span className="env-name">DEVELOPMENT</span>
                   </div>
-                </div>
-                <div className="env-row-right">
-                  <span className={`env-state-label ${devConfig?.isEnabled ? 'enabled' : 'disabled'}`}>
-                    {devConfig?.isEnabled ? 'ENABLED' : 'DISABLED'}
+                  <span className={`env-status-badge ${devConfig?.isEnabled ? 'active' : 'inactive'}`}>
+                    {devConfig?.isEnabled ? 'Enabled' : 'Disabled'}
                   </span>
+                </div>
+                <div className="env-config-body">
+                  <div className="config-item-row">
+                    <span className="config-label">Progressive Rollout</span>
+                    <span className="config-value">{devConfig?.isEnabled ? '100%' : '0%'}</span>
+                  </div>
+                  <div className="config-progress-bar">
+                    <div className="progress-fill dev" style={{ width: devConfig?.isEnabled ? '100%' : '0%' }}></div>
+                  </div>
+                  <div className="config-item-row targeting-row">
+                    <span className="config-label">Targeting Rules</span>
+                    <span className="config-value-placeholder">All developers (Default)</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="env-config-row">
-                <div className="env-row-left">
-                  <div className="env-row-status-dot staging"></div>
-                  <div>
-                    <span className="env-row-name">STAGING</span>
-                    <span className="env-row-desc">Automatically active when promoted for QA testing.</span>
+              {/* STAGING Config */}
+              <div className="env-config-group">
+                <div className="env-config-header">
+                  <div className="env-header-left">
+                    <span className="env-dot staging"></span>
+                    <span className="env-name">STAGING / QA</span>
                   </div>
-                </div>
-                <div className="env-row-right">
-                  <span className={`env-state-label ${stagingConfig?.isEnabled ? 'enabled' : 'disabled'}`}>
-                    {stagingConfig?.isEnabled ? 'ENABLED' : 'DISABLED'}
+                  <span className={`env-status-badge ${stagingConfig?.isEnabled ? 'active' : 'inactive'}`}>
+                    {stagingConfig?.isEnabled ? 'Enabled' : 'Disabled'}
                   </span>
+                </div>
+                <div className="env-config-body">
+                  <div className="config-item-row">
+                    <span className="config-label">Progressive Rollout</span>
+                    <span className="config-value">{stagingConfig?.isEnabled ? '100%' : '0%'}</span>
+                  </div>
+                  <div className="config-progress-bar">
+                    <div className="progress-fill staging" style={{ width: stagingConfig?.isEnabled ? '100%' : '0%' }}></div>
+                  </div>
+                  <div className="config-item-row targeting-row">
+                    <span className="config-label">Targeting Rules</span>
+                    <span className="config-value-placeholder">QA testers (Default)</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="env-config-row">
-                <div className="env-row-left">
-                  <div className="env-row-status-dot production"></div>
-                  <div>
-                    <span className="env-row-name">PRODUCTION</span>
-                    <span className="env-row-desc">Serves real customer traffic using rollout target.</span>
+              {/* PRODUCTION Config */}
+              <div className="env-config-group">
+                <div className="env-config-header">
+                  <div className="env-header-left">
+                    <span className="env-dot production"></span>
+                    <span className="env-name">PRODUCTION</span>
                   </div>
-                </div>
-                <div className="env-row-right">
-                  <span className={`env-state-label ${prodConfig?.isEnabled ? 'enabled' : 'disabled'}`}>
-                    {prodConfig?.isEnabled ? 'ENABLED' : 'DISABLED'}
+                  <span className={`env-status-badge ${prodConfig?.isEnabled ? 'active' : 'inactive'}`}>
+                    {prodConfig?.isEnabled ? 'Enabled' : 'Disabled'}
                   </span>
+                </div>
+                <div className="env-config-body">
+                  <div className="config-item-row">
+                    <span className="config-label">Progressive Rollout</span>
+                    <span className="config-value">{prodConfig?.isEnabled ? `${rolloutVal}%` : '0%'}</span>
+                  </div>
+                  <div className="config-progress-bar">
+                    <div className="progress-fill production" style={{ width: prodConfig?.isEnabled ? `${rolloutVal}%` : '0%' }}></div>
+                  </div>
+                  <div className="config-item-row targeting-row">
+                    <span className="config-label">Targeting Rules</span>
+                    <span className="config-value-placeholder">Percentage-based rollout (All Users)</span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -19,4 +19,24 @@ export const createWorkspace = async (data) => {
   return response.data;
 };
 
-export default { listWorkspaces, createWorkspace };
+/**
+ * Fetches the list of membership records (members) for a given workspace UUID.
+ * @param {String} workspaceId
+ * @returns {Promise<Array>} list of workspace members
+ */
+export const getWorkspaceMembers = async (workspaceId) => {
+  const response = await apiClient.get(`/workspace/${workspaceId}/members`);
+  return response.data;
+};
+
+/**
+ * Sends a workspace member invitation email.
+ * @param {Object} data - { email, role, workspaceId }
+ * @returns {Promise<Object>} InviteMemberResponse
+ */
+export const inviteWorkspaceMember = async (data) => {
+  const response = await apiClient.post('/workspace/invite', data);
+  return response.data;
+};
+
+export default { listWorkspaces, createWorkspace, getWorkspaceMembers, inviteWorkspaceMember };

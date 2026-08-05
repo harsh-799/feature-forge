@@ -1,25 +1,7 @@
 .new-flag-page-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 960px;
-  margin: 0 auto;
-}
-
-.back-nav-link {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--sans);
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: all 0.2s ease;
-  width: fit-content;
-}
-
-.back-nav-link:hover {
-  color: var(--text-heading);
+  gap: 28px;
 }
 
 .new-flag-split-card {
@@ -30,6 +12,8 @@
   box-shadow: 0 4px 20px rgba(38, 37, 33, 0.01);
   display: flex;
   gap: 48px;
+  max-width: 960px;
+  margin-top: 10px;
 }
 
 .new-flag-form-section {

@@ -11,6 +11,7 @@ import FeatureNew from './pages/FeatureNew/FeatureNew'
 import FeatureDetails from './pages/FeatureDetails/FeatureDetails'
 import Environments from './pages/Environments/Environments'
 import Activity from './pages/Activity/Activity'
+import WorkspaceMembers from './pages/WorkspaceMembers/WorkspaceMembers'
 
 // Import base React-Toastify styling
 import 'react-toastify/dist/ReactToastify.css'
@@ -61,6 +62,7 @@ function App() {
           <Route path="features/:id" element={<FeatureDetails />} />
           <Route path="environments" element={<Environments />} />
           <Route path="activity" element={<Activity />} />
+          <Route path="workspace/members" element={<WorkspaceMembers />} />
         </Route>
 
         {/* Fallback redirect */}

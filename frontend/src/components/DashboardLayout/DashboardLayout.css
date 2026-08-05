@@ -1,13 +1,15 @@
 .app-container {
   display: flex;
   min-height: 100vh;
-  background-color: #FAF8F3; /* Warm off-white page background */
+  background-color: #FAF8F3;
+  /* Warm off-white page background */
 }
 
 /* Sidebar Panel Styling */
 .app-sidebar {
   width: 260px;
-  background-color: #F2EFE7; /* Tonal side panel beige matching auth visual */
+  background-color: #F2EFE7;
+  /* Tonal side panel beige matching auth visual */
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -241,6 +243,7 @@
     opacity: 0;
     transform: scale(0.96) translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -379,10 +382,14 @@
 /* Premium Active Nav State (Ivory background + subtle orange accent) */
 .nav-link-item.active {
   color: var(--text-heading);
-  background-color: #FAF8F3; /* Warm ivory/cream background */
-  border-left: 3px solid var(--accent); /* Subtle orange accent border */
-  border-radius: 0 8px 8px 0; /* Let it connect nicely */
-  padding-left: 11px; /* Adjust spacing to account for border */
+  background-color: #FAF8F3;
+  /* Warm ivory/cream background */
+  border-left: 3px solid var(--accent);
+  /* Subtle orange accent border */
+  border-radius: 0 8px 8px 0;
+  /* Let it connect nicely */
+  padding-left: 11px;
+  /* Adjust spacing to account for border */
 }
 
 /* Bottom Left Account Pill */
@@ -397,9 +404,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  background-color: #FAF7F0; /* Soft warm ivory surface */
+  background-color: #FAF7F0;
+  /* Soft warm ivory surface */
   border: 1px solid var(--border-color);
-  border-radius: 30px; /* Highly rounded pill appearance */
+  border-radius: 30px;
+  /* Highly rounded pill appearance */
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   outline: none;
@@ -489,6 +498,7 @@
     opacity: 0;
     transform: scale(0.96) translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -562,7 +572,8 @@
 
 /* Main Viewport */
 .app-main-viewport {
-  margin-left: 260px; /* Shift for sidebar */
+  margin-left: 260px;
+  /* Shift for sidebar */
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -586,6 +597,7 @@
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -654,9 +666,11 @@
   0% {
     opacity: 0.6;
   }
+
   50% {
     opacity: 1;
   }
+
   100% {
     opacity: 0.6;
   }
@@ -672,6 +686,7 @@
     padding: 24px 10px;
     align-items: center;
   }
+
   .sidebar-brand-name,
   .workspace-selector-container-wrapper,
   .nav-link-item,
@@ -679,6 +694,7 @@
   .pill-dots {
     display: none !important;
   }
+
   .sidebar-account-pill-btn {
     border-radius: 50%;
     padding: 6px;
@@ -686,13 +702,16 @@
     height: 40px;
     justify-content: center;
   }
+
   .pill-left-content {
     gap: 0;
   }
+
   .app-main-viewport {
     margin-left: 76px;
     padding: 24px;
   }
+
   .account-upward-dropdown {
     width: 200px;
     left: 10px;

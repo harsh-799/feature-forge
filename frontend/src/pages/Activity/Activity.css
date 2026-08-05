@@ -1,7 +1,178 @@
-@import '../Overview/Overview.css';
+/* ==========================================================================
+   FEATUREFORGE ACTIVITY TIMELINE LOGS STYLES
+   ========================================================================== */
 
 .activity-page-wrapper {
+  padding-top: 16px;
+}
+
+.activity-feed-layout {
+  animation: fadeIn 0.3s ease-out;
+  margin-top: 16px;
+  padding-bottom: 40px;
+}
+
+.activity-feed-card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.activity-feed-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.activity-feed-timeline::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background-color: var(--border-color);
+}
+
+.feed-item-row {
+  position: relative;
+  display: flex;
+  margin-bottom: 24px;
+}
+
+.feed-item-row:last-child {
+  margin-bottom: 0;
+}
+
+.feed-item-indicator-circle {
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  opacity: 0.8;
+  z-index: 2;
+}
+
+.feed-actor-icon {
+  color: var(--charcoal);
+}
+
+.feed-item-box-content {
+  flex: 1;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-left: 16px;
+  transition: border-color 0.2s;
+}
+
+.feed-item-box-content:hover {
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.feed-item-header-meta {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+@media (min-width: 640px) {
+  .feed-item-header-meta {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.feed-action-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.feed-actor-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.feed-action-desc {
+  font-size: 13px;
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+.feed-time-stamp {
+  font-size: 11.5px;
+  color: var(--text-primary);
+  opacity: 0.6;
+  font-weight: 500;
+}
+
+.feed-item-body {
+  font-size: 13px;
+  color: var(--text-primary);
+  opacity: 0.85;
+}
+
+/* Pagination Controls */
+.feed-pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+}
+
+.feed-pagination-btn {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  color: var(--text-heading);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 99px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.feed-pagination-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.feed-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feed-pagination-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.elements-count {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-primary);
+  opacity: 0.6;
 }

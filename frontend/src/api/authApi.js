@@ -19,6 +19,16 @@ export const register = async (userData) => {
   const response = await apiClient.post('/auth/register', userData);
   return response.data;
 };
+
+/**
+ * Fetches current authenticated user profile details.
+ * @returns {Promise<Object>} response data - { email, fullname }
+ */
+export const getCurrentUser = async () => {
+  const response = await apiClient.get('/auth/me');
+  return response.data;
+};
+
 /**
  * Extracts a human-readable message from a backend error response.
  * Handles validation arrays, exception message keys, network outages, and generic fallbacks safely.
@@ -43,4 +53,4 @@ export const getErrorMessage = (error) => {
   return 'Something went wrong. Please try again.';
 };
 
-export default { login, register, getErrorMessage };
+export default { login, register, getCurrentUser, getErrorMessage };

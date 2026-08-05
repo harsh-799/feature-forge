@@ -155,6 +155,18 @@ export const deactivateFeatureProduction = async (featureId, data) => {
   return response.data;
 };
 
+/**
+ * Toggles a feature flag in DEVELOPMENT or STAGING environments.
+ * @param {Number} featureId
+ * @param {String} envName - 'DEVELOPMENT' or 'STAGING'
+ * @param {Object} data - { workspaceId, enabled }
+ * @returns {Promise<Object>} FeatureEnvironmentToggleResponse
+ */
+export const toggleEnvironmentConfig = async (featureId, envName, data) => {
+  const response = await apiClient.patch(`/features/${featureId}/environments/${envName}/toggle`, data);
+  return response.data;
+};
+
 export default {
   createFeature,
   listFeatures,
@@ -168,5 +180,6 @@ export default {
   approveFeatureProduction,
   activateFeatureProduction,
   updateRolloutProduction,
-  deactivateFeatureProduction
+  deactivateFeatureProduction,
+  toggleEnvironmentConfig
 };

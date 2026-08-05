@@ -59,4 +59,35 @@ export const acceptWorkspaceInvitation = async (token) => {
   return response.data;
 };
 
-export default { listWorkspaces, createWorkspace, getWorkspaceMembers, inviteWorkspaceMember, getInvitationDetails, acceptWorkspaceInvitation };
+/**
+ * Fetches workspace overview metrics and activities.
+ * @param {String} workspaceId
+ * @returns {Promise<Object>} WorkspaceOverviewResponse
+ */
+export const getWorkspaceOverview = async (workspaceId) => {
+  const response = await apiClient.get(`/workspace/${workspaceId}/overview`);
+  return response.data;
+};
+
+/**
+ * Fetches paginated activity logs for a workspace.
+ * @param {String} workspaceId
+ * @param {Number} page
+ * @param {Number} size
+ * @returns {Promise<Object>} Page<ActivityLogResponse>
+ */
+export const getWorkspaceActivity = async (workspaceId, page = 0, size = 10) => {
+  const response = await apiClient.get(`/workspace/${workspaceId}/activity?page=${page}&size=${size}`);
+  return response.data;
+};
+
+export default { 
+  listWorkspaces, 
+  createWorkspace, 
+  getWorkspaceMembers, 
+  inviteWorkspaceMember, 
+  getInvitationDetails, 
+  acceptWorkspaceInvitation,
+  getWorkspaceOverview,
+  getWorkspaceActivity
+};

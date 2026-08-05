@@ -1119,3 +1119,125 @@
   opacity: 0.65;
   font-style: italic;
 }
+
+/* Custom Confirmation Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(38, 37, 33, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: modalFadeIn 200ms ease forwards;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 480px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(38, 37, 33, 0.15);
+  animation: modalSlideUp 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 750;
+  color: var(--text-heading);
+  letter-spacing: -0.01em;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  opacity: 0.5;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  opacity: 0.9;
+  background-color: #FAF8F3;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Toggle Switch Styles */
+.toggle-switch-container {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.toggle-switch-container input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #E8E4DE;
+  transition: .25s ease;
+  border-radius: 22px;
+}
+
+.toggle-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .25s ease;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+input:checked + .toggle-switch-slider {
+  background-color: var(--accent, #F97316);
+}
+
+input:checked + .toggle-switch-slider:before {
+  transform: translateX(20px);
+}
+
+input:disabled + .toggle-switch-slider {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

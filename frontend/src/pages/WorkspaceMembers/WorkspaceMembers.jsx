@@ -48,8 +48,13 @@ export default function WorkspaceMembers() {
   };
 
   useEffect(() => {
+    if (role && !isAdmin) {
+      toast.error("Unauthorized: Only Admins can manage workspace members.");
+      navigate('/app/overview');
+      return;
+    }
     fetchMembers();
-  }, [currentWorkspaceId]);
+  }, [currentWorkspaceId, role, isAdmin, navigate]);
 
   useEffect(() => {
     if (location.state?.openInvite && isAdmin) {

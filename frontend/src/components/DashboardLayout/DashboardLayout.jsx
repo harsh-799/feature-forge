@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { FiFolder, FiCheck, FiChevronDown, FiPlus, FiUser, FiHelpCircle, FiLogOut, FiAlertTriangle, FiGrid, FiToggleLeft, FiLayers, FiClock, FiUsers, FiTrash2 } from 'react-icons/fi'
 import { listWorkspaces } from '../../api/workspaceApi'
+import { getCurrentUser } from '../../api/authApi'
 import { toast } from 'react-toastify'
 import { BrandMark } from '../Brand/Brand'
 import './DashboardLayout.css'
@@ -15,6 +16,7 @@ export default function DashboardLayout() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false); // Admin Workspace options dropdown
   const [userEmail, setUserEmail] = useState('');
+  const [fullname, setFullname] = useState(localStorage.getItem('userFullname') || '');
   const [isLoading, setIsLoading] = useState(true);
   const [isWorkspaceChanging, setIsWorkspaceChanging] = useState(false);
 
@@ -25,6 +27,17 @@ export default function DashboardLayout() {
   useEffect(() => {
     const cachedEmail = localStorage.getItem('userEmail');
     setUserEmail(cachedEmail || 'developer@featureforge.com');
+
+    const fetchUserData = async () => {
+      try {
+        const details = await getCurrentUser();
+        setFullname(details.fullname);
+        localStorage.setItem('userFullname', details.fullname);
+      } catch (err) {
+        console.error('Failed to fetch user details:', err);
+      }
+    };
+    fetchUserData();
 
     const fetchWorkspacesData = async () => {
       try {
@@ -87,6 +100,7 @@ export default function DashboardLayout() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userEmail');
+    localStorage.removeItem('userFullname');
     localStorage.removeItem('currentWorkspaceId');
     localStorage.removeItem('currentWorkspaceName');
     navigate('/login');
@@ -125,8 +139,8 @@ export default function DashboardLayout() {
     );
   }
 
-  const avatarLetter = userEmail ? userEmail.charAt(0).toUpperCase() : 'F';
-  const displayName = userEmail ? userEmail.split('@')[0] : 'Developer';
+  const displayName = fullname || (userEmail ? userEmail.split('@')[0] : 'Developer');
+  const avatarLetter = displayName ? displayName.charAt(0).toUpperCase() : 'F';
   const isAdmin = activeWorkspace?.role === 'ADMIN';
 
   return (
@@ -183,39 +197,37 @@ export default function DashboardLayout() {
             </div>
 
             {/* Workspace Options trigger button */}
-            <div className="workspace-options-menu-container" ref={optionsRef}>
-              <button
-                onClick={() => setIsOptionsOpen(!isOptionsOpen)}
-                className="workspace-options-btn"
-                title="Workspace Options"
-                aria-expanded={isOptionsOpen}
-              >
-                •••
-              </button>
-              {isOptionsOpen && (
-                <div className="workspace-options-dropdown">
-                  <button
-                    className="options-item"
-                    onClick={() => {
-                      setIsOptionsOpen(false);
-                      navigate('/app/workspace/members');
-                    }}
-                  >
-                    <FiUsers className="item-icon" style={{ marginRight: '8px' }} />
-                    <span>Manage Members</span>
-                  </button>
-                  {isAdmin && (
-                    <>
-                      <div className="options-divider"></div>
-                      <button className="options-item destructive" onClick={handleDeleteWorkspace}>
-                        <FiTrash2 className="item-icon" style={{ marginRight: '8px' }} />
-                        <span>Delete Workspace</span>
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
+            {isAdmin && (
+              <div className="workspace-options-menu-container" ref={optionsRef}>
+                <button
+                  onClick={() => setIsOptionsOpen(!isOptionsOpen)}
+                  className="workspace-options-btn"
+                  title="Workspace Options"
+                  aria-expanded={isOptionsOpen}
+                >
+                  •••
+                </button>
+                {isOptionsOpen && (
+                  <div className="workspace-options-dropdown">
+                    <button
+                      className="options-item"
+                      onClick={() => {
+                        setIsOptionsOpen(false);
+                        navigate('/app/workspace/members');
+                      }}
+                    >
+                      <FiUsers className="item-icon" style={{ marginRight: '8px' }} />
+                      <span>Manage Members</span>
+                    </button>
+                    <div className="options-divider"></div>
+                    <button className="options-item destructive" onClick={handleDeleteWorkspace}>
+                      <FiTrash2 className="item-icon" style={{ marginRight: '8px' }} />
+                      <span>Delete Workspace</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Navigation Links */}

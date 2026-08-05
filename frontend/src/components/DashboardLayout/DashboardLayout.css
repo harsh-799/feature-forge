@@ -79,6 +79,7 @@
 .workspace-selector-container {
   flex: 1;
   position: relative;
+  min-width: 0;
 }
 
 .workspace-selector-btn {
@@ -93,6 +94,7 @@
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   outline: none;
+  min-width: 0;
 }
 
 .workspace-selector-btn:hover {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate, useOutletContext } from 'react-router-dom'
-import { FiArrowLeft, FiEdit3, FiCheckCircle, FiActivity, FiAlertTriangle, FiSliders, FiCalendar, FiLock } from 'react-icons/fi'
+import { createPortal } from 'react-dom'
+import { FiArrowLeft, FiEdit3, FiCheckCircle, FiActivity, FiAlertTriangle, FiSliders, FiCalendar, FiLock, FiX } from 'react-icons/fi'
 import {
   getFeatureDetails,
   updateFeature,
@@ -11,7 +12,8 @@ import {
   approveFeatureProduction,
   activateFeatureProduction,
   updateRolloutProduction,
-  deactivateFeatureProduction
+  deactivateFeatureProduction,
+  toggleEnvironmentConfig
 } from '../../api/featureApi'
 import { getErrorMessage } from '../../api/authApi'
 import { toast } from 'react-toastify'
@@ -41,24 +43,32 @@ export default function FeatureDetails() {
   const [rolloutVal, setRolloutVal] = useState(50);
   const [isSavingRollout, setIsSavingRollout] = useState(false);
 
+  // Custom confirmation modal
+  const [isDeactivateConfirmOpen, setIsDeactivateConfirmOpen] = useState(false);
+
+  // Environment config toggle state
+  const [isTogglingEnv, setIsTogglingEnv] = useState(false);
+
   // Authority flags
   const isAdminOrDev = role === 'ADMIN' || role === 'DEVELOPER';
   const isQA = role === 'QA';
   const isAdmin = role === 'ADMIN';
 
-  const loadFeatureDetails = async () => {
+  const loadFeatureDetails = async (showSkeleton = true) => {
     if (!id || !currentWorkspaceId) return;
 
-    setIsLoading(true);
+    if (showSkeleton) setIsLoading(true);
     const startTime = Date.now();
     try {
       const data = await getFeatureDetails(id, currentWorkspaceId);
       
       // Enforce a minimum loader duration of 350ms to prevent skeleton screen flashing/flicker
-      const elapsed = Date.now() - startTime;
-      const minDelay = 350;
-      if (elapsed < minDelay) {
-        await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
+      if (showSkeleton) {
+        const elapsed = Date.now() - startTime;
+        const minDelay = 350;
+        if (elapsed < minDelay) {
+          await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
+        }
       }
 
       setFeature(data);
@@ -67,7 +77,7 @@ export default function FeatureDetails() {
 
       // Load active production rollout value
       const prodConfig = data.environments.find(e => e.environmentName === 'PRODUCTION');
-      if (prodConfig && prodConfig.rolloutPercentage !== null) {
+      if (prodConfig && prodConfig.rolloutPercentage !== null && prodConfig.rolloutPercentage !== undefined) {
         setRolloutVal(prodConfig.rolloutPercentage);
       }
     } catch (err) {
@@ -75,7 +85,7 @@ export default function FeatureDetails() {
       toast.error(msg);
       navigate('/app/features');
     } finally {
-      setIsLoading(false);
+      if (showSkeleton) setIsLoading(false);
     }
   };
 
@@ -209,7 +219,7 @@ export default function FeatureDetails() {
       });
       toast.success('Feature activated in PRODUCTION!');
       setIsActivating(false);
-      loadFeatureDetails();
+      await loadFeatureDetails(false);
     } catch (err) {
       const msg = getErrorMessage(err);
       toast.error(msg);
@@ -224,7 +234,7 @@ export default function FeatureDetails() {
     try {
       await deactivateFeatureProduction(id, { workspaceId: currentWorkspaceId });
       toast.success('Feature deactivated in PRODUCTION.');
-      loadFeatureDetails();
+      await loadFeatureDetails(false);
     } catch (err) {
       const msg = getErrorMessage(err);
       toast.error(msg);
@@ -242,12 +252,30 @@ export default function FeatureDetails() {
         rolloutPercentage: rolloutVal
       });
       toast.success(`Production rollout updated to ${rolloutVal}%!`);
-      loadFeatureDetails();
+      await loadFeatureDetails(false);
     } catch (err) {
       const msg = getErrorMessage(err);
       toast.error(msg);
     } finally {
       setIsSavingRollout(false);
+    }
+  };
+
+  const handleToggleEnvironment = async (envName, currentEnabled) => {
+    if (isTogglingEnv) return;
+    setIsTogglingEnv(true);
+    try {
+      await toggleEnvironmentConfig(id, envName, {
+        workspaceId: currentWorkspaceId,
+        enabled: !currentEnabled
+      });
+      toast.success(`${envName} environment configuration updated successfully.`);
+      await loadFeatureDetails(false);
+    } catch (err) {
+      const msg = getErrorMessage(err);
+      toast.error(msg);
+    } finally {
+      setIsTogglingEnv(false);
     }
   };
 
@@ -267,6 +295,10 @@ export default function FeatureDetails() {
   const devConfig = feature.environments.find(e => e.environmentName === 'DEVELOPMENT');
   const stagingConfig = feature.environments.find(e => e.environmentName === 'STAGING');
   const prodConfig = feature.environments.find(e => e.environmentName === 'PRODUCTION');
+
+  const isDevEnabled = devConfig ? (devConfig.enabled !== undefined ? devConfig.enabled : devConfig.isEnabled) : false;
+  const isStagingEnabled = stagingConfig ? (stagingConfig.enabled !== undefined ? stagingConfig.enabled : stagingConfig.isEnabled) : false;
+  const isProdEnabled = prodConfig ? (prodConfig.enabled !== undefined ? prodConfig.enabled : prodConfig.isEnabled) : false;
 
   return (
     <div className="flag-details-container">
@@ -387,17 +419,29 @@ export default function FeatureDetails() {
                     <span className="env-dot dev"></span>
                     <span className="env-name">DEVELOPMENT</span>
                   </div>
-                  <span className={`env-status-badge ${devConfig?.isEnabled ? 'active' : 'inactive'}`}>
-                    {devConfig?.isEnabled ? 'Enabled' : 'Disabled'}
-                  </span>
+                  {isAdminOrDev && feature.status === 'IN_DEVELOPMENT' ? (
+                    <label className="toggle-switch-container" title="Toggle Development Flag">
+                      <input
+                        type="checkbox"
+                        checked={isDevEnabled}
+                        disabled={isTogglingEnv}
+                        onChange={() => handleToggleEnvironment('DEVELOPMENT', isDevEnabled)}
+                      />
+                      <span className="toggle-switch-slider"></span>
+                    </label>
+                  ) : (
+                    <span className={`env-status-badge ${isDevEnabled ? 'active' : 'inactive'}`}>
+                      {isDevEnabled ? 'Enabled' : 'Disabled'}
+                    </span>
+                  )}
                 </div>
                 <div className="env-config-body">
                   <div className="config-item-row">
                     <span className="config-label">Progressive Rollout</span>
-                    <span className="config-value">{devConfig?.isEnabled ? '100%' : '0%'}</span>
+                    <span className="config-value">{isDevEnabled ? '100%' : '0%'}</span>
                   </div>
                   <div className="config-progress-bar">
-                    <div className="progress-fill dev" style={{ width: devConfig?.isEnabled ? '100%' : '0%' }}></div>
+                    <div className="progress-fill dev" style={{ width: isDevEnabled ? '100%' : '0%' }}></div>
                   </div>
                   <div className="config-item-row targeting-row">
                     <span className="config-label">Targeting Rules</span>
@@ -413,17 +457,29 @@ export default function FeatureDetails() {
                     <span className="env-dot staging"></span>
                     <span className="env-name">STAGING / QA</span>
                   </div>
-                  <span className={`env-status-badge ${stagingConfig?.isEnabled ? 'active' : 'inactive'}`}>
-                    {stagingConfig?.isEnabled ? 'Enabled' : 'Disabled'}
-                  </span>
+                  {(isAdminOrDev || isQA) && feature.status === 'READY_FOR_QA' ? (
+                    <label className="toggle-switch-container" title="Toggle Staging Flag">
+                      <input
+                        type="checkbox"
+                        checked={isStagingEnabled}
+                        disabled={isTogglingEnv}
+                        onChange={() => handleToggleEnvironment('STAGING', isStagingEnabled)}
+                      />
+                      <span className="toggle-switch-slider"></span>
+                    </label>
+                  ) : (
+                    <span className={`env-status-badge ${isStagingEnabled ? 'active' : 'inactive'}`}>
+                      {isStagingEnabled ? 'Enabled' : 'Disabled'}
+                    </span>
+                  )}
                 </div>
                 <div className="env-config-body">
                   <div className="config-item-row">
                     <span className="config-label">Progressive Rollout</span>
-                    <span className="config-value">{stagingConfig?.isEnabled ? '100%' : '0%'}</span>
+                    <span className="config-value">{isStagingEnabled ? '100%' : '0%'}</span>
                   </div>
                   <div className="config-progress-bar">
-                    <div className="progress-fill staging" style={{ width: stagingConfig?.isEnabled ? '100%' : '0%' }}></div>
+                    <div className="progress-fill staging" style={{ width: isStagingEnabled ? '100%' : '0%' }}></div>
                   </div>
                   <div className="config-item-row targeting-row">
                     <span className="config-label">Targeting Rules</span>
@@ -439,17 +495,17 @@ export default function FeatureDetails() {
                     <span className="env-dot production"></span>
                     <span className="env-name">PRODUCTION</span>
                   </div>
-                  <span className={`env-status-badge ${prodConfig?.isEnabled ? 'active' : 'inactive'}`}>
-                    {prodConfig?.isEnabled ? 'Enabled' : 'Disabled'}
+                  <span className={`env-status-badge ${isProdEnabled ? 'active' : 'inactive'}`}>
+                    {isProdEnabled ? 'Enabled' : 'Disabled'}
                   </span>
                 </div>
                 <div className="env-config-body">
                   <div className="config-item-row">
                     <span className="config-label">Progressive Rollout</span>
-                    <span className="config-value">{prodConfig?.isEnabled ? `${rolloutVal}%` : '0%'}</span>
+                    <span className="config-value">{isProdEnabled ? `${rolloutVal}%` : '0%'}</span>
                   </div>
                   <div className="config-progress-bar">
-                    <div className="progress-fill production" style={{ width: prodConfig?.isEnabled ? `${rolloutVal}%` : '0%' }}></div>
+                    <div className="progress-fill production" style={{ width: isProdEnabled ? `${rolloutVal}%` : '0%' }}></div>
                   </div>
                   <div className="config-item-row targeting-row">
                     <span className="config-label">Targeting Rules</span>
@@ -626,113 +682,155 @@ export default function FeatureDetails() {
             {/* Stage: IN_PRODUCTION */}
             {feature.status === 'IN_PRODUCTION' && (
               <div className="action-stage-box production-controls">
-                {/* Activation Switch */}
-                <div className="production-toggle-section">
-                  <div className="toggle-label-group">
-                    <h4>Production Release State</h4>
-                    <p>Control whether this flag is evaluated to true in the production environment.</p>
-                  </div>
-
-                  {isAdmin ? (
-                    prodConfig?.isEnabled ? (
-                      <button
-                        onClick={handleDeactivateProduction}
-                        className="production-state-toggle-btn active"
-                        disabled={isSubmitting}
-                      >
-                        Deactivate Flag
-                      </button>
-                    ) : isActivating ? (
-                      <form onSubmit={handleActivateProduction} className="activation-form">
-                        <div className="activation-form-group">
-                          <label htmlFor="initialRollout" className="activation-label">INITIAL ROLLOUT TARGET</label>
-                          <div className="activation-input-row">
-                            <input
-                              type="range"
-                              id="initialRollout"
-                              min="1"
-                              max="100"
-                              value={actRollout}
-                              onChange={(e) => setActRollout(parseInt(e.target.value))}
-                              className="rollout-slider-range"
-                            />
-                            <span className="slider-percentage-badge">{actRollout}%</span>
-                          </div>
-                        </div>
-                        <div className="activation-form-actions">
-                          <button
-                            type="button"
-                            onClick={() => setIsActivating(false)}
-                            className="rejection-cancel-btn"
-                            disabled={isSubmitting}
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            className="rejection-submit-btn"
-                            disabled={isSubmitting}
-                          >
-                            {isSubmitting ? 'Activating...' : 'Activate Flag'}
-                          </button>
-                        </div>
-                      </form>
-                    ) : (
-                      <button
-                        onClick={() => setIsActivating(true)}
-                        className="production-state-toggle-btn inactive"
-                        disabled={isSubmitting}
-                      >
-                        Activate Flag
-                      </button>
-                    )
-                  ) : (
-                    <div className="locked-action-overlay">
-                      <FiLock size={14} style={{ marginRight: '6px' }} />
-                      <span>Production release toggles require Admin authority.</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Percentage Rollout Slider */}
-                {prodConfig?.isEnabled && (
-                  <div className="production-rollout-section">
-                    <div className="rollout-section-header">
-                      <div>
-                        <h4>Percentage Rollout Configuration</h4>
-                        <p>Incrementally release this feature flag to a segment of your audience.</p>
+                {isProdEnabled ? (
+                  /* Active in Production state panel */
+                  <div className="production-active-panel">
+                    <div className="production-status-indicator" style={{ marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                      <div className="status-indicator-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <h4 style={{ margin: 0 }}>Production Status</h4>
+                        <span className="status-badge-indicator in-production" style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', color: '#10B981', textTransform: 'uppercase', padding: '4px 8px', borderRadius: '4px', fontSize: '10.5px', fontWeight: '800', letterSpacing: '0.04em' }}>ACTIVE</span>
                       </div>
-                      <span className="rollout-value-text">{rolloutVal}%</span>
+                      <div className="status-indicator-detail">
+                        <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Current Rollout: <strong>{prodConfig?.rolloutPercentage}%</strong></span>
+                      </div>
                     </div>
 
-                    <div className="rollout-slider-track-container">
-                      <span className="slider-bound">0%</span>
-                      <input
-                        type="range"
-                        min="1"
-                        max="100"
-                        value={rolloutVal}
-                        onChange={(e) => setRolloutVal(parseInt(e.target.value))}
-                        className="rollout-slider-range"
-                        disabled={isSavingRollout || !isAdmin}
-                      />
-                      <span className="slider-bound">100%</span>
+                    <div className="production-rollout-section">
+                      <div className="rollout-section-header">
+                        <div>
+                          <h4>Rollout Management</h4>
+                          <p>Incrementally release this feature flag to a segment of your audience.</p>
+                        </div>
+                        <span className="rollout-value-text">{rolloutVal}%</span>
+                      </div>
+
+                      <div className="rollout-slider-track-container">
+                        <span className="slider-bound">0%</span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={rolloutVal}
+                          onChange={(e) => setRolloutVal(parseInt(e.target.value))}
+                          className="rollout-slider-range"
+                          disabled={isSavingRollout || !isAdmin}
+                        />
+                        <span className="slider-bound">100%</span>
+                      </div>
+
+                      <div className="rollout-actions-row" style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                        {isAdmin ? (
+                          <>
+                            <button
+                              onClick={handleSaveRollout}
+                              className="action-primary-btn"
+                              disabled={isSavingRollout || rolloutVal === (prodConfig?.rolloutPercentage ?? 0)}
+                              style={{ flex: 1 }}
+                            >
+                              {isSavingRollout ? 'Saving Rollout...' : 'Update Rollout'}
+                            </button>
+                            <button
+                              onClick={() => setIsDeactivateConfirmOpen(true)}
+                              className="production-state-toggle-btn active"
+                              disabled={isSubmitting}
+                              style={{ width: 'auto', padding: '10px 16px', margin: 0 }}
+                            >
+                              Deactivate
+                            </button>
+                          </>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                              <button
+                                className="action-primary-btn"
+                                disabled={true}
+                                style={{ flex: 1, opacity: 0.5, cursor: 'not-allowed' }}
+                              >
+                                Update Rollout
+                              </button>
+                              <button
+                                className="production-state-toggle-btn active"
+                                disabled={true}
+                                style={{ width: 'auto', padding: '10px 16px', margin: 0, opacity: 0.5, cursor: 'not-allowed' }}
+                              >
+                                Deactivate
+                              </button>
+                            </div>
+                            <div className="locked-action-overlay" style={{ marginTop: 0 }}>
+                              <FiLock size={14} style={{ marginRight: '6px' }} />
+                              <span>Production controls are read-only for your role. Only Admins can modify.</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Inactive / Activation controls state */
+                  <div className="production-toggle-section">
+                    <div className="toggle-label-group">
+                      <h4>Production Release State</h4>
+                      <p>Control whether this flag is evaluated to true in the production environment.</p>
                     </div>
 
                     {isAdmin ? (
-                      rolloutVal !== prodConfig.rolloutPercentage && (
+                      isActivating ? (
+                        <form onSubmit={handleActivateProduction} className="activation-form">
+                          <div className="activation-form-group">
+                            <label htmlFor="initialRollout" className="activation-label">INITIAL ROLLOUT TARGET</label>
+                            <div className="activation-input-row">
+                              <input
+                                type="range"
+                                id="initialRollout"
+                                min="0"
+                                max="100"
+                                value={actRollout}
+                                onChange={(e) => setActRollout(parseInt(e.target.value))}
+                                className="rollout-slider-range"
+                              />
+                              <span className="slider-percentage-badge">{actRollout}%</span>
+                            </div>
+                          </div>
+                          <div className="activation-form-actions">
+                            <button
+                              type="button"
+                              onClick={() => setIsActivating(false)}
+                              className="rejection-cancel-btn"
+                              disabled={isSubmitting}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="submit"
+                              className="rejection-submit-btn"
+                              disabled={isSubmitting}
+                            >
+                              {isSubmitting ? 'Activating...' : 'Activate Feature'}
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
                         <button
-                          onClick={handleSaveRollout}
-                          className="save-rollout-btn"
-                          disabled={isSavingRollout}
+                          onClick={() => setIsActivating(true)}
+                          className="production-state-toggle-btn inactive"
+                          disabled={isSubmitting}
                         >
-                          {isSavingRollout ? 'Saving rollout...' : 'Save Rollout Percentage'}
+                          Activate Feature
                         </button>
                       )
                     ) : (
-                      <div className="locked-action-overlay" style={{ marginTop: '12px' }}>
-                        <FiLock size={14} style={{ marginRight: '6px' }} />
-                        <span>Adjusting rollout percentages requires Admin authority.</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <button
+                          className="production-state-toggle-btn inactive"
+                          disabled={true}
+                          style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                        >
+                          Activate Feature
+                        </button>
+                        <div className="locked-action-overlay" style={{ marginTop: 0 }}>
+                          <FiLock size={14} style={{ marginRight: '6px' }} />
+                          <span>Production activation is read-only for your role. Only Admins can release.</span>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -742,6 +840,59 @@ export default function FeatureDetails() {
           </div>
         </div>
       </div>
+
+      {/* Deactivate Confirmation Modal */}
+      {isDeactivateConfirmOpen && createPortal(
+        <div className="modal-overlay" onClick={() => setIsDeactivateConfirmOpen(false)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+            <div className="modal-header">
+              <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Deactivate Feature Flag?</h3>
+              <button className="modal-close-btn" onClick={() => setIsDeactivateConfirmOpen(false)}>
+                <FiX size={16} />
+              </button>
+            </div>
+            <div className="modal-body" style={{ padding: '8px 0 20px 0' }}>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-primary)', lineHeight: '1.5', margin: 0 }}>
+                Are you sure you want to deactivate this feature in Production? This will immediately stop serving the feature to users.
+              </p>
+            </div>
+            <div className="modal-actions-row" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+              <button
+                type="button"
+                onClick={() => setIsDeactivateConfirmOpen(false)}
+                className="rejection-cancel-btn"
+                disabled={isSubmitting}
+                style={{ fontSize: '13px' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsSubmitting(true);
+                  try {
+                    await deactivateFeatureProduction(id, { workspaceId: currentWorkspaceId });
+                    toast.success('Feature deactivated in PRODUCTION.');
+                    setIsDeactivateConfirmOpen(false);
+                    await loadFeatureDetails(false);
+                  } catch (err) {
+                    const msg = getErrorMessage(err);
+                    toast.error(msg);
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
+                className="rejection-submit-btn"
+                disabled={isSubmitting}
+                style={{ background: '#EF4444', color: '#FFFFFF', padding: '8px 18px', borderRadius: '30px', fontSize: '13px', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+              >
+                {isSubmitting ? 'Deactivating...' : 'Deactivate Feature'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

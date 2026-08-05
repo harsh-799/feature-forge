@@ -13,7 +13,7 @@
 .page-header-title {
   font-size: 28px;
   font-weight: 700;
-  color: var(--accent); /* Orange heading */
+  color: var(--text-heading); /* Charcoal heading */
   letter-spacing: -0.03em;
   margin-bottom: 8px;
 }

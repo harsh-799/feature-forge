@@ -70,7 +70,7 @@ function App() {
       {/* Globally configured Toast Container */}
       <ToastContainer
         position="top-right"
-        autoClose={3500}
+        autoClose={1500}
         hideProgressBar
         newestOnTop={false}
         closeOnClick

@@ -12,6 +12,7 @@ import FeatureDetails from './pages/FeatureDetails/FeatureDetails'
 import Environments from './pages/Environments/Environments'
 import Activity from './pages/Activity/Activity'
 import WorkspaceMembers from './pages/WorkspaceMembers/WorkspaceMembers'
+import AcceptInvite from './pages/AcceptInvite/AcceptInvite'
 
 // Import base React-Toastify styling
 import 'react-toastify/dist/ReactToastify.css'
@@ -34,6 +35,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/accept-invite" element={<AcceptInvite />} />
 
         {/* Onboarding Flow */}
         <Route

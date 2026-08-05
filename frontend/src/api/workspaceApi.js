@@ -39,4 +39,24 @@ export const inviteWorkspaceMember = async (data) => {
   return response.data;
 };
 
-export default { listWorkspaces, createWorkspace, getWorkspaceMembers, inviteWorkspaceMember };
+/**
+ * Fetches workspace invitation details by token.
+ * @param {String} token
+ * @returns {Promise<Object>} WorkspaceInvitationDetailsResponse
+ */
+export const getInvitationDetails = async (token) => {
+  const response = await apiClient.get(`/workspace/invitation/${token}`);
+  return response.data;
+};
+
+/**
+ * Accepts a workspace invitation.
+ * @param {String} token
+ * @returns {Promise<Object>} AcceptMemberResponse
+ */
+export const acceptWorkspaceInvitation = async (token) => {
+  const response = await apiClient.post('/workspace/accept', { token });
+  return response.data;
+};
+
+export default { listWorkspaces, createWorkspace, getWorkspaceMembers, inviteWorkspaceMember, getInvitationDetails, acceptWorkspaceInvitation };

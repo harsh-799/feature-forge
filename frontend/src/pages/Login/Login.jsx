@@ -54,6 +54,14 @@ export default function Login() {
 
       toast.success(response.message || 'Successfully signed in.');
 
+      // Redirect check
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectUrl = searchParams.get('redirect');
+      if (redirectUrl) {
+        navigate(redirectUrl);
+        return;
+      }
+
       // Redirect check based on workspaces existence
       const workspaces = await listWorkspaces();
       if (workspaces && workspaces.length > 0) {
@@ -80,6 +88,8 @@ export default function Login() {
       navigate('/signup');
     }, 250);
   };
+
+  const isFormValid = email.trim().length > 0 && /\S+@\S+\.\S+/.test(email) && password.length > 0;
 
   return (
     <AuthLayout>
@@ -146,7 +156,7 @@ export default function Login() {
           </div>
 
           {/* Submit action button */}
-          <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+          <button type="submit" className="auth-submit-btn" disabled={isLoading || !isFormValid}>
             {isLoading ? (
               'Signing in...'
             ) : (

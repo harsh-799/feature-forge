@@ -207,3 +207,36 @@
     transform: translateY(-8px);
   }
 }
+
+/* Disabled Submit Buttons (Grayed out) */
+.auth-submit-btn:disabled {
+  background-color: #B2B6BD !important;
+  border-color: #B2B6BD !important;
+  color: #FFFFFF !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.auth-submit-btn:disabled .btn-arrow {
+  transform: none !important;
+}
+
+/* Password Match Indicator Inside Input */
+.confirm-password-wrapper .form-input {
+  padding-right: 72px !important;
+}
+
+.password-match-indicator {
+  position: absolute;
+  right: 44px;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+}

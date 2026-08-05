@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi'
+import { FiEye, FiEyeOff, FiAlertCircle, FiCheck, FiX } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { register, getErrorMessage } from '../../api/authApi'
 import AuthLayout from '../../components/AuthLayout/AuthLayout'
@@ -74,8 +74,14 @@ export default function Signup() {
 
       // Smoothly exit and navigate to login
       setIsExiting(true);
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectUrl = searchParams.get('redirect');
       setTimeout(() => {
-        navigate('/login');
+        if (redirectUrl) {
+          navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+        } else {
+          navigate('/login');
+        }
       }, 1000);
     } catch (err) {
       const msg = getErrorMessage(err);
@@ -90,10 +96,23 @@ export default function Signup() {
     e.preventDefault();
     if (isLoading) return;
     setIsExiting(true);
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirectUrl = searchParams.get('redirect');
     setTimeout(() => {
-      navigate('/login');
+      if (redirectUrl) {
+        navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+      } else {
+        navigate('/login');
+      }
     }, 250);
   };
+
+  const isFormValid = 
+    fullName.trim().length > 0 &&
+    /\S+@\S+\.\S+/.test(email) &&
+    password.length >= 8 &&
+    password.length <= 15 &&
+    confirmPassword === password;
 
   return (
     <AuthLayout>
@@ -175,7 +194,23 @@ export default function Signup() {
                 {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
               </button>
             </div>
-            {errors.password && (
+            <div className="password-hint-row" style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '12px',
+              marginTop: '6px',
+              color: (password.length >= 8 && password.length <= 15) ? '#2F9254' : '#5A5852',
+              transition: 'color 0.2s ease'
+            }}>
+              {(password.length >= 8 && password.length <= 15) ? (
+                <FiCheck size={14} style={{ color: '#2F9254', flexShrink: 0 }} />
+              ) : (
+                <FiAlertCircle size={14} style={{ color: '#88867f', flexShrink: 0 }} />
+              )}
+              <span>8-15 characters required</span>
+            </div>
+            {errors.password && errors.password !== 'Password must be between 8 and 15 characters' && (
               <span className="form-error-msg">
                 <FiAlertCircle size={12} className="error-icon" /> {errors.password}
               </span>
@@ -185,7 +220,7 @@ export default function Signup() {
           {/* Confirm Password field */}
           <div className="form-group">
             <label className="form-label" htmlFor="confirmPassword">Confirm Password</label>
-            <div className="password-input-wrapper">
+            <div className="password-input-wrapper confirm-password-wrapper">
               <input
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
@@ -199,6 +234,15 @@ export default function Signup() {
                 disabled={isLoading}
                 required
               />
+              {confirmPassword && (
+                <div className="password-match-indicator">
+                  {confirmPassword === password ? (
+                    <FiCheck size={18} style={{ color: '#2F9254' }} />
+                  ) : (
+                    <FiX size={18} style={{ color: '#EF4444' }} />
+                  )}
+                </div>
+              )}
               <button
                 type="button"
                 className="password-toggle-btn"
@@ -217,7 +261,7 @@ export default function Signup() {
           </div>
 
           {/* Submit action button */}
-          <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+          <button type="submit" className="auth-submit-btn" disabled={isLoading || !isFormValid}>
             {isLoading ? (
               'Creating account...'
             ) : (

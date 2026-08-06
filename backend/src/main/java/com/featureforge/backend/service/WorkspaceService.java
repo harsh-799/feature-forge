@@ -169,7 +169,7 @@ public class WorkspaceService {
 
         WorkspaceInvitation invitation = workspaceInvitationRepository.findByToken(
                 acceptMemberRequest.getToken()
-        ).orElseThrow(() -> new InvalidInviteTokenException("Token is invalid"));
+        ).orElseThrow(() -> new InvalidInviteTokenException("The invite token isn't valid."));
 
         boolean isAlreadyMember = workspaceMembershipRepository.existsByWorkspaceIdAndUserEmail(
                 invitation.getWorkspace().getId(),

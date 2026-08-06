@@ -10,8 +10,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
 import java.util.List;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.DatabindException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -143,6 +146,25 @@ public class GlobalExceptionHandler {
                 .success(false)
                 .message(ex.getMessage())
                 .build();
+
+        System.out.println(ex.getCause());
+
+        Throwable cause = ex.getCause();
+
+        if (cause instanceof InvalidFormatException invalidFormatException) {
+
+            String name = invalidFormatException.getPath().isEmpty()
+                    ? "unknown"
+                    : invalidFormatException.getPath().get(0).getPropertyName();
+
+            return ResponseEntity.status(400)
+                    .body(
+                            ErrorDetails.builder()
+                                    .success(false)
+                                    .message("Invalid format for field " + name)
+                                    .build()
+                    );
+        }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }

@@ -31,6 +31,7 @@ public class FeatureService {
     private final FeatureEnvironmentConfigRepository featureEnvironmentConfigRepository;
     private final FeatureRepository featureRepository;
     private final FeatureScheduleRepository featureScheduleRepository;
+    private final ActivityLogger activityLogger;
 
     private User fetchAuthenticatedUser() {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext()
@@ -112,12 +113,20 @@ public class FeatureService {
             createDefaultFeatureEnvironmentConfig(savedFeature, environment);
         }
 
+        activityLogger.logActivity(
+                workspace.getId(),
+                "CREATED_FEATURE",
+                savedFeature.getName(),
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
+
         return FeatureCreationResponse.builder()
                 .featureId(savedFeature.getId())
                 .name(savedFeature.getName())
                 .description(savedFeature.getDescription())
                 .status(savedFeature.getStatus())
                 .createdAt(savedFeature.getCreatedAt())
+                .featureKey(savedFeature.getKey())
                 .build();
     }
 
@@ -154,6 +163,7 @@ public class FeatureService {
                     .description(feature.getDescription())
                     .status(feature.getStatus())
                     .createdAt(feature.getCreatedAt())
+                    .key(feature.getKey())
                     .build();
 
             featuresList.add(featureSummaryResponse);
@@ -211,6 +221,7 @@ public class FeatureService {
                     .description(feature.getDescription())
                     .status(feature.getStatus())
                     .createdAt(feature.getCreatedAt())
+                    .key(feature.getKey())
                     .build();
 
             featuresList.add(featureSummaryResponse);
@@ -224,6 +235,48 @@ public class FeatureService {
                 .size(featuresPage.getSize())
                 .totalElements(featuresPage.getTotalElements())
                 .isLast(featuresPage.isLast())
+                .build();
+    }
+
+    public FeatureDetailsResponse getFeatureDetails(int featureId, UUID workspaceId) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        workspaceId,
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        Feature feature = featureRepository.findById(featureId).orElseThrow(
+                () -> new FeatureNotFoundException("Feature not found")
+        );
+
+        if (!feature.getWorkspace().getId().equals(workspaceId)) {
+            throw new AccessDeniedException("Access denied: Feature does not belong to this workspace.");
+        }
+
+        List<FeatureEnvironmentConfig> configs = featureEnvironmentConfigRepository.findByFeature(feature);
+        List<FeatureDetailsResponse.EnvironmentConfigResponse> envResponses = new ArrayList<>();
+
+        for (FeatureEnvironmentConfig config : configs) {
+            envResponses.add(FeatureDetailsResponse.EnvironmentConfigResponse.builder()
+                    .environmentName(config.getEnvironment().getName().name())
+                    .isEnabled(config.isEnabled())
+                    .rolloutPercentage(config.getRolloutPercentage())
+                    .build());
+        }
+
+        return FeatureDetailsResponse.builder()
+                .featureId(feature.getId())
+                .name(feature.getName())
+                .key(feature.getKey())
+                .description(feature.getDescription())
+                .status(feature.getStatus())
+                .createdAt(feature.getCreatedAt())
+                .rejectionReason(feature.getRejectionReason())
+                .environments(envResponses)
                 .build();
     }
 
@@ -267,6 +320,13 @@ public class FeatureService {
 
         featureEnvironmentConfig.setEnabled(true);
 
+        activityLogger.logActivity(
+                memberWorkspace.getId(),
+                "PROMOTED_TO_STAGING",
+                feature.getName(),
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
+
         PromoteToStagingResponse promoteToStagingResponse = new PromoteToStagingResponse();
         promoteToStagingResponse.setSuccess(true);
         promoteToStagingResponse.setMessage("feature status Updated to READY_FOR_QA");
@@ -302,6 +362,13 @@ public class FeatureService {
         FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.QA_VERIFIED);
 
         feature.setStatus(FeatureStatus.QA_VERIFIED);
+
+        activityLogger.logActivity(
+                member.getWorkspace().getId(),
+                "QA_VERIFIED",
+                feature.getName(),
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
 
         FeatureQAVerificationResponse featureQAVerificationResponse = new FeatureQAVerificationResponse();
         featureQAVerificationResponse.setSuccess(true);
@@ -340,6 +407,13 @@ public class FeatureService {
         feature.setStatus(FeatureStatus.QA_REJECTED);
         feature.setRejectionReason(featureQARejectionRequest.getRejectionReason().trim());
 
+        activityLogger.logActivity(
+                member.getWorkspace().getId(),
+                "QA_REJECTED",
+                feature.getName(),
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
+
         FeatureQARejectionResponse featureQARejectionResponse = new FeatureQARejectionResponse();
         featureQARejectionResponse.setStatus(true);
         featureQARejectionResponse.setMessage("feature status changed to QA_VERIFIED");
@@ -375,6 +449,13 @@ public class FeatureService {
         FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.IN_PRODUCTION);
 
         feature.setStatus(FeatureStatus.IN_PRODUCTION);
+
+        activityLogger.logActivity(
+                member.getWorkspace().getId(),
+                "APPROVED_FOR_PRODUCTION",
+                feature.getName(),
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
 
         FeatureProductionApprovalResponse featureProductionApprovalResponse = new FeatureProductionApprovalResponse();
         featureProductionApprovalResponse.setSuccess(true);
@@ -426,6 +507,13 @@ public class FeatureService {
 
         featureEnvironmentConfig.setEnabled(true);
         featureEnvironmentConfig.setRolloutPercentage(featureProductionActivationRequest.getRolloutPercentage());
+
+        activityLogger.logActivity(
+                memberWorkspace.getId(),
+                "ACTIVATED_IN_PRODUCTION",
+                feature.getName() + " (" + featureProductionActivationRequest.getRolloutPercentage() + "% rollout)",
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
 
         FeatureProductionActivationResponse featureProductionActivationResponse = new FeatureProductionActivationResponse();
         featureProductionActivationResponse.setSuccess(true);
@@ -481,6 +569,13 @@ public class FeatureService {
 
         featureEnvironmentConfig.setRolloutPercentage(featureProductionRolloutRequest.getRolloutPercentage());
 
+        activityLogger.logActivity(
+                memberWorkspace.getId(),
+                "UPDATED_ROLLOUT",
+                feature.getName() + " to " + featureProductionRolloutRequest.getRolloutPercentage() + "%",
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
+
         FeatureProductionRolloutResponse featureProductionRolloutResponse = new FeatureProductionRolloutResponse();
         featureProductionRolloutResponse.setSuccess(true);
         featureProductionRolloutResponse.setMessage("feature rollout percentage is updated");
@@ -530,6 +625,13 @@ public class FeatureService {
             throw new FeatureNotEnabledException("Feature is not active in production.");
 
         featureEnvironmentConfig.setEnabled(false);
+
+        activityLogger.logActivity(
+                memberWorkspace.getId(),
+                "DEACTIVATED_IN_PRODUCTION",
+                feature.getName(),
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
 
         FeatureProductionDeactivationResponse featureProductionDeactivationResponse = new FeatureProductionDeactivationResponse();
         featureProductionDeactivationResponse.setSuccess(true);
@@ -633,6 +735,13 @@ public class FeatureService {
         FeatureSchedule savedFeatureSchedule =
                 featureScheduleRepository.save(featureSchedule);
 
+        activityLogger.logActivity(
+                member.getWorkspace().getId(),
+                "SCHEDULED_ACTION",
+                feature.getName() + " (" + action.name() + ")",
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
+
         FeatureProductionScheduleResponse response =
                 new FeatureProductionScheduleResponse();
 
@@ -702,11 +811,90 @@ public class FeatureService {
             feature.setDescription(featureUpdationRequest.getDescription());
         }
 
+        activityLogger.logActivity(
+                memberWorkspace.getId(),
+                "UPDATED_FEATURE",
+                feature.getName(),
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
+
         FeatureUpdationResponse featureUpdationResponse = new FeatureUpdationResponse();
         featureUpdationResponse.setSuccess(true);
         featureUpdationResponse.setFeatureId(feature.getId());
         featureUpdationResponse.setMessage("feature updated successfully");
 
         return featureUpdationResponse;
+    }
+
+    @Transactional
+    public FeatureEnvironmentToggleResponse toggleEnvironmentConfig(int featureId, String envName, FeatureEnvironmentToggleRequest request) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        request.getWorkspaceId(),
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        Feature feature = featureRepository.findById(featureId).orElseThrow(
+                () -> new FeatureNotFoundException("Feature not found")
+        );
+
+        if (!feature.getWorkspace().getId().equals(memberWorkspace.getId())) {
+            throw new WorkspaceMismatchException("Access denied. Feature is not associated with your workspace.");
+        }
+
+        EnvironmentName environmentName;
+        try {
+            environmentName = EnvironmentName.valueOf(envName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidFeatureUpdateRequestException("Invalid environment name: " + envName);
+        }
+
+        // Validate permissions and feature status constraints
+        if (environmentName == EnvironmentName.DEVELOPMENT) {
+            if (member.getRole() != Role.ADMIN && member.getRole() != Role.DEVELOPER) {
+                throw new AccessDeniedException("Unauthorized Access: Only Admins and Developers can modify Development environment.");
+            }
+            if (feature.getStatus() != FeatureStatus.IN_DEVELOPMENT) {
+                throw new InvalidFeatureStatusException("Development environment configuration is locked when feature is not IN_DEVELOPMENT.");
+            }
+        } else if (environmentName == EnvironmentName.STAGING) {
+            if (member.getRole() != Role.ADMIN && member.getRole() != Role.DEVELOPER && member.getRole() != Role.QA) {
+                throw new AccessDeniedException("Unauthorized Access: Only Admins, Developers, and QAs can modify Staging environment.");
+            }
+            if (feature.getStatus() != FeatureStatus.READY_FOR_QA) {
+                throw new InvalidFeatureStatusException("Staging environment configuration is locked when feature status is not READY_FOR_QA.");
+            }
+        } else if (environmentName == EnvironmentName.PRODUCTION) {
+            throw new InvalidFeatureUpdateRequestException("Please use the specific production release controls to activate or deactivate the production environment.");
+        }
+
+        FeatureEnvironmentConfig config = featureEnvironmentConfigRepository
+                .findByFeature_IdAndEnvironment_Name(feature.getId(), environmentName)
+                .orElseThrow(
+                        () -> new FeatureEnvironmentConfigNotFoundException("No configuration found for feature in environment " + environmentName)
+                );
+
+        config.setEnabled(request.getEnabled());
+
+        activityLogger.logActivity(
+                memberWorkspace.getId(),
+                "TOGGLED_ENVIRONMENT",
+                feature.getName() + " in " + environmentName + " (" + (request.getEnabled() ? "ENABLED" : "DISABLED") + ")",
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
+
+        return FeatureEnvironmentToggleResponse.builder()
+                .success(true)
+                .message("Feature flag toggled successfully in " + environmentName)
+                .featureId(feature.getId())
+                .environmentName(environmentName.name())
+                .enabled(config.isEnabled())
+                .build();
     }
 }

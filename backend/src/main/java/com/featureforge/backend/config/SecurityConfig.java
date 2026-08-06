@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/register").permitAll()
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers("/api/v1/evaluate").permitAll()
+                .requestMatchers("/workspace/invitation/**").permitAll()
                 .anyRequest().authenticated()
         );
 

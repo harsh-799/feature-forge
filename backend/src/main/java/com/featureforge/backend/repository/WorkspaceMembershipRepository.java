@@ -16,4 +16,7 @@ public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMe
     boolean existsByUserAndRoleAndWorkspace_Name(User user, Role role, String workspaceName);
 
     java.util.List<WorkspaceMembership> findByUser(User user);
+
+    @org.springframework.data.jpa.repository.Query("SELECT wm FROM WorkspaceMembership wm WHERE wm.workspace.id = :workspaceId")
+    java.util.List<WorkspaceMembership> findByWorkspace_Id(@org.springframework.data.repository.query.Param("workspaceId") UUID workspaceId);
 }

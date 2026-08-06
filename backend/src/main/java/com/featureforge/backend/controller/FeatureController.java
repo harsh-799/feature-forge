@@ -16,6 +16,12 @@ public class FeatureController {
 
     private final FeatureService featureService;
 
+    @GetMapping("/{featureId}")
+    public ResponseEntity<FeatureDetailsResponse> getDetails(@PathVariable(name = "featureId") int featureId,
+                                                              @RequestParam(name = "workspaceId") java.util.UUID workspaceId) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.getFeatureDetails(featureId, workspaceId));
+    }
+
     @PostMapping("/create")
     public ResponseEntity<FeatureCreationResponse> create(@Valid @RequestBody FeatureCreationRequest featureCreationRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(featureService.createFeature(featureCreationRequest));
@@ -81,6 +87,13 @@ public class FeatureController {
     public ResponseEntity<FeatureUpdationResponse> update(@PathVariable(name = "featureId") int featureId,
                                                           @Valid @RequestBody FeatureUpdationRequest featureUpdationRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.updateFeature(featureId, featureUpdationRequest));
+    }
+
+    @PatchMapping("/{featureId}/environments/{envName}/toggle")
+    public ResponseEntity<FeatureEnvironmentToggleResponse> toggleEnvironment(@PathVariable(name = "featureId") int featureId,
+                                                                              @PathVariable(name = "envName") String envName,
+                                                                              @Valid @RequestBody FeatureEnvironmentToggleRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.toggleEnvironmentConfig(featureId, envName, request));
     }
 
 }

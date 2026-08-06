@@ -78,8 +78,38 @@ public class WorkspaceController {
         );
     }
 
+    @GetMapping("/{workspaceId}/members")
+    public ResponseEntity<java.util.List<com.featureforge.backend.dto.response.WorkspaceMemberResponse>> getMembers(
+            @PathVariable(name = "workspaceId") UUID workspaceId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(workspaceService.getWorkspaceMembers(workspaceId));
+    }
+
+    @GetMapping("/invitation/{token}")
+    public ResponseEntity<com.featureforge.backend.dto.response.WorkspaceInvitationDetailsResponse> getInvitation(
+            @PathVariable(name = "token") UUID token
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(workspaceService.getInvitationDetails(token));
+    }
+
     @GetMapping("/list")
     public ResponseEntity<java.util.List<com.featureforge.backend.dto.response.UserWorkspaceResponse>> list() {
         return ResponseEntity.status(HttpStatus.OK).body(workspaceService.getUserWorkspaces());
+    }
+
+    @GetMapping("/{workspaceId}/overview")
+    public ResponseEntity<com.featureforge.backend.dto.response.WorkspaceOverviewResponse> getOverview(
+            @PathVariable(name = "workspaceId") UUID workspaceId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(workspaceService.getWorkspaceOverview(workspaceId));
+    }
+
+    @GetMapping("/{workspaceId}/activity")
+    public ResponseEntity<org.springframework.data.domain.Page<com.featureforge.backend.dto.response.ActivityLogResponse>> getActivity(
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(workspaceService.getWorkspaceActivity(workspaceId, page, size));
     }
 }

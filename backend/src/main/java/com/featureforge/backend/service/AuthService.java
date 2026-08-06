@@ -65,4 +65,23 @@ public class AuthService {
                 .token(token)
                 .build();
     }
+
+    public com.featureforge.backend.dto.response.UserResponse getCurrentUser() {
+        org.springframework.security.core.context.SecurityContext context = org.springframework.security.core.context.SecurityContextHolder.getContext();
+        org.springframework.security.core.Authentication authentication = context.getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new org.springframework.security.access.AccessDeniedException("Unauthorized");
+        }
+        
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            User user = ((CustomUserDetails) principal).getUser();
+            return com.featureforge.backend.dto.response.UserResponse.builder()
+                    .email(user.getEmail())
+                    .fullname(user.getFullname())
+                    .build();
+        }
+        
+        throw new org.springframework.security.access.AccessDeniedException("Unauthorized");
+    }
 }

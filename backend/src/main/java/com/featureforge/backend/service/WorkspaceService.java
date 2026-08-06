@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 
 @Service
@@ -37,6 +40,10 @@ public class WorkspaceService {
     private final WorkspaceInvitationRepository workspaceInvitationRepository;
     private final EnvironmentRepository environmentRepository;
     private final ApiKeyManager apiKeyManager;
+    private final EmailService emailService;
+    private final FeatureRepository featureRepository;
+    private final ActivityLogRepository activityLogRepository;
+    private final ActivityLogger activityLogger;
 
     @Value("${invitation.expiry.days}")
     private int INVITATION_EXPIRY_DAYS;
@@ -155,6 +162,21 @@ public class WorkspaceService {
 
         workspaceInvitationRepository.save(workspaceInvitation);
 
+        emailService.sendWorkspaceInvitation(
+                workspaceInvitation.getEmail(),
+                user.getFullname() != null && !user.getFullname().trim().isEmpty() ? user.getFullname() : user.getEmail(),
+                workspace.getName(),
+                workspaceInvitation.getRole().name(),
+                token.toString()
+        );
+
+        activityLogger.logActivity(
+                workspace.getId(),
+                "MEMBER_INVITED",
+                inviteMemberRequest.getEmail() + " (" + inviteMemberRequest.getRole().name() + ")",
+                user.getFullname() != null && !user.getFullname().trim().isEmpty() ? user.getFullname() : user.getEmail()
+        );
+
         return new InviteMemberResponse(
                 true,
                 "Invitation has been sent successfully."
@@ -197,6 +219,13 @@ public class WorkspaceService {
 
         invitation.setStatus(InvitationStatus.ACCEPTED);
 
+        activityLogger.logActivity(
+                invitation.getWorkspace().getId(),
+                "MEMBER_JOINED",
+                loggedInUser.getEmail() + " as " + invitation.getRole().name(),
+                loggedInUser.getFullname() != null && !loggedInUser.getFullname().trim().isEmpty() ? loggedInUser.getFullname() : loggedInUser.getEmail()
+        );
+
         return new AcceptMemberResponse(
                 true,
                 "Invitation accepted successfully. You have joined the workspace."
@@ -213,5 +242,174 @@ public class WorkspaceService {
                         .role(membership.getRole())
                         .build())
                 .toList();
+    }
+
+    public java.util.List<com.featureforge.backend.dto.response.WorkspaceMemberResponse> getWorkspaceMembers(UUID workspaceId) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        // Check if the current user is a member of this workspace
+        workspaceMembershipRepository.findByWorkspace_IdAndUser(workspaceId, loggedInUser)
+                .orElseThrow(() -> new AccessDeniedException("Access denied: You are not a member of this workspace."));
+
+        java.util.List<WorkspaceMembership> memberships = workspaceMembershipRepository.findByWorkspace_Id(workspaceId);
+        java.util.List<com.featureforge.backend.dto.response.WorkspaceMemberResponse> responses = new java.util.ArrayList<>();
+
+        for (WorkspaceMembership membership : memberships) {
+            responses.add(com.featureforge.backend.dto.response.WorkspaceMemberResponse.builder()
+                    .memberId(membership.getId())
+                    .email(membership.getUser().getEmail())
+                    .fullname(membership.getUser().getFullname())
+                    .role(membership.getRole().name())
+                    .build());
+        }
+
+        return responses;
+    }
+
+    public com.featureforge.backend.dto.response.WorkspaceInvitationDetailsResponse getInvitationDetails(UUID token) {
+        java.util.Optional<WorkspaceInvitation> invitationOpt = workspaceInvitationRepository.findByToken(token);
+
+        if (invitationOpt.isEmpty()) {
+            return com.featureforge.backend.dto.response.WorkspaceInvitationDetailsResponse.builder()
+                    .valid(false)
+                    .message("Token is invalid")
+                    .build();
+        }
+
+        WorkspaceInvitation invitation = invitationOpt.get();
+
+        if (invitation.getStatus() != InvitationStatus.PENDING) {
+            return com.featureforge.backend.dto.response.WorkspaceInvitationDetailsResponse.builder()
+                    .valid(false)
+                    .workspaceId(invitation.getWorkspace().getId())
+                    .workspaceName(invitation.getWorkspace().getName())
+                    .invitedEmail(invitation.getEmail())
+                    .status(invitation.getStatus().name())
+                    .message("Invitation has already been " + invitation.getStatus().name().toLowerCase())
+                    .build();
+        }
+
+        if (LocalDateTime.now().isAfter(invitation.getExpiresAt())) {
+            return com.featureforge.backend.dto.response.WorkspaceInvitationDetailsResponse.builder()
+                    .valid(false)
+                    .workspaceId(invitation.getWorkspace().getId())
+                    .workspaceName(invitation.getWorkspace().getName())
+                    .invitedEmail(invitation.getEmail())
+                    .status(InvitationStatus.PENDING.name())
+                    .message("Invitation has expired")
+                    .build();
+        }
+
+        // Fetch inviter name (first Admin of the workspace)
+        java.util.List<WorkspaceMembership> memberships = workspaceMembershipRepository.findByWorkspace_Id(invitation.getWorkspace().getId());
+        String inviterName = memberships.stream()
+                .filter(m -> m.getRole() == Role.ADMIN)
+                .map(m -> m.getUser().getFullname())
+                .findFirst()
+                .orElse("FeatureForge Admin");
+
+        return com.featureforge.backend.dto.response.WorkspaceInvitationDetailsResponse.builder()
+                .valid(true)
+                .workspaceId(invitation.getWorkspace().getId())
+                .workspaceName(invitation.getWorkspace().getName())
+                .inviterName(inviterName)
+                .invitedEmail(invitation.getEmail())
+                .role(invitation.getRole().name())
+                .status(invitation.getStatus().name())
+                .message("Invitation is valid")
+                .build();
+    }
+
+    public com.featureforge.backend.dto.response.WorkspaceOverviewResponse getWorkspaceOverview(UUID workspaceId) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        // Check if user is member of this workspace
+        WorkspaceMembership membership = workspaceMembershipRepository.findByWorkspace_IdAndUser(workspaceId, loggedInUser)
+                .orElseThrow(() -> new AccessDeniedException("Access denied: You are not a member of this workspace."));
+
+        Workspace workspace = membership.getWorkspace();
+
+        // Fetch counts from FeatureRepository
+        long totalFeatureFlags = featureRepository.countByWorkspace(workspace);
+        long inDevelopmentFlags = featureRepository.countByWorkspaceAndStatus(workspace, com.featureforge.backend.enums.FeatureStatus.IN_DEVELOPMENT);
+        long waitingForQaFlags = featureRepository.countByWorkspaceAndStatus(workspace, com.featureforge.backend.enums.FeatureStatus.READY_FOR_QA);
+        long inProductionFlags = featureRepository.countByWorkspaceAndStatus(workspace, com.featureforge.backend.enums.FeatureStatus.IN_PRODUCTION);
+        long qaVerified = featureRepository.countByWorkspaceAndStatus(workspace, com.featureforge.backend.enums.FeatureStatus.QA_VERIFIED);
+        long qaRejected = featureRepository.countByWorkspaceAndStatus(workspace, com.featureforge.backend.enums.FeatureStatus.QA_REJECTED);
+
+        // Pipeline groupings
+        long pipelineDevelopmentCount = inDevelopmentFlags + qaRejected;
+        long pipelineStagingQaCount = waitingForQaFlags + qaVerified;
+        long pipelineProductionCount = inProductionFlags;
+
+        // Environments
+        java.util.List<Environment> envList = environmentRepository.findByWorkspace(workspace);
+        java.util.List<com.featureforge.backend.dto.response.WorkspaceOverviewResponse.EnvironmentStatusDTO> environments = envList.stream()
+                .map(e -> com.featureforge.backend.dto.response.WorkspaceOverviewResponse.EnvironmentStatusDTO.builder()
+                        .name(e.getName().name())
+                        .status("Active")
+                        .build())
+                .toList();
+
+        // If list is empty, default it to standard pipeline
+        if (environments.isEmpty()) {
+            environments = java.util.List.of(
+                new com.featureforge.backend.dto.response.WorkspaceOverviewResponse.EnvironmentStatusDTO("DEVELOPMENT", "Active"),
+                new com.featureforge.backend.dto.response.WorkspaceOverviewResponse.EnvironmentStatusDTO("STAGING", "Active"),
+                new com.featureforge.backend.dto.response.WorkspaceOverviewResponse.EnvironmentStatusDTO("PRODUCTION", "Active")
+            );
+        }
+
+        // Members grouping
+        java.util.List<WorkspaceMembership> memberships = workspaceMembershipRepository.findByWorkspace_Id(workspaceId);
+        java.util.Map<String, Long> teamRoleCounts = new java.util.HashMap<>();
+        teamRoleCounts.put("ADMIN", memberships.stream().filter(m -> m.getRole() == Role.ADMIN).count());
+        teamRoleCounts.put("DEVELOPER", memberships.stream().filter(m -> m.getRole() == Role.DEVELOPER).count());
+        teamRoleCounts.put("QA", memberships.stream().filter(m -> m.getRole() == Role.QA).count());
+
+        // Recent activities
+        java.util.List<ActivityLog> recentActivitiesLogs = activityLogRepository.findFirst5ByWorkspaceIdOrderByTimestampDesc(workspaceId);
+        java.util.List<com.featureforge.backend.dto.response.ActivityLogResponse> recentActivities = recentActivitiesLogs.stream()
+                .map(l -> com.featureforge.backend.dto.response.ActivityLogResponse.builder()
+                        .id(l.getId())
+                        .action(l.getAction())
+                        .context(l.getContext())
+                        .actor(l.getActor())
+                        .timestamp(l.getTimestamp())
+                        .build())
+                .toList();
+
+        return com.featureforge.backend.dto.response.WorkspaceOverviewResponse.builder()
+                .totalFeatureFlags(totalFeatureFlags)
+                .inDevelopmentFlags(inDevelopmentFlags)
+                .waitingForQaFlags(waitingForQaFlags)
+                .inProductionFlags(inProductionFlags)
+                .pipelineDevelopmentCount(pipelineDevelopmentCount)
+                .pipelineStagingQaCount(pipelineStagingQaCount)
+                .pipelineProductionCount(pipelineProductionCount)
+                .environments(environments)
+                .teamRoleCounts(teamRoleCounts)
+                .recentActivities(recentActivities)
+                .build();
+    }
+
+    public Page<com.featureforge.backend.dto.response.ActivityLogResponse> getWorkspaceActivity(
+            UUID workspaceId, int page, int size) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        // Check if user is member of this workspace
+        workspaceMembershipRepository.findByWorkspace_IdAndUser(workspaceId, loggedInUser)
+                .orElseThrow(() -> new AccessDeniedException("Access denied: You are not a member of this workspace."));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ActivityLog> logs = activityLogRepository.findByWorkspaceIdOrderByTimestampDesc(workspaceId, pageable);
+
+        return logs.map(l -> com.featureforge.backend.dto.response.ActivityLogResponse.builder()
+                .id(l.getId())
+                .action(l.getAction())
+                .context(l.getContext())
+                .actor(l.getActor())
+                .timestamp(l.getTimestamp())
+                .build());
     }
 }

@@ -29,4 +29,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequest));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<com.featureforge.backend.dto.response.UserResponse> getCurrentUser() {
+        return ResponseEntity.status(HttpStatus.OK).body(authService.getCurrentUser());
+    }
+
 }

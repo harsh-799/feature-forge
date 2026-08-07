@@ -112,9 +112,11 @@ public class WorkspaceController {
     @GetMapping("/{workspaceId}/members")
     public ResponseEntity<WorkspaceMemberResponse> getMembers(
             @PathVariable(name = "workspaceId") UUID workspaceId,
-            @RequestParam(required = false) Role role
+            @RequestParam(required = false) Role role,
+            @RequestParam(required = false) String keyword
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(workspaceService.getMembersOfWorkspace(workspaceId, role));
+                .body(workspaceService.getMembersOfWorkspace(workspaceId, role, keyword));
     }
+
 }

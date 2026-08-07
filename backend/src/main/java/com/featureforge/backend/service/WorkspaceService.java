@@ -9,9 +9,7 @@ import com.featureforge.backend.enums.Role;
 import com.featureforge.backend.exception.*;
 import com.featureforge.backend.repository.*;
 import com.featureforge.backend.util.ApiKeyManager;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -348,7 +346,7 @@ public class WorkspaceService {
                 .build();
     }
 
-    public WorkspaceMemberResponse getMembersOfWorkspace(UUID workspaceId, Role role) {
+    public WorkspaceMemberResponse getMembersOfWorkspace(UUID workspaceId, Role role, String keyword) {
 
         User loggedInUser = fetchAuthenticatedUser();
 
@@ -363,15 +361,10 @@ public class WorkspaceService {
 
         Workspace workspace = loggedInMembership.getWorkspace();
 
-        List<WorkspaceMembership> workspaceMembershipList;
+        String normalizedKeyword = (keyword == null) ? "" : keyword.trim();
 
-        if (role == null)
-            workspaceMembershipList = workspaceMembershipRepository
-                    .findAllByWorkspaceOrderByRoleAscUser_FullnameAsc(workspace);
-        else
-            workspaceMembershipList = workspaceMembershipRepository
-                    .findAllByWorkspaceAndRoleOrderByRoleAscUser_FullnameAsc
-                    (workspace, role);
+        List<WorkspaceMembership> workspaceMembershipList = workspaceMembershipRepository
+                .findMembers(workspaceId, role, normalizedKeyword);
 
         List<WorkspaceMemberDetails> membersData = new ArrayList<>();
 

@@ -94,6 +94,15 @@ public class WorkspaceController {
                 .body(workspaceService.renameWorkspace(workspaceId, workspaceUpdationRequest));
     }
 
+    @DeleteMapping("/{workspaceId}")
+    public ResponseEntity<WorkspaceDeletionResponse> delete(
+            @PathVariable(name = "workspaceId") UUID workspaceId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(workspaceService.deleteWorkspace(workspaceId));
+    }
+
+
     @DeleteMapping("/{workspaceId}/members/me")
     public ResponseEntity<WorkspaceMemberDeletionResponse> leave(
             @PathVariable(name = "workspaceId") UUID workspaceId) {

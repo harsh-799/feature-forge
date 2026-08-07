@@ -20,4 +20,6 @@ public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMe
 
     int countByWorkspace(Workspace workspace);
 
+    void deleteByWorkspace(Workspace workspace);
+
 }

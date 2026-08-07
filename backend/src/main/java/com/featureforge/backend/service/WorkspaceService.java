@@ -37,6 +37,8 @@ public class WorkspaceService {
     private final WorkspaceInvitationRepository workspaceInvitationRepository;
     private final EnvironmentRepository environmentRepository;
     private final ApiKeyManager apiKeyManager;
+    private final FeatureRepository featureRepository;
+    private final FeatureEnvironmentConfigRepository featureEnvironmentConfigRepository;
 
     @Value("${invitation.expiry.days}")
     private int INVITATION_EXPIRY_DAYS;
@@ -318,5 +320,37 @@ public class WorkspaceService {
                 .message("You have successfully left the workspace.")
                 .build();
 
+    }
+
+    @Transactional
+    public WorkspaceDeletionResponse deleteWorkspace(UUID workspaceId) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member =  workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId, loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("You don't have access to this workspace.")
+                );
+
+        if (member.getRole() != Role.ADMIN)
+            throw new InsufficientPrivilegesException("Only admins can delete the workspace.");
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        featureEnvironmentConfigRepository.deleteByWorkspaceId(memberWorkspace.getId());
+        featureRepository.deleteByWorkspace(memberWorkspace);
+        environmentRepository.deleteByWorkspace(memberWorkspace);
+
+        workspaceInvitationRepository.deleteByWorkspace(memberWorkspace);
+        workspaceMembershipRepository.deleteByWorkspace(memberWorkspace);
+
+        workspaceRepository.delete(memberWorkspace);
+
+        return WorkspaceDeletionResponse.builder()
+                .success(true)
+                .message("Workspace deleted successfully.")
+                .workspaceName(memberWorkspace.getName())
+                .workspaceId(memberWorkspace.getId())
+                .build();
     }
 }

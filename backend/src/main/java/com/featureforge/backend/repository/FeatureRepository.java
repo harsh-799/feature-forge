@@ -23,4 +23,6 @@ public interface FeatureRepository extends JpaRepository<Feature,Integer> {
     Page<Feature> findByWorkspaceAndNameContainingIgnoreCase(Workspace workspace, String keyword, Pageable pageable);
 
     Optional<Feature> findByWorkspaceAndKey(Workspace workspace, String featureKey);
+
+    void deleteByWorkspace(Workspace workspace);
 }

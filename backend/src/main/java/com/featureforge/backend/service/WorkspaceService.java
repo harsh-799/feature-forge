@@ -1,9 +1,6 @@
 package com.featureforge.backend.service;
 
-import com.featureforge.backend.dto.request.AcceptMemberRequest;
-import com.featureforge.backend.dto.request.InviteMemberRequest;
-import com.featureforge.backend.dto.request.WorkspaceCreationRequest;
-import com.featureforge.backend.dto.request.WorkspaceUpdationRequest;
+import com.featureforge.backend.dto.request.*;
 import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.entity.*;
 import com.featureforge.backend.enums.EnvironmentName;
@@ -351,7 +348,7 @@ public class WorkspaceService {
                 .build();
     }
 
-    public WorkspaceMemberResponse getMembersOfWorkspace(UUID workspaceId) {
+    public WorkspaceMemberResponse getMembersOfWorkspace(UUID workspaceId, Role role) {
 
         User loggedInUser = fetchAuthenticatedUser();
 
@@ -366,7 +363,15 @@ public class WorkspaceService {
 
         Workspace workspace = loggedInMembership.getWorkspace();
 
-        List<WorkspaceMembership> workspaceMembershipList = workspaceMembershipRepository.findAllByWorkspaceOrderByRoleAscUser_FullnameAsc(workspace);
+        List<WorkspaceMembership> workspaceMembershipList;
+
+        if (role == null)
+            workspaceMembershipList = workspaceMembershipRepository
+                    .findAllByWorkspaceOrderByRoleAscUser_FullnameAsc(workspace);
+        else
+            workspaceMembershipList = workspaceMembershipRepository
+                    .findAllByWorkspaceAndRoleOrderByRoleAscUser_FullnameAsc
+                    (workspace, role);
 
         List<WorkspaceMemberDetails> membersData = new ArrayList<>();
 

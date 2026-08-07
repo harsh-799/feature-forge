@@ -1,11 +1,9 @@
 package com.featureforge.backend.controller;
 
-import com.featureforge.backend.dto.request.AcceptMemberRequest;
-import com.featureforge.backend.dto.request.InviteMemberRequest;
-import com.featureforge.backend.dto.request.WorkspaceCreationRequest;
-import com.featureforge.backend.dto.request.WorkspaceUpdationRequest;
+import com.featureforge.backend.dto.request.*;
 import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.enums.FeatureStatus;
+import com.featureforge.backend.enums.Role;
 import com.featureforge.backend.service.FeatureService;
 import com.featureforge.backend.service.WorkspaceService;
 import jakarta.validation.Valid;
@@ -113,9 +111,10 @@ public class WorkspaceController {
 
     @GetMapping("/{workspaceId}/members")
     public ResponseEntity<WorkspaceMemberResponse> getMembers(
-            @PathVariable(name = "workspaceId") UUID workspaceId
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @RequestParam(required = false) Role role
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(workspaceService.getMembersOfWorkspace(workspaceId));
+                .body(workspaceService.getMembersOfWorkspace(workspaceId, role));
     }
 }

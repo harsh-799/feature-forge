@@ -26,4 +26,5 @@ public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMe
 
     List<WorkspaceMembership> findAllByWorkspaceOrderByRoleAscUser_FullnameAsc(Workspace workspace);
 
+    List<WorkspaceMembership> findAllByWorkspaceAndRoleOrderByRoleAscUser_FullnameAsc(Workspace workspace, Role role);
 }

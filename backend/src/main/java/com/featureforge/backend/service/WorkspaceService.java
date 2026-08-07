@@ -6,6 +6,7 @@ import com.featureforge.backend.dto.request.WorkspaceCreationRequest;
 import com.featureforge.backend.dto.response.AcceptMemberResponse;
 import com.featureforge.backend.dto.response.InviteMemberResponse;
 import com.featureforge.backend.dto.response.WorkspaceCreationResponse;
+import com.featureforge.backend.dto.response.WorkspaceMemberDeletionResponse;
 import com.featureforge.backend.entity.*;
 import com.featureforge.backend.enums.EnvironmentName;
 import com.featureforge.backend.enums.InvitationStatus;
@@ -201,5 +202,57 @@ public class WorkspaceService {
                 true,
                 "Invitation accepted successfully. You have joined the workspace."
         );
+    }
+
+    @Transactional
+    public WorkspaceMemberDeletionResponse removeMemberForWorkspace(UUID workspaceId, int memberId) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId, loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("You don't have access to this workspace.")
+                );
+
+
+        if (member.getRole() != Role.ADMIN)
+            throw new InsufficientPrivilegesException("Only admins can remove users.");
+
+        User userToRemove = userRepository.findById(memberId).orElseThrow(
+                () -> new UserDoesNotExistException("No user found with the Id: " + memberId)
+        );
+
+        if (loggedInUser.getId().equals(userToRemove.getId())) {
+            throw new InvalidWorkspaceOperationException(
+                    "You cannot remove yourself from the workspace."
+            );
+        }
+
+        Workspace workspace = member.getWorkspace();
+
+        WorkspaceMembership membershipToRemove = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId,userToRemove)
+                .orElseThrow(
+                        () -> new UserNotInWorkspaceException
+                                ("Cannot remove user: This user is not a member of this workspace.")
+                );
+
+        if (membershipToRemove.getRole() == Role.ADMIN) {
+            int adminCount = workspaceMembershipRepository
+                    .countByWorkspaceAndRole(workspace, Role.ADMIN);
+
+            if (adminCount <= 1) throw new CannotRemoveLastAdminException("Cannot remove user. Workspace must have at least one admin.");
+        }
+
+        workspaceMembershipRepository.delete(membershipToRemove);
+
+        return WorkspaceMemberDeletionResponse
+                .builder()
+                .success(true)
+                .message("Member successfully removed from the workspace")
+                .name(userToRemove.getFullname())
+                .userId(userToRemove.getId())
+                .build();
     }
 }

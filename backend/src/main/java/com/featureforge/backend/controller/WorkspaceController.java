@@ -3,10 +3,7 @@ package com.featureforge.backend.controller;
 import com.featureforge.backend.dto.request.AcceptMemberRequest;
 import com.featureforge.backend.dto.request.InviteMemberRequest;
 import com.featureforge.backend.dto.request.WorkspaceCreationRequest;
-import com.featureforge.backend.dto.response.AcceptMemberResponse;
-import com.featureforge.backend.dto.response.FeaturesPageResponse;
-import com.featureforge.backend.dto.response.InviteMemberResponse;
-import com.featureforge.backend.dto.response.WorkspaceCreationResponse;
+import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.enums.FeatureStatus;
 import com.featureforge.backend.service.FeatureService;
 import com.featureforge.backend.service.WorkspaceService;
@@ -76,5 +73,14 @@ public class WorkspaceController {
                         keyword
                 )
         );
+    }
+
+    @DeleteMapping("/{workspaceId}/members/{memberId}")
+    public ResponseEntity<WorkspaceMemberDeletionResponse> removeMember(
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @PathVariable(name = "memberId") int memberId) {
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(workspaceService.removeMemberForWorkspace(workspaceId, memberId));
     }
 }

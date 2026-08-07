@@ -283,6 +283,38 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(UserNotInWorkspaceException.class)
+    public ResponseEntity<ErrorDetails> handleUserNotInWorkspaceException(UserNotInWorkspaceException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(UserDoesNotExistException.class)
+    public ResponseEntity<ErrorDetails> handleUserDoesNotExistException(UserDoesNotExistException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(CannotRemoveLastAdminException.class)
+    public ResponseEntity<ErrorDetails> handleCannotRemoveLastAdminException(CannotRemoveLastAdminException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+
+
 
 
 

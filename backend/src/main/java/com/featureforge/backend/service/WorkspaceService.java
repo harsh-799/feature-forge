@@ -279,4 +279,44 @@ public class WorkspaceService {
                .workspaceName(workspaceToRename.getName().trim())
                .build();
     }
+
+    @Transactional
+    public WorkspaceMemberDeletionResponse leaveWorkspace(UUID workspaceId) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member =  workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId, loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("You don't have access to this workspace.")
+                );
+
+        Workspace memberWorkspace = member.getWorkspace();
+
+        int memberCountInWorkspace = workspaceMembershipRepository.countByWorkspace(memberWorkspace);
+
+        if (memberCountInWorkspace == 1)
+            throw new CannotLeaveWorkspaceException("You are the only member of this workspace. Delete the workspace instead.");
+
+        if (member.getRole() == Role.ADMIN) {
+
+            int adminCount = workspaceMembershipRepository
+                    .countByWorkspaceAndRole(memberWorkspace, Role.ADMIN);
+
+            if (adminCount == 1) {
+                throw new CannotLeaveWorkspaceException(
+                        "You are the last admin. Promote another member before leaving.");
+            }
+        }
+
+        workspaceMembershipRepository.delete(member);
+
+        return WorkspaceMemberDeletionResponse.builder()
+                .success(true)
+                .userId(loggedInUser.getId())
+                .name(loggedInUser.getFullname())
+                .message("You have successfully left the workspace.")
+                .build();
+
+    }
 }

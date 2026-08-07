@@ -18,4 +18,6 @@ public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMe
 
     int countByWorkspaceAndRole(Workspace workspace, Role role);
 
+    int countByWorkspace(Workspace workspace);
+
 }

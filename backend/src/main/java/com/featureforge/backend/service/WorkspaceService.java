@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -352,5 +349,43 @@ public class WorkspaceService {
                 .workspaceName(memberWorkspace.getName())
                 .workspaceId(memberWorkspace.getId())
                 .build();
+    }
+
+    public WorkspaceMemberResponse getMembersOfWorkspace(UUID workspaceId) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership loggedInMembership =  workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId, loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("You don't have access to this workspace.")
+                );
+
+        if (loggedInMembership.getRole() != Role.ADMIN)
+            throw new InsufficientPrivilegesException("Only admins can view all the members of workspace.");
+
+        Workspace workspace = loggedInMembership.getWorkspace();
+
+        List<WorkspaceMembership> workspaceMembershipList = workspaceMembershipRepository.findAllByWorkspaceOrderByRoleAscUser_FullnameAsc(workspace);
+
+        List<WorkspaceMemberDetails> membersData = new ArrayList<>();
+
+        for (WorkspaceMembership workspaceMember: workspaceMembershipList) {
+            WorkspaceMemberDetails memberDetails = new WorkspaceMemberDetails();
+
+            memberDetails.setUserId(workspaceMember.getUser().getId());
+            memberDetails.setRole(workspaceMember.getRole());
+            memberDetails.setName(workspaceMember.getUser().getFullname());
+            memberDetails.setEmail(workspaceMember.getUser().getEmail());
+
+            membersData.add(memberDetails);
+        }
+
+        WorkspaceMemberResponse workspaceMemberResponse = new WorkspaceMemberResponse();
+        workspaceMemberResponse.setSuccess(true);
+        workspaceMemberResponse.setMessage("Workspace members fetched successfully.");
+        workspaceMemberResponse.setMembersData(membersData);
+
+        return workspaceMemberResponse;
     }
 }

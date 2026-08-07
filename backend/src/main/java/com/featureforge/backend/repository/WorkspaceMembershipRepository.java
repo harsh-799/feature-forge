@@ -5,6 +5,8 @@ import com.featureforge.backend.entity.Workspace;
 import com.featureforge.backend.entity.WorkspaceMembership;
 import com.featureforge.backend.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,5 +23,7 @@ public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMe
     int countByWorkspace(Workspace workspace);
 
     void deleteByWorkspace(Workspace workspace);
+
+    List<WorkspaceMembership> findAllByWorkspaceOrderByRoleAscUser_FullnameAsc(Workspace workspace);
 
 }

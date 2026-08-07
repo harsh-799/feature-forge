@@ -110,4 +110,12 @@ public class WorkspaceController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(workspaceService.leaveWorkspace(workspaceId));
     }
+
+    @GetMapping("/{workspaceId}/members")
+    public ResponseEntity<WorkspaceMemberResponse> getMembers(
+            @PathVariable(name = "workspaceId") UUID workspaceId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(workspaceService.getMembersOfWorkspace(workspaceId));
+    }
 }

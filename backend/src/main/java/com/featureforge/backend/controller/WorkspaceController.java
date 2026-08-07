@@ -3,6 +3,7 @@ package com.featureforge.backend.controller;
 import com.featureforge.backend.dto.request.AcceptMemberRequest;
 import com.featureforge.backend.dto.request.InviteMemberRequest;
 import com.featureforge.backend.dto.request.WorkspaceCreationRequest;
+import com.featureforge.backend.dto.request.WorkspaceUpdationRequest;
 import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.enums.FeatureStatus;
 import com.featureforge.backend.service.FeatureService;
@@ -82,5 +83,14 @@ public class WorkspaceController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(workspaceService.removeMemberForWorkspace(workspaceId, memberId));
+    }
+
+    @PatchMapping("/{workspaceId}")
+    public ResponseEntity<WorkspaceUpdationResponse> rename(
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @RequestBody WorkspaceUpdationRequest workspaceUpdationRequest
+            ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(workspaceService.renameWorkspace(workspaceId, workspaceUpdationRequest));
     }
 }

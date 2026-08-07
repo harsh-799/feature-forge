@@ -3,10 +3,8 @@ package com.featureforge.backend.service;
 import com.featureforge.backend.dto.request.AcceptMemberRequest;
 import com.featureforge.backend.dto.request.InviteMemberRequest;
 import com.featureforge.backend.dto.request.WorkspaceCreationRequest;
-import com.featureforge.backend.dto.response.AcceptMemberResponse;
-import com.featureforge.backend.dto.response.InviteMemberResponse;
-import com.featureforge.backend.dto.response.WorkspaceCreationResponse;
-import com.featureforge.backend.dto.response.WorkspaceMemberDeletionResponse;
+import com.featureforge.backend.dto.request.WorkspaceUpdationRequest;
+import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.entity.*;
 import com.featureforge.backend.enums.EnvironmentName;
 import com.featureforge.backend.enums.InvitationStatus;
@@ -16,6 +14,7 @@ import com.featureforge.backend.repository.*;
 import com.featureforge.backend.util.ApiKeyManager;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -254,5 +253,30 @@ public class WorkspaceService {
                 .name(userToRemove.getFullname())
                 .userId(userToRemove.getId())
                 .build();
+    }
+
+    @Transactional
+    public WorkspaceUpdationResponse renameWorkspace(UUID workspaceId, WorkspaceUpdationRequest workspaceUpdationRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId, loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("You don't have access to this workspace.")
+                );
+
+        if (member.getRole() != Role.ADMIN)
+            throw new InsufficientPrivilegesException("Only admins can rename the workspace.");
+
+        Workspace workspaceToRename = member.getWorkspace();
+
+        workspaceToRename.setName(workspaceUpdationRequest.getWorkspaceName());
+
+       return WorkspaceUpdationResponse.builder()
+               .success(true)
+               .message("Workspace renamed successfully.")
+               .workspaceName(workspaceToRename.getName().trim())
+               .build();
     }
 }

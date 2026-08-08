@@ -74,6 +74,15 @@ public class WorkspaceController {
         );
     }
 
+    @GetMapping("/{workspaceId}/features/{featureId}")
+    public ResponseEntity<FeatureDetailsApiResponse> getFeatureDetails(
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @PathVariable(name = "featureId") int featureId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(featureService.fetchFeatureDetails(workspaceId, featureId));
+    }
+
     @DeleteMapping("/{workspaceId}/members/{memberId}")
     public ResponseEntity<WorkspaceMemberDeletionResponse> removeMember(
             @PathVariable(name = "workspaceId") UUID workspaceId,

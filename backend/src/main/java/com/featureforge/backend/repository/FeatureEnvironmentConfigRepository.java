@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,4 +25,6 @@ public interface FeatureEnvironmentConfigRepository extends JpaRepository<Featur
     void deleteByWorkspaceId(UUID workspaceId);
 
     void deleteByFeature(Feature feature);
+
+    List<FeatureEnvironmentConfig> findAllByFeatureOrderByEnvironment_IdAsc(Feature feature);
 }

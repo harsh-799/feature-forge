@@ -762,4 +762,61 @@ public class FeatureService {
                 .featureKey(feature.getKey())
                 .build();
     }
+
+    public FeatureDetailsApiResponse fetchFeatureDetails(UUID workspaceId, int featureId) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership membership = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId,loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        Feature feature = featureRepository.findById(featureId)
+                .orElseThrow(
+                        () -> new FeatureNotFoundException("Feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(membership.getWorkspace().getId())) {
+            throw new WorkspaceMismatchException(
+                    "Access denied. Feature is not associated with your workspace."
+            );
+        }
+
+        List<FeatureEnvironmentConfig> featureEnvironmentConfigList = featureEnvironmentConfigRepository
+                .findAllByFeatureOrderByEnvironment_IdAsc(feature);
+
+        List<FeatureEnvironmentDetailsResponse> featureEnvironmentList = new ArrayList<>();
+
+        for (FeatureEnvironmentConfig featureEnv: featureEnvironmentConfigList) {
+            FeatureEnvironmentDetailsResponse environmentDetails = FeatureEnvironmentDetailsResponse.builder()
+                    .name(featureEnv.getEnvironment().getName())
+                    .rolloutPercentage(featureEnv.getRolloutPercentage())
+                    .enabled(featureEnv.isEnabled())
+                    .build();
+
+            featureEnvironmentList.add(environmentDetails);
+        }
+
+        FeatureDetailsResponse featureDetailsResponse = FeatureDetailsResponse
+                .builder()
+                .id(feature.getId())
+                .name(feature.getName())
+                .key(feature.getKey())
+                .description(feature.getDescription())
+                .status(feature.getStatus())
+                .rejectionReason(feature.getRejectionReason())
+                .environments(featureEnvironmentList)
+                .createdAt(feature.getCreatedAt())
+                .lastUpdatedAt(feature.getUpdatedAt())
+                .build();
+
+        FeatureDetailsApiResponse response = new FeatureDetailsApiResponse();
+        response.setSuccess(true);
+        response.setMessage("Feature details fetched successfully");
+        response.setData(featureDetailsResponse);
+
+        return response;
+    }
 }

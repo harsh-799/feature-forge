@@ -38,8 +38,7 @@ public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMe
             AND
                 LOWER(wm.user.fullname) LIKE LOWER(CONCAT('%', :keyword, '%'))
                 OR
-                LOWER(wm.user.email) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                )
+                LOWER(wm.user.email) LIKE LOWER(CONCAT('%', :keyword, '%'))  
             ORDER BY wm.role ASC, wm.user.fullname ASC
             """)
     List<WorkspaceMembership> findMembers(

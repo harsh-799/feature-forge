@@ -1,5 +1,6 @@
 package com.featureforge.backend.repository;
 
+import com.featureforge.backend.entity.Feature;
 import com.featureforge.backend.entity.FeatureEnvironmentConfig;
 import com.featureforge.backend.entity.Workspace;
 import com.featureforge.backend.enums.EnvironmentName;
@@ -21,4 +22,6 @@ public interface FeatureEnvironmentConfigRepository extends JpaRepository<Featur
             where fec.feature.workspace.id = :workspaceId
             """)
     void deleteByWorkspaceId(UUID workspaceId);
+
+    void deleteByFeature(Feature feature);
 }

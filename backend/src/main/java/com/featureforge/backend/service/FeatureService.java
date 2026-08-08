@@ -709,4 +709,57 @@ public class FeatureService {
 
         return featureUpdationResponse;
     }
+
+    @Transactional
+    public FeatureDeletionResponse deleteFeature(int featureId,  FeatureDeletionRequest featureDeletionRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        featureDeletionRequest.getWorkspaceId(),
+                        loggedInUser
+                )
+                .orElseThrow(
+                        () -> new AccessDeniedException(
+                                "Access denied: You are not a member of this workspace."
+                        )
+                );
+
+        if (member.getRole() != Role.ADMIN && member.getRole() != Role.DEVELOPER) {
+            throw new AccessDeniedException(
+                    "Unauthorized Access: You do not have permission to perform this action"
+            );
+        }
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(
+                        () -> new FeatureNotFoundException("Feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(member.getWorkspace().getId())) {
+            throw new WorkspaceMismatchException(
+                    "Access denied. Feature is not associated with your workspace."
+            );
+        }
+
+        if (feature.getStatus() == FeatureStatus.IN_PRODUCTION) {
+            throw new FeatureInProductionException(
+                    "Cannot delete an active production feature. Disable the feature before attempting to delete it."
+            );
+        }
+
+        featureEnvironmentConfigRepository.deleteByFeature(feature);
+        featureScheduleRepository.deleteByFeature(feature);
+
+        featureRepository.deleteById(featureId);
+
+        return FeatureDeletionResponse.builder()
+                .success(true)
+                .message("Feature deleted successfully")
+                .featureId(feature.getId())
+                .featureKey(feature.getKey())
+                .build();
+    }
 }

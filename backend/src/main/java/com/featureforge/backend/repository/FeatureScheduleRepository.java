@@ -1,5 +1,6 @@
 package com.featureforge.backend.repository;
 
+import com.featureforge.backend.entity.Feature;
 import com.featureforge.backend.entity.FeatureSchedule;
 import com.featureforge.backend.enums.ScheduleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,5 +16,7 @@ public interface FeatureScheduleRepository extends JpaRepository<FeatureSchedule
             ScheduleStatus status,
             LocalDateTime scheduledAt
     );
+
+    void deleteByFeature(Feature feature);
 
 }

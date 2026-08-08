@@ -83,4 +83,10 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.updateFeature(featureId, featureUpdationRequest));
     }
 
+    @DeleteMapping("/{featureId}")
+    public ResponseEntity<FeatureDeletionResponse> delete(@PathVariable(name = "featureId") int featureId,
+                                                          @Valid @RequestBody FeatureDeletionRequest featureDeletionRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.deleteFeature(featureId, featureDeletionRequest));
+    }
+
 }

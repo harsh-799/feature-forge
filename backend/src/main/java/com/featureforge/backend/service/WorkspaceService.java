@@ -10,6 +10,7 @@ import com.featureforge.backend.exception.*;
 import com.featureforge.backend.repository.*;
 import com.featureforge.backend.util.ApiKeyManager;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -427,5 +428,41 @@ public class WorkspaceService {
         workspaceInvitationResponse.setData(workspaceInviteDetails);
 
         return workspaceInvitationResponse;
+    }
+
+    @Transactional
+    public RevokeInvitationResponse revokeInvitationForWorkspace(UUID workspaceId, RevokeInvitationRequest revokeInvitationRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership membership = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId,loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (membership.getRole() != Role.ADMIN)
+            throw new InsufficientPrivilegesException("Only admins can revoke workspace invitations.2");
+
+        WorkspaceInvitation invitation = workspaceInvitationRepository
+                .findByToken(revokeInvitationRequest.getToken())
+                .orElseThrow(
+                        () -> new InvalidInviteTokenException("The invite token isn't valid.")
+                );
+
+        if (!invitation.getWorkspace().getId().equals(workspaceId))
+            throw new WorkspaceMismatchException("Invitation does not belong to this workspace.");
+
+        if (invitation.getStatus() != InvitationStatus.PENDING)
+            throw new InvitationNotPendingException("This invitation has already been processed or has expired.");
+
+        workspaceInvitationRepository.delete(invitation);
+
+        RevokeInvitationResponse revokeInvitationResponse = new RevokeInvitationResponse();
+        revokeInvitationResponse.setSuccess(true);
+        revokeInvitationResponse.setMessage("Invitation revoked successfully");
+        revokeInvitationResponse.setEmail(invitation.getEmail());
+
+        return revokeInvitationResponse;
     }
 }

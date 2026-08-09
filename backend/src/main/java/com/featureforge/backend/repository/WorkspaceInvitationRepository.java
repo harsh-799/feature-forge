@@ -5,6 +5,7 @@ import com.featureforge.backend.entity.WorkspaceInvitation;
 import com.featureforge.backend.enums.InvitationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,4 +16,6 @@ public interface WorkspaceInvitationRepository extends JpaRepository<WorkspaceIn
     Optional<WorkspaceInvitation> findByToken(UUID token);
 
     void deleteByWorkspace(Workspace workspace);
+
+    List<WorkspaceInvitation> findAllByWorkspaceAndStatusOrderByCreatedAtDesc(Workspace workspace, InvitationStatus status);
 }

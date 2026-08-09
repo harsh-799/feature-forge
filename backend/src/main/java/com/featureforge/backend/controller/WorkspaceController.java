@@ -3,6 +3,7 @@ package com.featureforge.backend.controller;
 import com.featureforge.backend.dto.request.*;
 import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.enums.FeatureStatus;
+import com.featureforge.backend.enums.InvitationStatus;
 import com.featureforge.backend.enums.Role;
 import com.featureforge.backend.service.FeatureService;
 import com.featureforge.backend.service.WorkspaceService;
@@ -126,6 +127,15 @@ public class WorkspaceController {
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(workspaceService.getMembersOfWorkspace(workspaceId, role, keyword));
+    }
+
+    @GetMapping("/{workspaceId}/invitations")
+    public ResponseEntity<WorkspaceInvitationResponse> getWorkspaceInvitations(
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @RequestParam(required = false, defaultValue = "PENDING") InvitationStatus status
+            ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(workspaceService.getInvitationsForWorkspace(workspaceId, status));
     }
 
 }

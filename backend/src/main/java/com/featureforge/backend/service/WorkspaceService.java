@@ -386,4 +386,46 @@ public class WorkspaceService {
 
         return workspaceMemberResponse;
     }
+
+    public WorkspaceInvitationResponse getInvitationsForWorkspace(UUID workspaceId, InvitationStatus status) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership membership = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId,loggedInUser)
+                .orElseThrow(
+                        () ->  new AccessDeniedException("You don't have access to this workspace.")
+                );
+
+        if (membership.getRole() != Role.ADMIN)
+            throw new InsufficientPrivilegesException("Only admins can view all the members of workspace.");
+
+        Workspace workspace = membership.getWorkspace();
+
+        List<WorkspaceInvitation> invitationList = workspaceInvitationRepository
+                .findAllByWorkspaceAndStatusOrderByCreatedAtDesc(
+                workspace,
+                status
+        );
+
+        List<WorkspaceInviteDetailsResponse> workspaceInviteDetails = new ArrayList<>();
+
+        for (WorkspaceInvitation invitation : invitationList) {
+            WorkspaceInviteDetailsResponse workspaceInviteDetailsResponse =
+                    WorkspaceInviteDetailsResponse.builder()
+                            .email(invitation.getEmail())
+                            .role(invitation.getRole())
+                            .invitedAt(invitation.getCreatedAt())
+                            .build();
+
+            workspaceInviteDetails.add(workspaceInviteDetailsResponse);
+        }
+
+        WorkspaceInvitationResponse workspaceInvitationResponse = new WorkspaceInvitationResponse();
+        workspaceInvitationResponse.setSuccess(true);
+        workspaceInvitationResponse.setMessage("Workspace invitations retrieved successfully");
+        workspaceInvitationResponse.setData(workspaceInviteDetails);
+
+        return workspaceInvitationResponse;
+    }
 }

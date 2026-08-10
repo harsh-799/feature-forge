@@ -101,4 +101,16 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.activateFeatureInDevelopment(featureId, featureActivationRequest));
     }
 
+    @PatchMapping("/{featureId}/staging/deactivate")
+    public ResponseEntity<FeatureDeactivationResponse> deactivateInStaging(@PathVariable(name = "featureId") int featureId,
+                                                                            @Valid @RequestBody FeatureDeactivationRequest featureDeactivationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.deactivateFeatureInStaging(featureId, featureDeactivationRequest));
+    }
+
+    @PatchMapping("/{featureId}/staging/activate")
+    public ResponseEntity<FeatureActivationResponse> activateInStaging(@PathVariable(name = "featureId") int featureId,
+                                                                               @Valid @RequestBody FeatureActivationRequest featureActivationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.activateFeatureInStaging(featureId, featureActivationRequest));
+    }
+
 }

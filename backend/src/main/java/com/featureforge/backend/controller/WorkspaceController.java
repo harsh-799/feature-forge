@@ -2,16 +2,21 @@ package com.featureforge.backend.controller;
 
 import com.featureforge.backend.dto.request.*;
 import com.featureforge.backend.dto.response.*;
+import com.featureforge.backend.enums.ActivityType;
 import com.featureforge.backend.enums.FeatureStatus;
 import com.featureforge.backend.enums.InvitationStatus;
 import com.featureforge.backend.enums.Role;
+import com.featureforge.backend.service.ActivityLogService;
 import com.featureforge.backend.service.FeatureService;
 import com.featureforge.backend.service.WorkspaceService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -21,6 +26,7 @@ public class WorkspaceController {
 
     private WorkspaceService workspaceService;
     private FeatureService featureService;
+    private ActivityLogService activityLogService;
 
     @PostMapping("/create")
     public ResponseEntity<WorkspaceCreationResponse> create(@Valid @RequestBody WorkspaceCreationRequest workspaceCreationRequest) {
@@ -160,6 +166,20 @@ public class WorkspaceController {
     public ResponseEntity<UserWorkspaceResponse> getMyWorkspaces() {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(workspaceService.getUserWorkspaces());
+    }
+
+    @GetMapping("/{workspaceId}/activities")
+    public ResponseEntity<ActivityLogPageResponse> getWorkspaceActivities(
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) ActivityType activityType,
+            @RequestParam(required = false) Integer userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(activityLogService.getWorkspaceActivities(workspaceId, page, size, activityType, userId, from, to));
     }
 
 }

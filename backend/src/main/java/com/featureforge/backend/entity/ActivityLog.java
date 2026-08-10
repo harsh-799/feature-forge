@@ -2,10 +2,17 @@ package com.featureforge.backend.entity;
 
 import com.featureforge.backend.enums.ActivityType;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ActivityLog {
 
     @Id
@@ -23,5 +30,6 @@ public class ActivityLog {
 
     private String description;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
 }

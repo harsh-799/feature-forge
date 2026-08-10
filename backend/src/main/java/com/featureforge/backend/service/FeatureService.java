@@ -31,6 +31,7 @@ public class FeatureService {
     private final FeatureEnvironmentConfigRepository featureEnvironmentConfigRepository;
     private final FeatureRepository featureRepository;
     private final FeatureScheduleRepository featureScheduleRepository;
+    private final ActivityLogService activityLogService;
 
     private User fetchAuthenticatedUser() {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext()
@@ -111,6 +112,8 @@ public class FeatureService {
         for (Environment environment : environmentsList) {
             createDefaultFeatureEnvironmentConfig(savedFeature, environment);
         }
+
+        activityLogService.log(workspace, loggedInUser, ActivityType.FEATURE_CREATED, "Created feature '" + savedFeature.getName() + "'.");
 
         return FeatureCreationResponse.builder()
                 .featureId(savedFeature.getId())
@@ -267,6 +270,8 @@ public class FeatureService {
 
         featureEnvironmentConfig.setEnabled(true);
 
+        activityLogService.log(memberWorkspace, loggedInUser, ActivityType.FEATURE_PROMOTED_TO_STAGING, "Promoted feature '" + feature.getName() + "' to staging.");
+
         PromoteToStagingResponse promoteToStagingResponse = new PromoteToStagingResponse();
         promoteToStagingResponse.setSuccess(true);
         promoteToStagingResponse.setMessage("feature status Updated to READY_FOR_QA");
@@ -302,6 +307,8 @@ public class FeatureService {
         FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.QA_VERIFIED);
 
         feature.setStatus(FeatureStatus.QA_VERIFIED);
+
+        activityLogService.log(member.getWorkspace(), loggedInUser, ActivityType.FEATURE_QA_ACCEPTED, "Accepted feature '" + feature.getName() + "' during QA.");
 
         FeatureQAVerificationResponse featureQAVerificationResponse = new FeatureQAVerificationResponse();
         featureQAVerificationResponse.setSuccess(true);
@@ -340,6 +347,8 @@ public class FeatureService {
         feature.setStatus(FeatureStatus.QA_REJECTED);
         feature.setRejectionReason(featureQARejectionRequest.getRejectionReason().trim());
 
+        activityLogService.log(member.getWorkspace(), loggedInUser, ActivityType.FEATURE_QA_REJECTED, "Rejected feature '" + feature.getName() + "' during QA.");
+
         FeatureQARejectionResponse featureQARejectionResponse = new FeatureQARejectionResponse();
         featureQARejectionResponse.setStatus(true);
         featureQARejectionResponse.setMessage("feature status changed to QA_VERIFIED");
@@ -375,6 +384,8 @@ public class FeatureService {
         FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.IN_PRODUCTION);
 
         feature.setStatus(FeatureStatus.IN_PRODUCTION);
+
+        activityLogService.log(member.getWorkspace(), loggedInUser, ActivityType.FEATURE_APPROVED_FOR_PRODUCTION, "Approved feature '" + feature.getName() + "' for production.");
 
         FeatureProductionApprovalResponse featureProductionApprovalResponse = new FeatureProductionApprovalResponse();
         featureProductionApprovalResponse.setSuccess(true);
@@ -426,6 +437,8 @@ public class FeatureService {
 
         featureEnvironmentConfig.setEnabled(true);
         featureEnvironmentConfig.setRolloutPercentage(featureProductionActivationRequest.getRolloutPercentage());
+
+        activityLogService.log(memberWorkspace, loggedInUser, ActivityType.FEATURE_ACTIVATED_IN_PRODUCTION, "Activated feature '" + feature.getName() + "' in production.");
 
         FeatureProductionActivationResponse featureProductionActivationResponse = new FeatureProductionActivationResponse();
         featureProductionActivationResponse.setSuccess(true);
@@ -479,7 +492,11 @@ public class FeatureService {
         if (featureEnvironmentConfig.getRolloutPercentage().equals(featureProductionRolloutRequest.getRolloutPercentage()))
             throw new UnchangedRolloutPercentageException("Rollout percentage is already set to " +  featureEnvironmentConfig.getRolloutPercentage() + ". No update required.");
 
-        featureEnvironmentConfig.setRolloutPercentage(featureProductionRolloutRequest.getRolloutPercentage());
+        Integer oldRollout = featureEnvironmentConfig.getRolloutPercentage();
+        Integer newRollout = featureProductionRolloutRequest.getRolloutPercentage();
+        featureEnvironmentConfig.setRolloutPercentage(newRollout);
+
+        activityLogService.log(memberWorkspace, loggedInUser, ActivityType.FEATURE_ROLLOUT_UPDATED, "Changed '" + feature.getName() + "' production rollout from " + oldRollout + "% to " + newRollout + "%.");
 
         FeatureProductionRolloutResponse featureProductionRolloutResponse = new FeatureProductionRolloutResponse();
         featureProductionRolloutResponse.setSuccess(true);
@@ -530,6 +547,8 @@ public class FeatureService {
             throw new FeatureNotEnabledException("Feature is not active in production.");
 
         featureEnvironmentConfig.setEnabled(false);
+
+        activityLogService.log(memberWorkspace, loggedInUser, ActivityType.FEATURE_DEACTIVATED_IN_PRODUCTION, "Deactivated feature '" + feature.getName() + "' in production.");
 
         FeatureDeactivationResponse featureDeactivationResponse = new FeatureDeactivationResponse();
         featureDeactivationResponse.setSuccess(true);
@@ -633,6 +652,8 @@ public class FeatureService {
         FeatureSchedule savedFeatureSchedule =
                 featureScheduleRepository.save(featureSchedule);
 
+        activityLogService.log(member.getWorkspace(), loggedInUser, ActivityType.FEATURE_SCHEDULED, "Scheduled " + action.name().toLowerCase() + " action for feature '" + feature.getName() + "'.");
+
         FeatureProductionScheduleResponse response =
                 new FeatureProductionScheduleResponse();
 
@@ -707,6 +728,8 @@ public class FeatureService {
         featureUpdationResponse.setFeatureId(feature.getId());
         featureUpdationResponse.setMessage("feature updated successfully");
 
+        activityLogService.log(memberWorkspace, loggedInUser, ActivityType.FEATURE_UPDATED, "Updated feature '" + feature.getName() + "'.");
+
         return featureUpdationResponse;
     }
 
@@ -754,6 +777,8 @@ public class FeatureService {
         featureScheduleRepository.deleteByFeature(feature);
 
         featureRepository.deleteById(featureId);
+
+        activityLogService.log(member.getWorkspace(), loggedInUser, ActivityType.FEATURE_DELETED, "Deleted feature '" + feature.getName() + "'.");
 
         return FeatureDeletionResponse.builder()
                 .success(true)
@@ -860,6 +885,8 @@ public class FeatureService {
 
         featureEnvironmentConfig.setEnabled(false);
 
+        activityLogService.log(membership.getWorkspace(), loggedInUser, ActivityType.FEATURE_DEACTIVATED_IN_DEVELOPMENT, "Deactivated feature '" + feature.getName() + "' in development.");
+
         FeatureDeactivationResponse featureDeactivationResponse = new FeatureDeactivationResponse();
         featureDeactivationResponse.setSuccess(true);
         featureDeactivationResponse.setMessage("Feature deactivated in development.");
@@ -908,6 +935,8 @@ public class FeatureService {
             throw new FeatureAlreadyActiveException("Feature is already enabled in development.");
 
         featureEnvironmentConfig.setEnabled(true);
+
+        activityLogService.log(membership.getWorkspace(), loggedInUser, ActivityType.FEATURE_ACTIVATED_IN_DEVELOPMENT, "Activated feature '" + feature.getName() + "' in development.");
 
         FeatureActivationResponse featureActivationResponse = new FeatureActivationResponse();
         featureActivationResponse.setSuccess(true);
@@ -959,6 +988,8 @@ public class FeatureService {
 
         featureEnvironmentConfig.setEnabled(false);
 
+        activityLogService.log(membership.getWorkspace(), loggedInUser, ActivityType.FEATURE_DEACTIVATED_IN_STAGING, "Deactivated feature '" + feature.getName() + "' in staging.");
+
         FeatureDeactivationResponse featureDeactivationResponse = new FeatureDeactivationResponse();
         featureDeactivationResponse.setSuccess(true);
         featureDeactivationResponse.setMessage("Feature deactivated in staging.");
@@ -1007,6 +1038,8 @@ public class FeatureService {
             throw new FeatureAlreadyActiveException("Feature is already enabled in staging.");
 
         featureEnvironmentConfig.setEnabled(true);
+
+        activityLogService.log(membership.getWorkspace(), loggedInUser, ActivityType.FEATURE_ACTIVATED_IN_STAGING, "Activated feature '" + feature.getName() + "' in staging.");
 
         FeatureActivationResponse featureActivationResponse = new FeatureActivationResponse();
         featureActivationResponse.setSuccess(true);

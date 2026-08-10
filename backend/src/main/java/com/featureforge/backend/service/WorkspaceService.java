@@ -3,6 +3,7 @@ package com.featureforge.backend.service;
 import com.featureforge.backend.dto.request.*;
 import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.entity.*;
+import com.featureforge.backend.enums.ActivityType;
 import com.featureforge.backend.enums.EnvironmentName;
 import com.featureforge.backend.enums.InvitationStatus;
 import com.featureforge.backend.enums.Role;
@@ -31,6 +32,8 @@ public class WorkspaceService {
     private final ApiKeyManager apiKeyManager;
     private final FeatureRepository featureRepository;
     private final FeatureEnvironmentConfigRepository featureEnvironmentConfigRepository;
+    private final ActivityLogRepository activityLogRepository;
+    private final ActivityLogService activityLogService;
 
     @Value("${invitation.expiry.days}")
     private int INVITATION_EXPIRY_DAYS;
@@ -92,6 +95,8 @@ public class WorkspaceService {
         environmentMap.put(EnvironmentName.STAGING, createDefaultEnvironment(workspace,EnvironmentName.STAGING));
         environmentMap.put(EnvironmentName.PRODUCTION, createDefaultEnvironment(workspace,EnvironmentName.PRODUCTION));
 
+        activityLogService.log(savedWorkspace, user, ActivityType.WORKSPACE_CREATED, "Created workspace '" + savedWorkspace.getName() + "'.");
+
         return WorkspaceCreationResponse.builder()
                 .status(true)
                 .message("workspace created successfully")
@@ -149,6 +154,8 @@ public class WorkspaceService {
 
         workspaceInvitationRepository.save(workspaceInvitation);
 
+        activityLogService.log(workspace, user, ActivityType.MEMBER_INVITED, "Invited " + inviteMemberRequest.getEmail() + " as " + inviteMemberRequest.getRole() + ".");
+
         return new InviteMemberResponse(
                 true,
                 "Invitation has been sent successfully."
@@ -190,6 +197,8 @@ public class WorkspaceService {
         workspaceMembershipRepository.save(workspaceMembership);
 
         invitation.setStatus(InvitationStatus.ACCEPTED);
+
+        activityLogService.log(invitation.getWorkspace(), loggedInUser, ActivityType.INVITATION_ACCEPTED, "Accepted invitation to join workspace.");
 
         return new AcceptMemberResponse(
                 true,
@@ -240,6 +249,8 @@ public class WorkspaceService {
 
         workspaceMembershipRepository.delete(membershipToRemove);
 
+        activityLogService.log(workspace, loggedInUser, ActivityType.MEMBER_REMOVED, "Removed member " + userToRemove.getEmail() + ".");
+
         return WorkspaceMemberDeletionResponse
                 .builder()
                 .success(true)
@@ -265,7 +276,10 @@ public class WorkspaceService {
 
         Workspace workspaceToRename = member.getWorkspace();
 
+        String oldName = workspaceToRename.getName();
         workspaceToRename.setName(workspaceUpdationRequest.getWorkspaceName());
+
+        activityLogService.log(workspaceToRename, loggedInUser, ActivityType.WORKSPACE_RENAMED, "Renamed workspace from '" + oldName + "' to '" + workspaceToRename.getName() + "'.");
 
        return WorkspaceUpdationResponse.builder()
                .success(true)
@@ -305,6 +319,8 @@ public class WorkspaceService {
 
         workspaceMembershipRepository.delete(member);
 
+        activityLogService.log(memberWorkspace, loggedInUser, ActivityType.MEMBER_LEFT, "Left the workspace.");
+
         return WorkspaceMemberDeletionResponse.builder()
                 .success(true)
                 .userId(loggedInUser.getId())
@@ -333,6 +349,9 @@ public class WorkspaceService {
         featureRepository.deleteByWorkspace(memberWorkspace);
         environmentRepository.deleteByWorkspace(memberWorkspace);
 
+        activityLogService.log(memberWorkspace, loggedInUser, ActivityType.WORKSPACE_DELETED, "Deleted workspace '" + memberWorkspace.getName() + "'.");
+
+        activityLogRepository.deleteByWorkspace(memberWorkspace);
         workspaceInvitationRepository.deleteByWorkspace(memberWorkspace);
         workspaceMembershipRepository.deleteByWorkspace(memberWorkspace);
 
@@ -457,6 +476,8 @@ public class WorkspaceService {
 
         workspaceInvitationRepository.delete(invitation);
 
+        activityLogService.log(membership.getWorkspace(), loggedInUser, ActivityType.INVITATION_REVOKED, "Revoked invitation for " + invitation.getEmail() + ".");
+
         RevokeInvitationResponse revokeInvitationResponse = new RevokeInvitationResponse();
         revokeInvitationResponse.setSuccess(true);
         revokeInvitationResponse.setMessage("Invitation revoked successfully");
@@ -493,6 +514,8 @@ public class WorkspaceService {
         String newHashedApiKey = apiKeyManager.hashApiKey(newApiKey);
 
         environment.setApiKeyHash(newHashedApiKey);
+
+        activityLogService.log(workspace, loggedInUser, ActivityType.API_KEY_REGENERATED, "Regenerated API key for " + environment.getName().name() + " environment.");
 
         RegenerateApiKeyResponse regenerateApiKeyResponse = new RegenerateApiKeyResponse();
         regenerateApiKeyResponse.setSuccess(true);

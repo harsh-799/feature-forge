@@ -138,13 +138,13 @@ public class WorkspaceController {
                 .body(workspaceService.getInvitationsForWorkspace(workspaceId, status));
     }
 
-    @DeleteMapping("/{workspaceId}/invitation/revoke")
+    @DeleteMapping("/{workspaceId}/invitations/{id}")
     public ResponseEntity<RevokeInvitationResponse> revokeInvitation(
             @PathVariable(name = "workspaceId") UUID workspaceId,
-            @RequestBody RevokeInvitationRequest revokeInvitationRequest
+            @PathVariable(name = "id") int id
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(workspaceService.revokeInvitationForWorkspace(workspaceId, revokeInvitationRequest));
+                .body(workspaceService.revokeInvitationForWorkspace(workspaceId, id));
     }
 
 }

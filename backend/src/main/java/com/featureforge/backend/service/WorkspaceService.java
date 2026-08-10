@@ -431,7 +431,7 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public RevokeInvitationResponse revokeInvitationForWorkspace(UUID workspaceId, RevokeInvitationRequest revokeInvitationRequest) {
+    public RevokeInvitationResponse revokeInvitationForWorkspace(UUID workspaceId, int invitationId) {
 
         User loggedInUser = fetchAuthenticatedUser();
 
@@ -442,12 +442,12 @@ public class WorkspaceService {
                 );
 
         if (membership.getRole() != Role.ADMIN)
-            throw new InsufficientPrivilegesException("Only admins can revoke workspace invitations.2");
+            throw new InsufficientPrivilegesException("Only admins can revoke workspace invitations.");
 
         WorkspaceInvitation invitation = workspaceInvitationRepository
-                .findByToken(revokeInvitationRequest.getToken())
+                .findById(invitationId)
                 .orElseThrow(
-                        () -> new InvalidInviteTokenException("The invite token isn't valid.")
+                        () -> new WorkspaceInvitationNotFoundException("Invitation not found.")
                 );
 
         if (!invitation.getWorkspace().getId().equals(workspaceId))

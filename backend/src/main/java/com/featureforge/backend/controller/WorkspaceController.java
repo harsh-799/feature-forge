@@ -147,4 +147,13 @@ public class WorkspaceController {
                 .body(workspaceService.revokeInvitationForWorkspace(workspaceId, id));
     }
 
+    @PostMapping("/{workspaceId}/regenerate-api-key")
+    public ResponseEntity<RegenerateApiKeyResponse> regenerateApiKeys(
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @RequestBody RegenerateApiKeyRequest regenerateApiKeyRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(workspaceService.regenerateApiKeysForWorkspace(workspaceId, regenerateApiKeyRequest));
+    }
+
 }

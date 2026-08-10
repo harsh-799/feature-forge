@@ -465,4 +465,41 @@ public class WorkspaceService {
 
         return revokeInvitationResponse;
     }
+
+    @Transactional
+    public RegenerateApiKeyResponse regenerateApiKeysForWorkspace(UUID workspaceId, RegenerateApiKeyRequest regenerateApiKeyRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership membership = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId,loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (membership.getRole() != Role.ADMIN)
+            throw new InsufficientPrivilegesException("Only admins can re-generate the API Keys.");
+
+        Workspace workspace = membership.getWorkspace();
+
+        Environment environment = environmentRepository.findById(regenerateApiKeyRequest.getEnvironmentId())
+                .orElseThrow(
+                        () -> new InvalidEnvironmentException("The requested environment does not exist")
+                );
+
+        if (!environment.getWorkspace().getId().equals(workspace.getId()))
+            throw new WorkspaceMismatchException("The specified environment does not belong to this workspace.");
+
+        String newApiKey = "ff_" + UUID.randomUUID();
+        String newHashedApiKey = apiKeyManager.hashApiKey(newApiKey);
+
+        environment.setApiKeyHash(newHashedApiKey);
+
+        RegenerateApiKeyResponse regenerateApiKeyResponse = new RegenerateApiKeyResponse();
+        regenerateApiKeyResponse.setSuccess(true);
+        regenerateApiKeyResponse.setMessage("Successfully regenerated API key for the environment");
+        regenerateApiKeyResponse.setApiKey(newApiKey);
+
+        return regenerateApiKeyResponse;
+    }
 }

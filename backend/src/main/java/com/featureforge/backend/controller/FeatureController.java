@@ -66,9 +66,9 @@ public class FeatureController {
     }
 
     @PatchMapping("/{featureId}/production/deactivate")
-    public ResponseEntity<FeatureProductionDeactivationResponse> deactivate(@PathVariable(name = "featureId") int featureId,
-                                                                        @Valid @RequestBody FeatureProductionDeactivationRequest featureProductionDeactivationRequest) {
-        return ResponseEntity.status(HttpStatus.OK).body(featureService.deactivateFeatureInProduction(featureId, featureProductionDeactivationRequest));
+    public ResponseEntity<FeatureDeactivationResponse> deactivateInProduction(@PathVariable(name = "featureId") int featureId,
+                                                                        @Valid @RequestBody FeatureDeactivationRequest featureDeactivationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.deactivateFeatureInProduction(featureId, featureDeactivationRequest));
     }
 
     @PatchMapping("/{featureId}/production/schedule")
@@ -87,6 +87,18 @@ public class FeatureController {
     public ResponseEntity<FeatureDeletionResponse> delete(@PathVariable(name = "featureId") int featureId,
                                                           @Valid @RequestBody FeatureDeletionRequest featureDeletionRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.deleteFeature(featureId, featureDeletionRequest));
+    }
+
+    @PatchMapping("/{featureId}/development/deactivate")
+    public ResponseEntity<FeatureDeactivationResponse> deactivateInDevelopment(@PathVariable(name = "featureId") int featureId,
+                                                                            @Valid @RequestBody FeatureDeactivationRequest featureDeactivationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.deactivateFeatureInDevelopment(featureId, featureDeactivationRequest));
+    }
+
+    @PatchMapping("/{featureId}/development/activate")
+    public ResponseEntity<FeatureActivationResponse> activateInDevelopment(@PathVariable(name = "featureId") int featureId,
+                                                                               @Valid @RequestBody FeatureActivationRequest featureActivationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.activateFeatureInDevelopment(featureId, featureActivationRequest));
     }
 
 }

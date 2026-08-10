@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FeatureProductionDeactivationResponse {
+public class FeatureDeactivationResponse {
     private Boolean success;
     private String message;
     private Integer featureId;

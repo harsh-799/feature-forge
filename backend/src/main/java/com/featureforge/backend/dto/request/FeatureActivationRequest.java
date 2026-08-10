@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.UUID;
 
 @Getter
-public class FeatureProductionDeactivationRequest {
+public class FeatureActivationRequest {
     @NotNull(message = "workspace Id can't be null")
     private UUID workspaceId;
 }

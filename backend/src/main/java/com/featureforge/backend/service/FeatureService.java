@@ -491,12 +491,12 @@ public class FeatureService {
     }
 
     @Transactional
-    public FeatureProductionDeactivationResponse deactivateFeatureInProduction(int featureId, FeatureProductionDeactivationRequest featureProductionDeactivationRequest) {
+    public FeatureDeactivationResponse deactivateFeatureInProduction(int featureId, FeatureDeactivationRequest featureDeactivationRequest) {
         User loggedInUser = fetchAuthenticatedUser();
 
         WorkspaceMembership member = workspaceMembershipRepository
                 .findByWorkspace_IdAndUser(
-                        featureProductionDeactivationRequest.getWorkspaceId(),
+                        featureDeactivationRequest.getWorkspaceId(),
                         loggedInUser
                 ).orElseThrow(
                         () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
@@ -531,12 +531,12 @@ public class FeatureService {
 
         featureEnvironmentConfig.setEnabled(false);
 
-        FeatureProductionDeactivationResponse featureProductionDeactivationResponse = new FeatureProductionDeactivationResponse();
-        featureProductionDeactivationResponse.setSuccess(true);
-        featureProductionDeactivationResponse.setMessage("Feature deactivated in production.");
-        featureProductionDeactivationResponse.setFeatureId(feature.getId());
+        FeatureDeactivationResponse featureDeactivationResponse = new FeatureDeactivationResponse();
+        featureDeactivationResponse.setSuccess(true);
+        featureDeactivationResponse.setMessage("Feature deactivated in production.");
+        featureDeactivationResponse.setFeatureId(feature.getId());
 
-        return featureProductionDeactivationResponse;
+        return featureDeactivationResponse;
 
     }
 
@@ -818,5 +818,104 @@ public class FeatureService {
         response.setData(featureDetailsResponse);
 
         return response;
+    }
+
+    @Transactional
+    public FeatureDeactivationResponse deactivateFeatureInDevelopment(int featureId, FeatureDeactivationRequest featureDeactivationRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership membership = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(featureDeactivationRequest.getWorkspaceId(),loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (membership.getRole() != Role.ADMIN && membership.getRole() != Role.DEVELOPER)
+            throw new AccessDeniedException(
+                    "Unauthorized Access: You do not have permission to perform this action"
+            );
+
+        Feature feature = featureRepository.findById(featureId)
+                .orElseThrow(
+                        () -> new FeatureNotFoundException("Feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(membership.getWorkspace().getId())) {
+            throw new WorkspaceMismatchException(
+                    "Access denied. Feature is not associated with your workspace."
+            );
+        }
+
+        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository
+                .findByFeature_IdAndEnvironment_Name(
+                        feature.getId(),
+                        EnvironmentName.DEVELOPMENT
+                ).orElseThrow(
+                        () -> new FeatureEnvironmentConfigNotFoundException("No environment configuration found for this feature")
+                );
+
+        if (!featureEnvironmentConfig.isEnabled())
+            throw new FeatureAlreadyDisabledException("Feature is already disabled in development.");
+
+        featureEnvironmentConfig.setEnabled(false);
+
+        FeatureDeactivationResponse featureDeactivationResponse = new FeatureDeactivationResponse();
+        featureDeactivationResponse.setSuccess(true);
+        featureDeactivationResponse.setMessage("Feature deactivated in development.");
+        featureDeactivationResponse.setFeatureId(feature.getId());
+
+
+        return featureDeactivationResponse;
+    }
+
+    @Transactional
+    public FeatureActivationResponse activateFeatureInDevelopment(int featureId, FeatureActivationRequest featureActivationRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership membership = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(featureActivationRequest.getWorkspaceId(),loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        if (membership.getRole() != Role.ADMIN && membership.getRole() != Role.DEVELOPER)
+            throw new AccessDeniedException(
+                    "Unauthorized Access: You do not have permission to perform this action"
+            );
+
+        Feature feature = featureRepository.findById(featureId)
+                .orElseThrow(
+                        () -> new FeatureNotFoundException("Feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(membership.getWorkspace().getId())) {
+            throw new WorkspaceMismatchException(
+                    "Access denied. Feature is not associated with your workspace."
+            );
+        }
+
+        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository
+                .findByFeature_IdAndEnvironment_Name(
+                        feature.getId(),
+                        EnvironmentName.DEVELOPMENT
+                ).orElseThrow(
+                        () -> new FeatureEnvironmentConfigNotFoundException("No environment configuration found for this feature")
+                );
+
+        if (featureEnvironmentConfig.isEnabled())
+            throw new FeatureAlreadyActiveException("Feature is already enabled in development.");
+
+        featureEnvironmentConfig.setEnabled(true);
+
+        FeatureActivationResponse featureActivationResponse = new FeatureActivationResponse();
+        featureActivationResponse.setSuccess(true);
+        featureActivationResponse.setMessage("Feature activated in development.");
+        featureActivationResponse.setFeatureId(feature.getId());
+
+
+        return featureActivationResponse;
+
     }
 }

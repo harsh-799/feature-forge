@@ -333,11 +333,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(EmailSendingException.class)
+    public ResponseEntity<ErrorDetails> handleEmailSendingException(EmailSendingException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
 
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
 
+    @ExceptionHandler(WorkspaceInvitationNotFoundException.class)
+    public ResponseEntity<ErrorDetails> handleWorkspaceInvitationNotFoundException(WorkspaceInvitationNotFoundException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
 
-
-
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
 
 
 }

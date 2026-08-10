@@ -34,9 +34,13 @@ public class WorkspaceService {
     private final FeatureEnvironmentConfigRepository featureEnvironmentConfigRepository;
     private final ActivityLogRepository activityLogRepository;
     private final ActivityLogService activityLogService;
+    private final EmailService emailService;
 
     @Value("${invitation.expiry.days}")
     private int INVITATION_EXPIRY_DAYS;
+
+    @Value("${brevo.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
 
     private User fetchAuthenticatedUser() {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext()
@@ -105,6 +109,7 @@ public class WorkspaceService {
                 .build();
     }
 
+    @Transactional
     public InviteMemberResponse inviteMemberToWorkspace(InviteMemberRequest inviteMemberRequest) {
 
         User user = fetchAuthenticatedUser();
@@ -153,6 +158,16 @@ public class WorkspaceService {
                 .build();
 
         workspaceInvitationRepository.save(workspaceInvitation);
+
+        String inviteLink = frontendUrl + "/accept-invite?token=" + token;
+
+        emailService.sendWorkspaceInvitation(
+                inviteMemberRequest.getEmail(),
+                workspace.getName(),
+                inviteMemberRequest.getRole().toString(),
+                inviteLink,
+                user.getFullname()
+        );
 
         activityLogService.log(workspace, user, ActivityType.MEMBER_INVITED, "Invited " + inviteMemberRequest.getEmail() + " as " + inviteMemberRequest.getRole() + ".");
 

@@ -46,4 +46,6 @@ public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMe
             @Param("role") Role role,
             @Param("keyword") String keyword
     );
+
+    List<WorkspaceMembership> findAllByUserOrderByWorkspace_Name(User user);
 }

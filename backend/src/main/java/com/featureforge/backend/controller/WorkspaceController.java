@@ -156,4 +156,10 @@ public class WorkspaceController {
                 .body(workspaceService.regenerateApiKeysForWorkspace(workspaceId, regenerateApiKeyRequest));
     }
 
+    @GetMapping()
+    public ResponseEntity<UserWorkspaceResponse> getMyWorkspaces() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(workspaceService.getUserWorkspaces());
+    }
+
 }

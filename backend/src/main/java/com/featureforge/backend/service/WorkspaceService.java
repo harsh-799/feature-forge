@@ -10,7 +10,6 @@ import com.featureforge.backend.exception.*;
 import com.featureforge.backend.repository.*;
 import com.featureforge.backend.util.ApiKeyManager;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -501,5 +500,33 @@ public class WorkspaceService {
         regenerateApiKeyResponse.setApiKey(newApiKey);
 
         return regenerateApiKeyResponse;
+    }
+
+    public UserWorkspaceResponse getUserWorkspaces() {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        List<WorkspaceMembership> userWorkspace = workspaceMembershipRepository
+                .findAllByUserOrderByWorkspace_Name(loggedInUser);
+
+        List<WorkspaceDetails> userWorkspacesList = new ArrayList<>();
+
+        for (WorkspaceMembership workspace : userWorkspace) {
+            WorkspaceDetails workspaceDetails = WorkspaceDetails
+                    .builder()
+                    .workspaceId(workspace.getWorkspace().getId())
+                    .workspaceName(workspace.getWorkspace().getName())
+                    .role(workspace.getRole())
+                    .build();
+
+            userWorkspacesList.add(workspaceDetails);
+        }
+
+        UserWorkspaceResponse userWorkspaceResponse = new UserWorkspaceResponse();
+        userWorkspaceResponse.setSuccess(true);
+        userWorkspaceResponse.setMessage("Workspaces fetched successfully.");
+        userWorkspaceResponse.setData(userWorkspacesList);
+
+        return userWorkspaceResponse;
     }
 }

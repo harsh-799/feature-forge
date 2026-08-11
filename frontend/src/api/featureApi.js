@@ -57,13 +57,13 @@ export const searchFeatures = async (workspaceId, { keyword = '', page = 0, size
   return handleResponse(response);
 };
 
-// export const getFeatureDetails = async (featureId, workspaceId) => {
-//   const response = await fetch(`${API_BASE_URL}/features/${featureId}?workspaceId=${workspaceId}`, {
-//     method: 'GET',
-//     headers: getHeaders()
-//   });
-//   return handleResponse(response);
-// };
+export const getFeatureDetails = async (featureId, workspaceId) => {
+  const response = await fetch(`${API_BASE_URL}/features/${featureId}?workspaceId=${workspaceId}`, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(response);
+};
 
 export const updateFeature = async (featureId, data) => {
   const response = await fetch(`${API_BASE_URL}/features/${featureId}/edit`, {
@@ -186,7 +186,7 @@ export default {
   createFeature,
   listFeatures,
   searchFeatures,
-  // getFeatureDetails,
+  getFeatureDetails,
   updateFeature,
   promoteFeature,
   repromoteFeature,

@@ -4,7 +4,6 @@ import { FiPlus, FiSearch, FiCalendar, FiInbox } from 'react-icons/fi'
 import {
   listFeatures,
   searchFeatures,
-  // getFeatureDetails,
   activateFeatureProduction,
   deactivateFeatureProduction,
   activateFeatureDevelopment,
@@ -24,38 +23,18 @@ export default function FeatureFlags() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [detailedConfigs, setDetailedConfigs] = useState({});
+  const [selectedEnv, setSelectedEnv] = useState('DEVELOPMENT');
 
   const canCreate = role === 'ADMIN' || role === 'DEVELOPER';
-
-  const getActiveEnvName = (status) => {
-    if (status === 'IN_PRODUCTION') return 'PRODUCTION';
-    if (status === 'READY_FOR_QA' || status === 'QA_VERIFIED' || status === 'QA_REJECTED') return 'STAGING';
-    return 'DEVELOPMENT';
-  };
+  const isAdmin = role === 'ADMIN';
+  const activeEnvName = isAdmin ? selectedEnv : 'DEVELOPMENT';
 
   const getFeatureKey = (feature) => {
-    const detail = detailedConfigs[feature.featureId];
-    if (detail?.key) return detail.key;
+    if (feature.key) return feature.key;
     return (feature.name || '')
       .trim()
       .toUpperCase()
       .replace(/\s+/g, '_');
-  };
-
-  const fetchDetailedConfigs = async (featuresList) => {
-    const configs = {};
-    await Promise.all(
-      featuresList.map(async (feature) => {
-        try {
-          const detail = await getFeatureDetails(feature.featureId, currentWorkspaceId);
-          configs[feature.featureId] = detail;
-        } catch (e) {
-          console.error(`Failed to fetch details for feature ${feature.featureId}:`, e);
-        }
-      })
-    );
-    setDetailedConfigs((prev) => ({ ...prev, ...configs }));
   };
 
   const fetchFeatures = async (targetPage = page, targetFilter = statusFilter, targetKeyword = keyword) => {
@@ -96,9 +75,6 @@ export default function FeatureFlags() {
         setFeatures(rawFeatures);
         const totalElements = response.totalElements || 0;
         setTotalPages(Math.ceil(totalElements / 6) || 1);
-
-        // Fetch detailed configurations in parallel
-        fetchDetailedConfigs(rawFeatures);
       }
     } catch (err) {
       const msg = getErrorMessage(err);
@@ -109,11 +85,7 @@ export default function FeatureFlags() {
   };
 
   const handleToggle = async (feature) => {
-    const detail = detailedConfigs[feature.featureId];
-    if (!detail) return;
-
-    const activeEnvName = getActiveEnvName(feature.status);
-    const activeEnv = detail.environments?.find((env) => env.name === activeEnvName);
+    const activeEnv = feature.environments?.find((env) => env.name === activeEnvName);
     const currentEnabled = activeEnv ? activeEnv.enabled : false;
     const targetEnabled = !currentEnabled;
 
@@ -154,24 +126,25 @@ export default function FeatureFlags() {
 
       toast.success(`Feature flag ${targetEnabled ? 'enabled' : 'disabled'} successfully!`);
 
-      // Optimistically update local configurations state
-      setDetailedConfigs((prev) => {
-        const next = { ...prev };
-        const featDetail = next[feature.featureId];
-        if (featDetail && featDetail.environments) {
-          featDetail.environments = featDetail.environments.map((env) => {
-            if (env.name === activeEnvName) {
-              return {
-                ...env,
-                enabled: targetEnabled,
-                rolloutPercentage: activeEnvName === 'PRODUCTION' && targetEnabled ? 100 : (activeEnvName === 'PRODUCTION' ? 0 : env.rolloutPercentage)
-              };
-            }
-            return env;
-          });
-        }
-        return next;
-      });
+      // Optimistically update local features state
+      setFeatures((prevFeatures) =>
+        prevFeatures.map((f) => {
+          if (f.featureId === feature.featureId) {
+            const updatedEnvs = (f.environments || []).map((env) => {
+              if (env.name === activeEnvName) {
+                return {
+                  ...env,
+                  enabled: targetEnabled,
+                  rolloutPercentage: activeEnvName === 'PRODUCTION' && targetEnabled ? 100 : (activeEnvName === 'PRODUCTION' ? 0 : env.rolloutPercentage)
+                };
+              }
+              return env;
+            });
+            return { ...f, environments: updatedEnvs };
+          }
+          return f;
+        })
+      );
     } catch (err) {
       const msg = getErrorMessage(err);
       toast.error(msg);
@@ -191,14 +164,13 @@ export default function FeatureFlags() {
   // Reset page to 0 when workspace changes
   useEffect(() => {
     setPage(0);
-    setDetailedConfigs({});
   }, [currentWorkspaceId]);
 
   // Main features fetch effect
   useEffect(() => {
     if (!currentWorkspaceId) return;
     fetchFeatures(page, statusFilter, debouncedKeyword);
-  }, [currentWorkspaceId, page, statusFilter, debouncedKeyword]);
+  }, [currentWorkspaceId, page, statusFilter, debouncedKeyword, selectedEnv]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 0 && newPage < totalPages) {
@@ -250,6 +222,23 @@ export default function FeatureFlags() {
           />
         </div>
 
+        {isAdmin && (
+          <div className="filter-select-wrapper">
+            <select
+              value={selectedEnv}
+              onChange={(e) => {
+                setSelectedEnv(e.target.value);
+                setPage(0);
+              }}
+              className="filter-status-select"
+            >
+              <option value="DEVELOPMENT">DEVELOPMENT</option>
+              <option value="STAGING">STAGING</option>
+              <option value="PRODUCTION">PRODUCTION</option>
+            </select>
+          </div>
+        )}
+
         <div className="filter-select-wrapper">
           <select
             value={statusFilter}
@@ -298,9 +287,7 @@ export default function FeatureFlags() {
         <>
           <div className="features-grid-list">
             {features.map((feature) => {
-              const detail = detailedConfigs[feature.featureId];
-              const activeEnvName = getActiveEnvName(feature.status);
-              const activeEnv = detail?.environments?.find((env) => env.name === activeEnvName);
+              const activeEnv = feature.environments?.find((env) => env.name === activeEnvName);
               const isEnabled = activeEnv ? activeEnv.enabled : false;
 
               return (
@@ -329,7 +316,6 @@ export default function FeatureFlags() {
                       <button
                         onClick={() => handleToggle(feature)}
                         className={`card-toggle-pill ${isEnabled ? 'on' : 'off'}`}
-                        disabled={!detail}
                       >
                         {isEnabled ? (
                           <span className="card-toggle-label">ON</span>

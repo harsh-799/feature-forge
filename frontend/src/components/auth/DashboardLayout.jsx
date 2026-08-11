@@ -19,7 +19,6 @@ import {
   FiX 
 } from 'react-icons/fi'
 import { listWorkspaces } from '../../api/workspaceApi'
-import { getCurrentUser } from '../../api/authApi'
 import { toast } from 'react-toastify'
 import { BrandMark } from '../landing/Brand'
 import './DashboardLayout.css'
@@ -47,17 +46,8 @@ export default function DashboardLayout() {
   useEffect(() => {
     const cachedEmail = localStorage.getItem('userEmail');
     setUserEmail(cachedEmail || 'developer@featureforge.com');
-
-    const fetchUserData = async () => {
-      try {
-        const details = await getCurrentUser();
-        setFullname(details.fullname);
-        localStorage.setItem('userFullname', details.fullname);
-      } catch (err) {
-        console.error('Failed to fetch user details:', err);
-      }
-    };
-    fetchUserData();
+    const cachedFullname = localStorage.getItem('userFullname');
+    setFullname(cachedFullname || '');
 
     const fetchWorkspacesData = async () => {
       try {

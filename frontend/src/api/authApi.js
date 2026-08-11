@@ -42,20 +42,6 @@ export const register = async (userData) => {
   return response.json();
 };
 
-export const getCurrentUser = async () => {
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
-    method: 'GET',
-    headers: getHeaders()
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw { response: { data: errorData } };
-  }
-  
-  return response.json();
-};
-
 export const getErrorMessage = (error) => {
   if (error.response && error.response.data) {
     const data = error.response.data;
@@ -69,4 +55,4 @@ export const getErrorMessage = (error) => {
   return error.message || 'Something went wrong. Please try again.';
 };
 
-export default { login, register, getCurrentUser, getErrorMessage };
+export default { login, register, getErrorMessage };

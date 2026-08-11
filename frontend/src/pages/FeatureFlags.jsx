@@ -4,7 +4,7 @@ import { FiPlus, FiSearch, FiCalendar, FiInbox } from 'react-icons/fi'
 import {
   listFeatures,
   searchFeatures,
-  getFeatureDetails,
+  // getFeatureDetails,
   activateFeatureProduction,
   deactivateFeatureProduction,
   activateFeatureDevelopment,

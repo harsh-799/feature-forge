@@ -49,7 +49,8 @@ export default function Login() {
       // Persist authenticating JWT token if returned
       if (response.token) {
         localStorage.setItem('token', response.token);
-        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userEmail', response.email || email);
+        localStorage.setItem('userFullname', response.fullname || '');
       }
 
       toast.success(response.message || 'Successfully signed in.');

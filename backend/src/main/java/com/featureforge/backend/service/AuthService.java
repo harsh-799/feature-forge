@@ -55,7 +55,7 @@ public class AuthService {
 
         Authentication authenticated = authenticationManager.authenticate(authentication);
 
-        UserDetails user = (UserDetails) authenticated.getPrincipal();
+        CustomUserDetails user = (CustomUserDetails) authenticated.getPrincipal();
 
         String token = jwtService.generateJWTToken(user.getUsername());
 
@@ -63,6 +63,8 @@ public class AuthService {
                 .status(true)
                 .message("Logged in successfully")
                 .token(token)
+                .fullName(user.getUser().getFullname())
+                .email(user.getUser().getEmail())
                 .build();
     }
 }

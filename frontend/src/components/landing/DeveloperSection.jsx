@@ -46,26 +46,26 @@ export default function DeveloperSection() {
 
             <div className="dx-features-list">
               <div className="dx-feature-item">
-                <span className="dx-item-badge">1ms</span>
+                <span className="dx-item-badge">SDK</span>
                 <div className="dx-item-content">
-                  <h4 className="dx-item-title">Local Evaluations</h4>
-                  <p className="dx-item-desc">Rule targets are cached locally inside the SDK. Flags evaluate in memory instantly with no network overhead.</p>
+                  <h4 className="dx-item-title">Simple Integration</h4>
+                  <p className="dx-item-desc">Integrate FeatureForge directly into your application using a clean SDK interface designed to keep feature flag checks simple and readable.</p>
                 </div>
               </div>
 
               <div className="dx-feature-item">
-                <span className="dx-item-badge">SSE</span>
+                <span className="dx-item-badge">Dash</span>
                 <div className="dx-item-content">
-                  <h4 className="dx-item-title">Streaming Updates</h4>
-                  <p className="dx-item-desc">SDKs stream configuration changes from our control plane via Server-Sent Events, updating parameters instantly.</p>
+                  <h4 className="dx-item-title">Centralized Control</h4>
+                  <p className="dx-item-desc">Manage feature states from the FeatureForge dashboard and change application behavior without modifying your existing code.</p>
                 </div>
               </div>
 
               <div className="dx-feature-item">
-                <span className="dx-item-badge">Any</span>
+                <span className="dx-item-badge">Java</span>
                 <div className="dx-item-content">
-                  <h4 className="dx-item-title">Multi-Platform SDKs</h4>
-                  <p className="dx-item-desc">Type-safe SDK support for Java, Javascript, React, Go, Node.js, Python, and Rust.</p>
+                  <h4 className="dx-item-title">Java SDK</h4>
+                  <p className="dx-item-desc">Type-safe SDK support for Java applications, with additional SDK integrations coming soon.</p>
                 </div>
               </div>
             </div>

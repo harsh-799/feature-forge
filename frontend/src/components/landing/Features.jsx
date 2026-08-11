@@ -40,7 +40,7 @@ export default function Features() {
               </div>
               <h3 className="feature-title">User Targeting</h3>
               <p className="feature-description">
-                Filter users dynamically by ID, email domain, geolocation, or billing plan to run secure beta tests.
+                Define who can access a feature as you plan targeted releases.
               </p>
             </div>
           </div>
@@ -66,7 +66,7 @@ export default function Features() {
               </div>
               <h3 className="feature-title">Real-time Evaluation</h3>
               <p className="feature-description">
-                Flags evaluate locally in memory in less than 1ms with local caching and real-time Server-Sent Events updates.
+                Evaluate feature flags at runtime to determine whether a feature should be enabled.
               </p>
             </div>
           </div>

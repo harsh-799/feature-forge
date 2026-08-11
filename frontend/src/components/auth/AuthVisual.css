@@ -1,0 +1,241 @@
+.auth-visual-composition {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  height: 380px; /* Space to house the asymmetric composition */
+  margin-top: 48px;
+  user-select: none;
+}
+
+/* Common Card Base Styling */
+.visual-card {
+  position: absolute;
+  background-color: #F8F3EA; /* Warm ivory/cream card surface */
+  border: 1px solid #E5E3DB; /* Subtle border */
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(18, 18, 18, 0.015); /* Restrained shadow */
+  transition: transform 0.1s ease-out; /* Smooth hover parallax follow */
+  will-change: transform, opacity;
+  text-align: left;
+}
+
+/* Card 1: Primary Rollout Card */
+.visual-card-primary {
+  width: 260px;
+  padding: 16px 18px;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+}
+
+.card-header-simple {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(229, 227, 219, 0.6);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.primary-flag-key code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.primary-badge-active {
+  font-size: 8.5px;
+  font-weight: 700;
+  background-color: #FFF3EB;
+  color: var(--accent);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  padding: 2px 6px;
+  border-radius: 99px;
+  letter-spacing: 0.02em;
+}
+
+.primary-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.primary-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.primary-meta-env {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-primary);
+  opacity: 0.7;
+  letter-spacing: 0.05em;
+}
+
+.primary-meta-percent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.meta-percent-label {
+  font-size: 8.5px;
+  color: var(--text-primary);
+  opacity: 0.6;
+  font-weight: 600;
+}
+
+.meta-percent-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.primary-slider-track {
+  height: 4px;
+  background-color: #E6E4DD;
+  border-radius: 99px;
+  position: relative;
+}
+
+.primary-slider-fill {
+  height: 100%;
+  width: 10%; /* GSAP will animate this to 25% */
+  background-color: var(--accent);
+  border-radius: 99px;
+}
+
+.primary-slider-thumb {
+  width: 10px;
+  height: 10px;
+  background-color: var(--charcoal);
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  left: 25%; /* Aligns with 25% rollout fill target */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.primary-slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--text-primary);
+  opacity: 0.5;
+}
+
+.primary-slider-ticks .active {
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* Card 2: Live Evaluation Card */
+.visual-card-secondary {
+  width: 180px;
+  padding: 14px 16px;
+  bottom: 60px;
+  left: 10px;
+  z-index: 2;
+}
+
+.secondary-card-title {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  opacity: 0.6;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.secondary-card-value {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-heading);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.secondary-card-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-primary);
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+
+.secondary-footer-metric {
+  color: #2F9254;
+}
+
+.secondary-sparkline {
+  width: 100%;
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+/* Card 3: Production Status Card */
+.visual-card-tertiary {
+  width: 170px;
+  padding: 12px 14px;
+  bottom: 20px;
+  right: 20px;
+  z-index: 4;
+}
+
+.tertiary-card-title {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--text-primary);
+  opacity: 0.6;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.tertiary-status-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.status-indicator-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--charcoal);
+  opacity: 0.4;
+  display: inline-block;
+}
+
+.status-indicator-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.01em;
+}
+
+.tertiary-footer-msg {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-primary);
+  opacity: 0.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .auth-visual-composition {
+    display: none; /* Layout is fully responsive; hidden on smaller containers */
+  }
+}

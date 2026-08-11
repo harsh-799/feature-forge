@@ -1,5 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
 import LandingPage from './pages/LandingPage'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+
+// Import base React-Toastify styling
+import 'react-toastify/dist/ReactToastify.css'
 import './App.css'
 
 function App() {
@@ -9,31 +15,47 @@ function App() {
         {/* Landing Page Root Route */}
         <Route path="/" element={<LandingPage />} />
 
-        {/* Placeholders for auth pages to prevent broken routes */}
-        <Route 
-          path="/login" 
-          element={
-            <div style={{ padding: '80px 24px', textAlign: 'center', fontFamily: 'var(--sans)' }}>
-              <h2>Login Page</h2>
-              <p style={{ color: 'var(--text-primary)', marginTop: '8px' }}>Authentication flows can be integrated here.</p>
-              <a href="/" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none', display: 'inline-block', marginTop: '16px' }}>← Back to Landing Page</a>
-            </div>
-          } 
-        />
-        <Route 
-          path="/signup" 
-          element={
-            <div style={{ padding: '80px 24px', textAlign: 'center', fontFamily: 'var(--sans)' }}>
-              <h2>Get Started (Signup)</h2>
-              <p style={{ color: 'var(--text-primary)', marginTop: '8px' }}>User registration flows can be integrated here.</p>
-              <a href="/" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none', display: 'inline-block', marginTop: '16px' }}>← Back to Landing Page</a>
-            </div>
-          } 
-        />
+        {/* Auth routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Fallback redirects */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {/* Globally configured Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover
+        theme="light"
+        icon={({ type }) => {
+          if (type === 'success') {
+            return (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#FAF8F5' }}>
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="9 11 12 14 17 8" />
+              </svg>
+            );
+          }
+          if (type === 'error') {
+            return (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#EF4444' }}>
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            );
+          }
+          return null;
+        }}
+      />
     </BrowserRouter>
   )
 }

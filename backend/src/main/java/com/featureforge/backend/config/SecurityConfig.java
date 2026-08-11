@@ -79,6 +79,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(
                 List.of(
                         "http://localhost:5173",
+                        "http://10.36.67.13:5173",
                         frontendUrl
                 )
         );

@@ -146,8 +146,35 @@ export const deactivateFeatureProduction = async (featureId, data) => {
   return handleResponse(response);
 };
 
-export const toggleEnvironmentConfig = async (featureId, envName, data) => {
-  const response = await fetch(`${API_BASE_URL}/features/${featureId}/environments/${envName}/toggle`, {
+export const activateFeatureDevelopment = async (featureId, data) => {
+  const response = await fetch(`${API_BASE_URL}/features/${featureId}/development/activate`, {
+    method: 'PATCH',
+    headers: getHeaders(),
+    body: JSON.stringify(data)
+  });
+  return handleResponse(response);
+};
+
+export const deactivateFeatureDevelopment = async (featureId, data) => {
+  const response = await fetch(`${API_BASE_URL}/features/${featureId}/development/deactivate`, {
+    method: 'PATCH',
+    headers: getHeaders(),
+    body: JSON.stringify(data)
+  });
+  return handleResponse(response);
+};
+
+export const activateFeatureStaging = async (featureId, data) => {
+  const response = await fetch(`${API_BASE_URL}/features/${featureId}/staging/activate`, {
+    method: 'PATCH',
+    headers: getHeaders(),
+    body: JSON.stringify(data)
+  });
+  return handleResponse(response);
+};
+
+export const deactivateFeatureStaging = async (featureId, data) => {
+  const response = await fetch(`${API_BASE_URL}/features/${featureId}/staging/deactivate`, {
     method: 'PATCH',
     headers: getHeaders(),
     body: JSON.stringify(data)
@@ -169,5 +196,8 @@ export default {
   activateFeatureProduction,
   updateRolloutProduction,
   deactivateFeatureProduction,
-  toggleEnvironmentConfig
+  activateFeatureDevelopment,
+  deactivateFeatureDevelopment,
+  activateFeatureStaging,
+  deactivateFeatureStaging
 };

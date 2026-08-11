@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { FiPlus, FiSearch, FiCalendar, FiInbox } from 'react-icons/fi'
-import { listFeatures, searchFeatures } from '../api/featureApi'
+import {
+  listFeatures,
+  searchFeatures,
+  getFeatureDetails,
+  activateFeatureProduction,
+  deactivateFeatureProduction,
+  activateFeatureDevelopment,
+  deactivateFeatureDevelopment,
+  activateFeatureStaging,
+  deactivateFeatureStaging
+} from '../api/featureApi'
 import { getErrorMessage } from '../api/authApi'
 import { toast } from 'react-toastify'
 import './FeatureFlags.css'
@@ -14,8 +24,39 @@ export default function FeatureFlags() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [detailedConfigs, setDetailedConfigs] = useState({});
 
   const canCreate = role === 'ADMIN' || role === 'DEVELOPER';
+
+  const getActiveEnvName = (status) => {
+    if (status === 'IN_PRODUCTION') return 'PRODUCTION';
+    if (status === 'READY_FOR_QA' || status === 'QA_VERIFIED' || status === 'QA_REJECTED') return 'STAGING';
+    return 'DEVELOPMENT';
+  };
+
+  const getFeatureKey = (feature) => {
+    const detail = detailedConfigs[feature.featureId];
+    if (detail?.key) return detail.key;
+    return (feature.name || '')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '_');
+  };
+
+  const fetchDetailedConfigs = async (featuresList) => {
+    const configs = {};
+    await Promise.all(
+      featuresList.map(async (feature) => {
+        try {
+          const detail = await getFeatureDetails(feature.featureId, currentWorkspaceId);
+          configs[feature.featureId] = detail;
+        } catch (e) {
+          console.error(`Failed to fetch details for feature ${feature.featureId}:`, e);
+        }
+      })
+    );
+    setDetailedConfigs((prev) => ({ ...prev, ...configs }));
+  };
 
   const fetchFeatures = async (targetPage = page, targetFilter = statusFilter, targetKeyword = keyword) => {
     if (!currentWorkspaceId) return;
@@ -51,15 +92,89 @@ export default function FeatureFlags() {
           await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
         }
 
-        setFeatures(response.features || []);
+        const rawFeatures = response.features || [];
+        setFeatures(rawFeatures);
         const totalElements = response.totalElements || 0;
         setTotalPages(Math.ceil(totalElements / 6) || 1);
+
+        // Fetch detailed configurations in parallel
+        fetchDetailedConfigs(rawFeatures);
       }
     } catch (err) {
       const msg = getErrorMessage(err);
       toast.error(msg);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleToggle = async (feature) => {
+    const detail = detailedConfigs[feature.featureId];
+    if (!detail) return;
+
+    const activeEnvName = getActiveEnvName(feature.status);
+    const activeEnv = detail.environments?.find((env) => env.name === activeEnvName);
+    const currentEnabled = activeEnv ? activeEnv.enabled : false;
+    const targetEnabled = !currentEnabled;
+
+    try {
+      if (activeEnvName === 'PRODUCTION') {
+        if (targetEnabled) {
+          await activateFeatureProduction(feature.featureId, {
+            workspaceId: currentWorkspaceId,
+            rolloutPercentage: 100
+          });
+        } else {
+          await deactivateFeatureProduction(feature.featureId, {
+            workspaceId: currentWorkspaceId
+          });
+        }
+      } else if (activeEnvName === 'STAGING') {
+        if (targetEnabled) {
+          await activateFeatureStaging(feature.featureId, {
+            workspaceId: currentWorkspaceId
+          });
+        } else {
+          await deactivateFeatureStaging(feature.featureId, {
+            workspaceId: currentWorkspaceId
+          });
+        }
+      } else {
+        // DEVELOPMENT
+        if (targetEnabled) {
+          await activateFeatureDevelopment(feature.featureId, {
+            workspaceId: currentWorkspaceId
+          });
+        } else {
+          await deactivateFeatureDevelopment(feature.featureId, {
+            workspaceId: currentWorkspaceId
+          });
+        }
+      }
+
+      toast.success(`Feature flag ${targetEnabled ? 'enabled' : 'disabled'} successfully!`);
+
+      // Optimistically update local configurations state
+      setDetailedConfigs((prev) => {
+        const next = { ...prev };
+        const featDetail = next[feature.featureId];
+        if (featDetail && featDetail.environments) {
+          featDetail.environments = featDetail.environments.map((env) => {
+            if (env.name === activeEnvName) {
+              return {
+                ...env,
+                enabled: targetEnabled,
+                rolloutPercentage: activeEnvName === 'PRODUCTION' && targetEnabled ? 100 : (activeEnvName === 'PRODUCTION' ? 0 : env.rolloutPercentage)
+              };
+            }
+            return env;
+          });
+        }
+        return next;
+      });
+    } catch (err) {
+      const msg = getErrorMessage(err);
+      toast.error(msg);
     }
   };
 
@@ -76,6 +191,7 @@ export default function FeatureFlags() {
   // Reset page to 0 when workspace changes
   useEffect(() => {
     setPage(0);
+    setDetailedConfigs({});
   }, [currentWorkspaceId]);
 
   // Main features fetch effect
@@ -110,6 +226,7 @@ export default function FeatureFlags() {
       {/* Title & Create Flag CTA */}
       <div className="page-header-row">
         <header className="page-header-group">
+          <span style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.05em', marginBottom: '4px' }}>FEATURE FLAGS</span>
           <h1 className="page-header-title">Feature Flags</h1>
           <p className="page-header-description">Configure release lifecycles and target audiences independently.</p>
         </header>
@@ -180,35 +297,66 @@ export default function FeatureFlags() {
       ) : (
         <>
           <div className="features-grid-list">
-            {features.map((feature) => (
-              <div key={feature.featureId} className="feature-item-card">
-                <div className="feature-card-main-info">
-                  <div className="feature-card-headline">
-                    <h3>{feature.name}</h3>
-                    <span className={`status-pill-badge ${getStatusLabelClass(feature.status)}`}>
-                      {formatStatusText(feature.status)}
-                    </span>
-                  </div>
-                  <code className="feature-card-key-code">{feature.key}</code>
-                  {feature.description && (
-                    <p className="feature-card-description">{feature.description}</p>
-                  )}
-                </div>
+            {features.map((feature) => {
+              const detail = detailedConfigs[feature.featureId];
+              const activeEnvName = getActiveEnvName(feature.status);
+              const activeEnv = detail?.environments?.find((env) => env.name === activeEnvName);
+              const isEnabled = activeEnv ? activeEnv.enabled : false;
 
-                <div className="feature-card-footer">
-                  <div className="feature-card-date-meta">
-                    <FiCalendar size={13} style={{ marginRight: '6px' }} />
-                    <span>Created {new Date(feature.createdAt).toLocaleDateString()}</span>
+              return (
+                <div key={feature.featureId} className="feature-item-card">
+                  <div className="feature-card-main-info">
+                    {/* Top Row: Name and Lifecycle Status */}
+                    <div className="feature-card-headline">
+                      <h3>{feature.name}</h3>
+                      <span className={`status-pill-badge ${getStatusLabelClass(feature.status)}`}>
+                        {formatStatusText(feature.status)}
+                      </span>
+                    </div>
+
+                    {/* Sub-name row: Flag Key Badge */}
+                    <div className="card-key-wrapper">
+                      <code className="feature-card-key-code">{getFeatureKey(feature)}</code>
+                    </div>
+
+                    {/* Toggle row: Blinking Dot Active/Inactive Status and Toggle Switch */}
+                    <div className="card-toggle-row">
+                      <div className={`card-active-indicator ${isEnabled ? 'active' : ''}`}>
+                        <div className={isEnabled ? 'blinking-dot' : 'inactive-dot'}></div>
+                        <span>{isEnabled ? 'Active' : 'Inactive'}</span>
+                      </div>
+
+                      <button
+                        onClick={() => handleToggle(feature)}
+                        className={`card-toggle-pill ${isEnabled ? 'on' : 'off'}`}
+                        disabled={!detail}
+                      >
+                        {isEnabled ? (
+                          <span className="card-toggle-label">ON</span>
+                        ) : (
+                          <span className="card-toggle-label-off">OFF</span>
+                        )}
+                        <div className="card-toggle-thumb"></div>
+                      </button>
+                    </div>
                   </div>
-                  <Link
-                    to={`/app/features/${feature.featureId}`}
-                    className="feature-card-manage-link"
-                  >
-                    Manage
-                  </Link>
+
+                  {/* Footer Row: Created Date and Manage Button */}
+                  <div className="feature-card-footer">
+                    <div className="feature-card-date-meta">
+                      <FiCalendar size={13} style={{ marginRight: '6px' }} />
+                      <span>Created {new Date(feature.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <Link
+                      to={`/app/features/${feature.featureId}`}
+                      className="feature-card-manage-link"
+                    >
+                      Manage
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Pagination Controls */}

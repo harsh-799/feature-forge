@@ -13,6 +13,7 @@ import com.featureforge.backend.exception.InvalidApiKeyException;
 import com.featureforge.backend.repository.EnvironmentRepository;
 import com.featureforge.backend.repository.FeatureEnvironmentConfigRepository;
 import com.featureforge.backend.repository.FeatureRepository;
+import com.featureforge.backend.util.ApiKeyManager;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class FeatureEvaluationService {
     private final EnvironmentRepository environmentRepository;
     private final FeatureEnvironmentConfigRepository featureEnvironmentConfigRepository;
     private final FeatureRepository featureRepository;
+    private final ApiKeyManager apiKeyManager;
 
     private boolean isUserIncludedInRollout(
             String userIdentifier,
@@ -38,8 +40,11 @@ public class FeatureEvaluationService {
     }
 
     public FeatureEvaluationResponse evaluateFeature(FeatureEvaluationRequest featureEvaluationRequest, String apiKey) {
+
+        String hashedApiKey = apiKeyManager.hashApiKey(apiKey);
+
         Environment clientEnvironment = environmentRepository
-                .findByApiKeyHash(apiKey)
+                .findByApiKeyHash(hashedApiKey)
                 .orElseThrow(
                         () -> new InvalidApiKeyException("Invalid API key provided")
                 );

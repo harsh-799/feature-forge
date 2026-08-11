@@ -353,5 +353,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(InvalidApiKeyException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidApiKeyException(InvalidApiKeyException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(FeatureAlreadyDisabledException.class)
+    public ResponseEntity<ErrorDetails> handleFeatureAlreadyDisabledException(FeatureAlreadyDisabledException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
 
 }

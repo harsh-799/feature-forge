@@ -46,7 +46,7 @@ public class FeatureService {
                 .feature(feature)
                 .environment(environment)
                 .rolloutPercentage(environment.getName() == EnvironmentName.PRODUCTION ? 0 : 100)
-                .isEnabled(false)
+                .isEnabled(environment.getName() == EnvironmentName.STAGING)
                 .build();
 
         featureEnvironmentConfigRepository.save(featureEnvironmentConfig);
@@ -104,14 +104,13 @@ public class FeatureService {
 
         Feature savedFeature = featureRepository.save(feature);
 
-        List<Environment> environmentsList = environmentRepository.findByWorkspace(workspace);
+         Environment environment  = environmentRepository
+                .findByWorkspaceAndName(workspace, EnvironmentName.DEVELOPMENT)
+                 .orElseThrow(
+                         () -> new IllegalStateException("Workspace environments are not properly initialized.")
+                 );
 
-        if (environmentsList.size() != 3)
-            throw new IllegalStateException("Workspace environments are not properly initialized.");
-
-        for (Environment environment : environmentsList) {
-            createDefaultFeatureEnvironmentConfig(savedFeature, environment);
-        }
+        createDefaultFeatureEnvironmentConfig(savedFeature, environment);
 
         activityLogService.log(workspace, loggedInUser, ActivityType.FEATURE_CREATED, "Created feature '" + savedFeature.getName() + "'.");
 
@@ -208,16 +207,13 @@ public class FeatureService {
 
         feature.setStatus(FeatureStatus.READY_FOR_QA);
 
-        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository.
-                findByFeature_IdAndEnvironment_Name(
-                        feature.getId(),
-                        EnvironmentName.STAGING
-                )
-                .orElseThrow(
-                        () -> new FeatureEnvironmentConfigNotFoundException("No environment configuration found for feature")
-                );
+        Environment environment = environmentRepository
+                .findByWorkspaceAndName(memberWorkspace, EnvironmentName.STAGING)
+                        .orElseThrow(
+                                () -> new IllegalStateException("Workspace environments are not properly initialized.")
+                        );
 
-        featureEnvironmentConfig.setEnabled(true);
+        createDefaultFeatureEnvironmentConfig(feature, environment);
 
         activityLogService.log(memberWorkspace, loggedInUser, ActivityType.FEATURE_PROMOTED_TO_STAGING, "Promoted feature '" + feature.getName() + "' to staging.");
 
@@ -321,6 +317,7 @@ public class FeatureService {
         if (member.getRole() != Role.ADMIN)
             throw new AccessDeniedException("Unauthorized Access: You do not have permission to perform this action");
 
+        Workspace workspace = member.getWorkspace();
 
         Feature feature = featureRepository
                 .findById(featureId)
@@ -333,6 +330,14 @@ public class FeatureService {
         FeatureStatusTransition.validateTransition(feature.getStatus(), FeatureStatus.IN_PRODUCTION);
 
         feature.setStatus(FeatureStatus.IN_PRODUCTION);
+
+        Environment environment = environmentRepository
+                .findByWorkspaceAndName(workspace,EnvironmentName.PRODUCTION)
+                        .orElseThrow(
+                                () -> new IllegalStateException("Workspace environments are not properly initialized.")
+                        );
+
+        createDefaultFeatureEnvironmentConfig(feature, environment);
 
         activityLogService.log(member.getWorkspace(), loggedInUser, ActivityType.FEATURE_APPROVED_FOR_PRODUCTION, "Approved feature '" + feature.getName() + "' for production.");
 

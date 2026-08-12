@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface EnvironmentRepository extends JpaRepository<Environment, Integer> {
 
-    List<Environment> findByWorkspace(Workspace workspace);
+    Optional<Environment> findByWorkspaceAndName(Workspace workspace, EnvironmentName name);
 
     Optional<Environment> findByApiKeyHash(String apiKeyHash);
 

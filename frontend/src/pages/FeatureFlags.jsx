@@ -88,51 +88,56 @@ export default function FeatureFlags() {
     const targetEnabled = !currentEnabled;
 
     try {
+      let response;
       if (selectedEnv === 'PRODUCTION') {
         if (targetEnabled) {
-          await activateFeatureProduction(feature.featureId, {
+          response = await activateFeatureProduction(feature.featureId, {
             workspaceId: currentWorkspaceId,
             rolloutPercentage: 100
           });
         } else {
-          await deactivateFeatureProduction(feature.featureId, {
+          response = await deactivateFeatureProduction(feature.featureId, {
             workspaceId: currentWorkspaceId
           });
         }
       } else if (selectedEnv === 'STAGING') {
         if (targetEnabled) {
-          await activateFeatureStaging(feature.featureId, {
+          response = await activateFeatureStaging(feature.featureId, {
             workspaceId: currentWorkspaceId
           });
         } else {
-          await deactivateFeatureStaging(feature.featureId, {
+          response = await deactivateFeatureStaging(feature.featureId, {
             workspaceId: currentWorkspaceId
           });
         }
       } else {
         // DEVELOPMENT
         if (targetEnabled) {
-          await activateFeatureDevelopment(feature.featureId, {
+          response = await activateFeatureDevelopment(feature.featureId, {
             workspaceId: currentWorkspaceId
           });
         } else {
-          await deactivateFeatureDevelopment(feature.featureId, {
+          response = await deactivateFeatureDevelopment(feature.featureId, {
             workspaceId: currentWorkspaceId
           });
         }
       }
 
-      toast.success(`Feature flag ${targetEnabled ? 'enabled' : 'disabled'} successfully!`);
+      if (response && response.success) {
+        toast.success(response.message || `Feature flag ${targetEnabled ? 'enabled' : 'disabled'} successfully!`);
 
-      // Optimistically update local features state
-      setFeatures((prevFeatures) =>
-        prevFeatures.map((f) => {
-          if (f.featureId === feature.featureId) {
-            return { ...f, isEnabled: targetEnabled };
-          }
-          return f;
-        })
-      );
+        // Update local features state
+        setFeatures((prevFeatures) =>
+          prevFeatures.map((f) => {
+            if (f.featureId === feature.featureId) {
+              return { ...f, isEnabled: targetEnabled };
+            }
+            return f;
+          })
+        );
+      } else {
+        toast.error(response?.message || 'Failed to update feature flag state.');
+      }
     } catch (err) {
       const msg = getErrorMessage(err);
       toast.error(msg);

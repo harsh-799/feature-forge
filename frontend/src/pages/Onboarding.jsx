@@ -66,6 +66,7 @@ export default function Onboarding() {
     if (newWorkspaceId && newWorkspaceName) {
       localStorage.setItem('currentWorkspaceId', newWorkspaceId);
       localStorage.setItem('currentWorkspaceName', newWorkspaceName);
+      localStorage.setItem('currentWorkspaceRole', 'ADMIN');
       navigate('/app/features');
     }
   };

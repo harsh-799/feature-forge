@@ -28,29 +28,20 @@ export const createFeature = async (data) => {
   return handleResponse(response);
 };
 
-export const listFeatures = async (workspaceId, { page = 0, size = 6, status = null } = {}) => {
+export const listFeatures = async (workspaceId, { page = 0, size = 6, status = null, keyword = '', environment = null } = {}) => {
   const query = new URLSearchParams();
   query.append('page', page);
   query.append('size', size);
   if (status) {
     query.append('status', status);
+  }
+  if (keyword) {
+    query.append('keyword', keyword);
+  }
+  if (environment) {
+    query.append('environment', environment);
   }
   const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/features?${query.toString()}`, {
-    method: 'GET',
-    headers: getHeaders()
-  });
-  return handleResponse(response);
-};
-
-export const searchFeatures = async (workspaceId, { keyword = '', page = 0, size = 6, status = null } = {}) => {
-  const query = new URLSearchParams();
-  query.append('page', page);
-  query.append('size', size);
-  query.append('keyword', keyword);
-  if (status) {
-    query.append('status', status);
-  }
-  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/features/search?${query.toString()}`, {
     method: 'GET',
     headers: getHeaders()
   });
@@ -185,7 +176,6 @@ export const deactivateFeatureStaging = async (featureId, data) => {
 export default {
   createFeature,
   listFeatures,
-  searchFeatures,
   getFeatureDetails,
   updateFeature,
   promoteFeature,

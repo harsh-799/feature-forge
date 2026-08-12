@@ -68,6 +68,8 @@ export default function Login() {
       if (workspaces && workspaces.length > 0) {
         localStorage.setItem('currentWorkspaceId', workspaces[0].workspaceId);
         localStorage.setItem('currentWorkspaceName', workspaces[0].workspaceName);
+        localStorage.setItem('currentWorkspaceRole', workspaces[0].role || 'DEVELOPER');
+        localStorage.setItem('currentUserWorkspaceRole', workspaces[0].role);
         navigate('/app/features');
       } else {
         navigate('/app/onboarding');

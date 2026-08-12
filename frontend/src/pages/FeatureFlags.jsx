@@ -3,7 +3,6 @@ import { Link, useOutletContext } from 'react-router-dom'
 import { FiPlus, FiSearch, FiCalendar, FiInbox } from 'react-icons/fi'
 import {
   listFeatures,
-  searchFeatures,
   activateFeatureProduction,
   deactivateFeatureProduction,
   activateFeatureDevelopment,
@@ -17,17 +16,25 @@ import './FeatureFlags.css'
 
 export default function FeatureFlags() {
   const { currentWorkspaceId, role } = useOutletContext();
+  const activeRole = role || localStorage.getItem('currentWorkspaceRole') || 'DEVELOPER';
+
+  const getDefaultEnvForRole = (userRole) => {
+    if (userRole === 'DEVELOPER') return 'DEVELOPMENT';
+    if (userRole === 'QA') return 'STAGING';
+    if (userRole === 'ADMIN') return 'PRODUCTION';
+    return 'DEVELOPMENT';
+  };
+
+  const [selectedEnv, setSelectedEnv] = useState(() => getDefaultEnvForRole(activeRole));
   const [features, setFeatures] = useState([]);
   const [keyword, setKeyword] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedEnv, setSelectedEnv] = useState('DEVELOPMENT');
 
-  const canCreate = role === 'ADMIN' || role === 'DEVELOPER';
-  const isAdmin = role === 'ADMIN';
-  const activeEnvName = isAdmin ? selectedEnv : 'DEVELOPMENT';
+  const canCreate = activeRole === 'ADMIN' || activeRole === 'DEVELOPER';
+  const isAdmin = activeRole === 'ADMIN';
 
   const getFeatureKey = (feature) => {
     if (feature.key) return feature.key;
@@ -43,25 +50,17 @@ export default function FeatureFlags() {
     setIsLoading(true);
     const startTime = Date.now();
     try {
-      let response;
       const kw = targetKeyword.trim();
       const pg = targetPage;
       const sf = targetFilter || null;
 
-      if (kw) {
-        response = await searchFeatures(currentWorkspaceId, {
-          keyword: kw,
-          page: pg,
-          size: 6,
-          status: sf
-        });
-      } else {
-        response = await listFeatures(currentWorkspaceId, {
-          page: pg,
-          size: 6,
-          status: sf
-        });
-      }
+      const response = await listFeatures(currentWorkspaceId, {
+        page: pg,
+        size: 6,
+        status: sf,
+        keyword: kw,
+        environment: selectedEnv
+      });
 
       if (response && response.success) {
         // Enforce a minimum loader duration of 350ms to prevent skeleton screen flashing/flicker
@@ -85,12 +84,11 @@ export default function FeatureFlags() {
   };
 
   const handleToggle = async (feature) => {
-    const activeEnv = feature.environments?.find((env) => env.name === activeEnvName);
-    const currentEnabled = activeEnv ? activeEnv.enabled : false;
+    const currentEnabled = feature.isEnabled;
     const targetEnabled = !currentEnabled;
 
     try {
-      if (activeEnvName === 'PRODUCTION') {
+      if (selectedEnv === 'PRODUCTION') {
         if (targetEnabled) {
           await activateFeatureProduction(feature.featureId, {
             workspaceId: currentWorkspaceId,
@@ -101,7 +99,7 @@ export default function FeatureFlags() {
             workspaceId: currentWorkspaceId
           });
         }
-      } else if (activeEnvName === 'STAGING') {
+      } else if (selectedEnv === 'STAGING') {
         if (targetEnabled) {
           await activateFeatureStaging(feature.featureId, {
             workspaceId: currentWorkspaceId
@@ -130,17 +128,7 @@ export default function FeatureFlags() {
       setFeatures((prevFeatures) =>
         prevFeatures.map((f) => {
           if (f.featureId === feature.featureId) {
-            const updatedEnvs = (f.environments || []).map((env) => {
-              if (env.name === activeEnvName) {
-                return {
-                  ...env,
-                  enabled: targetEnabled,
-                  rolloutPercentage: activeEnvName === 'PRODUCTION' && targetEnabled ? 100 : (activeEnvName === 'PRODUCTION' ? 0 : env.rolloutPercentage)
-                };
-              }
-              return env;
-            });
-            return { ...f, environments: updatedEnvs };
+            return { ...f, isEnabled: targetEnabled };
           }
           return f;
         })
@@ -161,10 +149,11 @@ export default function FeatureFlags() {
     return () => clearTimeout(timer);
   }, [keyword]);
 
-  // Reset page to 0 when workspace changes
+  // Reset page and selected environment when workspace or role changes
   useEffect(() => {
     setPage(0);
-  }, [currentWorkspaceId]);
+    setSelectedEnv(getDefaultEnvForRole(activeRole));
+  }, [currentWorkspaceId, activeRole]);
 
   // Main features fetch effect
   useEffect(() => {
@@ -273,11 +262,11 @@ export default function FeatureFlags() {
           </div>
           <h3>No feature flags found</h3>
           <p>
-            {keyword || statusFilter
+            {(debouncedKeyword || keyword || statusFilter)
               ? 'No feature flags match your search query or filters. Clear your filters to view all flags.'
               : 'Create your first feature flag to start managing code deployments independently from feature releases.'}
           </p>
-          {!keyword && !statusFilter && canCreate && (
+          {!(debouncedKeyword || keyword || statusFilter) && canCreate && (
             <Link to="/app/features/new" className="empty-state-create-btn">
               <FiPlus style={{ marginRight: '6px' }} /> Create Your First Flag
             </Link>
@@ -287,8 +276,7 @@ export default function FeatureFlags() {
         <>
           <div className="features-grid-list">
             {features.map((feature) => {
-              const activeEnv = feature.environments?.find((env) => env.name === activeEnvName);
-              const isEnabled = activeEnv ? activeEnv.enabled : false;
+              const isEnabled = feature.isEnabled || false;
 
               return (
                 <div key={feature.featureId} className="feature-item-card">
@@ -313,17 +301,17 @@ export default function FeatureFlags() {
                         <span>{isEnabled ? 'Active' : 'Inactive'}</span>
                       </div>
 
-                      <button
-                        onClick={() => handleToggle(feature)}
-                        className={`card-toggle-pill ${isEnabled ? 'on' : 'off'}`}
-                      >
-                        {isEnabled ? (
-                          <span className="card-toggle-label">ON</span>
-                        ) : (
-                          <span className="card-toggle-label-off">OFF</span>
-                        )}
-                        <div className="card-toggle-thumb"></div>
-                      </button>
+                      <div className="card-toggle-wrapper">
+                        <span className={`card-toggle-label-outer ${isEnabled ? 'on' : 'off'}`}>
+                          {isEnabled ? 'ON' : 'OFF'}
+                        </span>
+                        <button
+                          onClick={() => handleToggle(feature)}
+                          className={`card-toggle-pill ${isEnabled ? 'on' : 'off'}`}
+                        >
+                          <div className="card-toggle-thumb"></div>
+                        </button>
+                      </div>
                     </div>
                   </div>
 

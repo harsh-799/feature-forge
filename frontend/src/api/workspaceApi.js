@@ -26,6 +26,7 @@ export const listWorkspaces = async () => {
     headers: getHeaders()
   });
   const resData = await handleResponse(response);
+  // console.log(resData);
   return resData.data || [];
 };
 

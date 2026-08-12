@@ -60,10 +60,12 @@ export default function DashboardLayout() {
           if (matched) {
             setActiveWorkspace(matched);
             localStorage.setItem('currentWorkspaceName', matched.workspaceName);
+            localStorage.setItem('currentWorkspaceRole', matched.role || 'DEVELOPER');
           } else {
             setActiveWorkspace(list[0]);
             localStorage.setItem('currentWorkspaceId', list[0].workspaceId);
             localStorage.setItem('currentWorkspaceName', list[0].workspaceName);
+            localStorage.setItem('currentWorkspaceRole', list[0].role || 'DEVELOPER');
           }
         } else {
           navigate('/app/onboarding');
@@ -104,6 +106,7 @@ export default function DashboardLayout() {
       setActiveWorkspace(workspace);
       localStorage.setItem('currentWorkspaceId', workspace.workspaceId);
       localStorage.setItem('currentWorkspaceName', workspace.workspaceName);
+      localStorage.setItem('currentWorkspaceRole', workspace.role || 'DEVELOPER');
       setIsWorkspaceChanging(false);
     }, 150);
   };
@@ -385,9 +388,9 @@ export default function DashboardLayout() {
       <main className={`app-main-viewport ${isWorkspaceChanging ? 'workspace-transitioning' : ''}`}>
         <div className="app-main-content-fade-wrapper" key={location.pathname}>
           <Outlet context={{
-            currentWorkspaceId: activeWorkspace?.workspaceId,
-            currentWorkspaceName: activeWorkspace?.workspaceName,
-            role: activeWorkspace?.role
+            currentWorkspaceId: activeWorkspace?.workspaceId || localStorage.getItem('currentWorkspaceId'),
+            currentWorkspaceName: activeWorkspace?.workspaceName || localStorage.getItem('currentWorkspaceName'),
+            role: activeWorkspace?.role || localStorage.getItem('currentWorkspaceRole') || 'DEVELOPER'
           }} />
         </div>
       </main>

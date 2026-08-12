@@ -233,9 +233,9 @@
 
 /* Card Revamp UI Elements */
 @keyframes blink {
-  0% { opacity: 0.4; transform: scale(0.95); }
-  50% { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 0.4; transform: scale(0.95); }
+  0% { opacity: 0.5; box-shadow: 0 0 4px var(--accent); }
+  50% { opacity: 1; box-shadow: 0 0 14px var(--accent); }
+  100% { opacity: 0.5; box-shadow: 0 0 4px var(--accent); }
 }
 
 .card-key-wrapper {
@@ -270,7 +270,7 @@
   background-color: var(--accent);
   display: inline-block;
   margin-right: 8px;
-  box-shadow: 0 0 8px var(--accent);
+  box-shadow: 0 0 10px rgba(255, 106, 0, 0.6);
   animation: blink 1.5s infinite ease-in-out;
 }
 
@@ -283,16 +283,38 @@
   margin-right: 8px;
 }
 
+/* Card toggle wrapper */
+.card-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-toggle-label-outer {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.card-toggle-label-outer.on {
+  color: #22C55E;
+}
+
+.card-toggle-label-outer.off {
+  color: #8E8D88;
+}
+
 /* Card toggle pill */
 .card-toggle-pill {
-  width: 52px;
-  height: 26px;
-  border-radius: 15px;
+  width: 46px;
+  height: 24px;
+  border-radius: 12px;
   background-color: #E6E4DD;
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0 6px;
+  padding: 0 3px;
   border: none;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -300,7 +322,7 @@
 }
 
 .card-toggle-pill.on {
-  background-color: var(--accent);
+  background-color: #22C55E;
 }
 
 .card-toggle-thumb {
@@ -309,31 +331,13 @@
   border-radius: 50%;
   background-color: #FFFFFF;
   position: absolute;
-  left: 4px;
+  left: 3px;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 .card-toggle-pill.on .card-toggle-thumb {
-  transform: translateX(26px);
-}
-
-.card-toggle-label {
-  font-size: 8px;
-  font-weight: 800;
-  color: #FFFFFF;
-  position: absolute;
-  left: 8px;
-  line-height: 1;
-}
-
-.card-toggle-label-off {
-  font-size: 8px;
-  font-weight: 800;
-  color: #5A5852;
-  position: absolute;
-  right: 8px;
-  line-height: 1;
+  transform: translateX(22px);
 }
 
 .card-progress-bar-container {

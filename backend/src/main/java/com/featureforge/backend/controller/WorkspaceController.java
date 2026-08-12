@@ -2,15 +2,13 @@ package com.featureforge.backend.controller;
 
 import com.featureforge.backend.dto.request.*;
 import com.featureforge.backend.dto.response.*;
-import com.featureforge.backend.enums.ActivityType;
-import com.featureforge.backend.enums.FeatureStatus;
-import com.featureforge.backend.enums.InvitationStatus;
-import com.featureforge.backend.enums.Role;
+import com.featureforge.backend.enums.*;
 import com.featureforge.backend.service.ActivityLogService;
 import com.featureforge.backend.service.FeatureService;
 import com.featureforge.backend.service.WorkspaceService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +46,9 @@ public class WorkspaceController {
             @PathVariable(name = "workspaceId") UUID workspaceId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
-            @RequestParam(required = false) FeatureStatus status
+            @RequestParam(required = false) FeatureStatus status,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam EnvironmentName environment
     ) {
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -56,27 +56,9 @@ public class WorkspaceController {
                         page,
                         size,
                         status,
-                        workspaceId
-                )
-        );
-    }
-
-    @GetMapping("/{workspaceId}/features/search")
-    public ResponseEntity<FeaturesPageResponse> getFeaturesByKeyword(
-            @PathVariable(name = "workspaceId") UUID workspaceId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size,
-            @RequestParam(required = false) FeatureStatus status,
-            @RequestParam(defaultValue = "") String keyword
-    ) {
-
-        return ResponseEntity.status(HttpStatus.OK).body(
-                featureService.getAllFeaturesOfWorkspaceByKeyword(
-                        page,
-                        size,
-                        status,
                         workspaceId,
-                        keyword
+                        keyword,
+                        environment
                 )
         );
     }

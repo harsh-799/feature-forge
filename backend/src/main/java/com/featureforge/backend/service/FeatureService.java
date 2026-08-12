@@ -124,7 +124,8 @@ public class FeatureService {
                 .build();
     }
 
-    public FeaturesPageResponse getAllFeaturesOfWorkspace(int page, int size, FeatureStatus status, UUID workspaceId) {
+    public FeaturesPageResponse getAllFeaturesOfWorkspace(int page, int size, FeatureStatus status, UUID workspaceId, String keyword, EnvironmentName environment) {
+
         User loggedInUser = fetchAuthenticatedUser();
 
         WorkspaceMembership member = workspaceMembershipRepository
@@ -137,96 +138,44 @@ public class FeatureService {
 
         Workspace memberWorkspace = member.getWorkspace();
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
-        Page<Feature> featuresPage;
-
-        if (status == null)
-            featuresPage = featureRepository.findByWorkspace(memberWorkspace, pageable);
-        else
-            featuresPage = featureRepository.findByWorkspaceAndStatus(memberWorkspace, status, pageable);
-
-        List<Feature> features = featuresPage.getContent();
-        List<FeatureSummaryResponse> featuresList = new ArrayList<>();
-
-        for (Feature feature: features) {
-            FeatureSummaryResponse featureSummaryResponse = FeatureSummaryResponse
-                    .builder()
-                    .featureId(feature.getId())
-                    .name(feature.getName())
-                    .description(feature.getDescription())
-                    .status(feature.getStatus())
-                    .createdAt(feature.getCreatedAt())
-                    .build();
-
-            featuresList.add(featureSummaryResponse);
-        }
-
-        return FeaturesPageResponse.builder()
-                .success(true)
-                .message("Data fetched successfully")
-                .features(featuresList)
-                .page(featuresPage.getNumber())
-                .size(featuresPage.getSize())
-                .totalElements(featuresPage.getTotalElements())
-                .isLast(featuresPage.isLast())
-                .build();
-    }
-
-    public FeaturesPageResponse getAllFeaturesOfWorkspaceByKeyword(int page, int size, FeatureStatus status, UUID workspaceId, String keyword) {
-        User loggedInUser = fetchAuthenticatedUser();
-
-        WorkspaceMembership member = workspaceMembershipRepository
-                .findByWorkspace_IdAndUser(
-                        workspaceId,
-                        loggedInUser
-                ).orElseThrow(
-                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
-                );
-
-        Workspace memberWorkspace = member.getWorkspace();
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
-        Page<Feature> featuresPage;
+        Pageable pageable = PageRequest.of(page, size);
 
         keyword = keyword.trim();
 
-        if (status == null && keyword.isEmpty())
-            featuresPage = featureRepository.findByWorkspace(memberWorkspace, pageable);
-        else if (status != null && keyword.isEmpty())
-            featuresPage = featureRepository.findByWorkspaceAndStatus(memberWorkspace, status, pageable);
-        else if (status != null && !keyword.isEmpty())
-            featuresPage = featureRepository.
-                    findByWorkspaceAndStatusAndNameContainingIgnoreCase(memberWorkspace, status, keyword, pageable);
-        else
-            featuresPage = featureRepository.findByWorkspaceAndNameContainingIgnoreCase(memberWorkspace, keyword, pageable);
+        Page<FeatureEnvironmentConfig> featureEnvironmentConfigPage = featureEnvironmentConfigRepository
+                .findAllEnvironmentRelatedFeatures(
+                        environment,
+                        memberWorkspace.getId(),
+                        status,
+                        keyword,
+                        pageable
+                );
 
+        List<FeatureEnvironmentConfig> featureEnvironmentConfigList = featureEnvironmentConfigPage.getContent();
 
-        List<Feature> features = featuresPage.getContent();
-        List<FeatureSummaryResponse> featuresList = new ArrayList<>();
+        List<FeatureSummaryResponse> featureSummaryResponsesList = new ArrayList<>();
 
-        for (Feature feature: features) {
-            FeatureSummaryResponse featureSummaryResponse = FeatureSummaryResponse
-                    .builder()
-                    .featureId(feature.getId())
-                    .name(feature.getName())
-                    .description(feature.getDescription())
-                    .status(feature.getStatus())
-                    .createdAt(feature.getCreatedAt())
+        for (FeatureEnvironmentConfig featureEnvironmentConfig : featureEnvironmentConfigList) {
+            FeatureSummaryResponse featureSummaryResponse = FeatureSummaryResponse.builder()
+                    .featureId(featureEnvironmentConfig.getFeature().getId())
+                    .name(featureEnvironmentConfig.getFeature().getName())
+                    .description(featureEnvironmentConfig.getFeature().getDescription())
+                    .status(featureEnvironmentConfig.getFeature().getStatus())
+                    .createdAt(featureEnvironmentConfig.getFeature().getCreatedAt())
+                    .isEnabled(featureEnvironmentConfig.isEnabled())
                     .build();
 
-            featuresList.add(featureSummaryResponse);
+            featureSummaryResponsesList.add(featureSummaryResponse);
         }
 
         return FeaturesPageResponse.builder()
                 .success(true)
-                .message("Data fetched successfully")
-                .features(featuresList)
-                .page(featuresPage.getNumber())
-                .size(featuresPage.getSize())
-                .totalElements(featuresPage.getTotalElements())
-                .isLast(featuresPage.isLast())
+                .message("features fetched successfully")
+                .page(featureEnvironmentConfigPage.getNumber())
+                .size(featureEnvironmentConfigPage.getSize())
+                .totalElements(featureEnvironmentConfigPage.getTotalElements())
+                .isLast(featureEnvironmentConfigPage.isLast())
+                .features(featureSummaryResponsesList)
                 .build();
     }
 

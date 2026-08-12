@@ -21,4 +21,6 @@ public class FeatureSummaryResponse {
 
     private LocalDateTime createdAt;
 
+    private Boolean isEnabled;
+
 }

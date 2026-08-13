@@ -40,6 +40,23 @@ public interface FeatureEnvironmentConfigRepository extends JpaRepository<Featur
             WHERE fec.environment.name = :environment
             AND
             fec.feature.workspace.id = :workspaceId
+            AND 
+            (
+                    (
+                        :environment = 'DEVELOPMENT'
+                        AND fec.feature.status IN ('IN_DEVELOPMENT', 'QA_REJECTED')
+                    )
+                    OR
+                    (
+                        :environment = 'STAGING'
+                        AND fec.feature.status IN ('READY_FOR_QA', 'QA_VERIFIED')
+                    )
+                    OR
+                    (
+                        :environment = 'PRODUCTION'
+                        AND fec.feature.status = 'IN_PRODUCTION'
+                    )  
+            )
             AND
             (
                 :status IS NULL

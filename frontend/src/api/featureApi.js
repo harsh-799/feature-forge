@@ -49,7 +49,7 @@ export const listFeatures = async (workspaceId, { page = 0, size = 6, status = n
 };
 
 export const getFeatureDetails = async (featureId, workspaceId) => {
-  const response = await fetch(`${API_BASE_URL}/features/${featureId}?workspaceId=${workspaceId}`, {
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/features/${featureId}`, {
     method: 'GET',
     headers: getHeaders()
   });

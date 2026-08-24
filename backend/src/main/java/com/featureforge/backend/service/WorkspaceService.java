@@ -447,6 +447,7 @@ public class WorkspaceService {
         for (WorkspaceInvitation invitation : invitationList) {
             WorkspaceInviteDetailsResponse workspaceInviteDetailsResponse =
                     WorkspaceInviteDetailsResponse.builder()
+                            .id(invitation.getId())
                             .email(invitation.getEmail())
                             .role(invitation.getRole())
                             .invitedAt(invitation.getCreatedAt())

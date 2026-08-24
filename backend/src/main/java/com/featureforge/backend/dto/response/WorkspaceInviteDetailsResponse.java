@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class WorkspaceInviteDetailsResponse {
+    private Integer id;
     private String email;
     private Role role;
     private LocalDateTime invitedAt;

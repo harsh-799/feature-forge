@@ -97,6 +97,38 @@ export const removeWorkspaceMember = async (workspaceId, memberId) => {
   return handleResponse(response);
 };
 
+export const getPendingInvitations = async (workspaceId) => {
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/invitations?status=PENDING`, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(response);
+};
+
+export const revokeWorkspaceInvitation = async (workspaceId, invitationId) => {
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/invitations/${invitationId}`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  });
+  return handleResponse(response);
+};
+
+export const leaveWorkspace = async (workspaceId) => {
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/members/me`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  });
+  return handleResponse(response);
+};
+
+export const deleteWorkspace = async (workspaceId) => {
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  });
+  return handleResponse(response);
+};
+
 export default {
   listWorkspaces,
   createWorkspace,
@@ -106,6 +138,10 @@ export default {
   acceptWorkspaceInvitation,
   getWorkspaceOverview,
   getWorkspaceActivity,
-  removeWorkspaceMember
+  removeWorkspaceMember,
+  getPendingInvitations,
+  revokeWorkspaceInvitation,
+  leaveWorkspace,
+  deleteWorkspace
 };
 

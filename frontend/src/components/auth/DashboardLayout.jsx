@@ -8,6 +8,7 @@ import {
   FiUser, 
   FiHelpCircle, 
   FiLogOut, 
+  FiUserMinus,
   FiAlertTriangle, 
   FiGrid, 
   FiToggleLeft, 
@@ -18,7 +19,8 @@ import {
   FiMenu, 
   FiX 
 } from 'react-icons/fi'
-import { listWorkspaces } from '../../api/workspaceApi'
+import { listWorkspaces, leaveWorkspace, deleteWorkspace } from '../../api/workspaceApi'
+import { getErrorMessage } from '../../api/authApi'
 import { toast } from 'react-toastify'
 import { BrandMark } from '../landing/Brand'
 import './DashboardLayout.css'
@@ -38,6 +40,14 @@ export default function DashboardLayout() {
   
   // Mobile sidebar drawer state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Leave workspace modal state
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+
+  // Delete workspace modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeletingWorkspace, setIsDeletingWorkspace] = useState(false);
 
   const dropdownRef = useRef(null);
   const profileRef = useRef(null);
@@ -122,10 +132,84 @@ export default function DashboardLayout() {
   };
 
   const handleDeleteWorkspace = () => {
-    toast.info('Workspace deletion is not supported in this version.', {
-      icon: <FiAlertTriangle size={18} style={{ color: 'var(--accent)' }} />
-    });
     setIsOptionsOpen(false);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteWorkspace = async () => {
+    if (!activeWorkspace?.workspaceId || isDeletingWorkspace) return;
+    setIsDeletingWorkspace(true);
+    try {
+      const response = await deleteWorkspace(activeWorkspace.workspaceId);
+      setIsDeleteModalOpen(false);
+      if (response && response.success) {
+        toast.success(response.message || 'Workspace deleted successfully.');
+
+        const updatedList = workspaces.filter(w => w.workspaceId !== activeWorkspace.workspaceId);
+        setWorkspaces(updatedList);
+
+        if (updatedList.length > 0) {
+          const nextWs = updatedList[0];
+          setActiveWorkspace(nextWs);
+          localStorage.setItem('currentWorkspaceId', nextWs.workspaceId);
+          localStorage.setItem('currentWorkspaceName', nextWs.workspaceName);
+          localStorage.setItem('currentWorkspaceRole', nextWs.role || 'DEVELOPER');
+          navigate('/app/overview');
+        } else {
+          setActiveWorkspace(null);
+          localStorage.removeItem('currentWorkspaceId');
+          localStorage.removeItem('currentWorkspaceName');
+          localStorage.removeItem('currentWorkspaceRole');
+          navigate('/app/onboarding');
+        }
+      } else {
+        toast.error(response?.message || 'Failed to delete workspace.');
+      }
+    } catch (err) {
+      setIsDeleteModalOpen(false);
+      const msg = getErrorMessage(err);
+      toast.error(msg);
+    } finally {
+      setIsDeletingWorkspace(false);
+    }
+  };
+
+  const handleConfirmLeaveWorkspace = async () => {
+    if (!activeWorkspace?.workspaceId || isLeaving) return;
+    setIsLeaving(true);
+    try {
+      const response = await leaveWorkspace(activeWorkspace.workspaceId);
+      setIsLeaveModalOpen(false);
+      if (response && response.success) {
+        toast.success(response.message || 'You have left the workspace.');
+
+        const updatedList = workspaces.filter(w => w.workspaceId !== activeWorkspace.workspaceId);
+        setWorkspaces(updatedList);
+
+        if (updatedList.length > 0) {
+          const nextWs = updatedList[0];
+          setActiveWorkspace(nextWs);
+          localStorage.setItem('currentWorkspaceId', nextWs.workspaceId);
+          localStorage.setItem('currentWorkspaceName', nextWs.workspaceName);
+          localStorage.setItem('currentWorkspaceRole', nextWs.role || 'DEVELOPER');
+          navigate('/app/overview');
+        } else {
+          setActiveWorkspace(null);
+          localStorage.removeItem('currentWorkspaceId');
+          localStorage.removeItem('currentWorkspaceName');
+          localStorage.removeItem('currentWorkspaceRole');
+          navigate('/app/onboarding');
+        }
+      } else {
+        toast.error(response?.message || 'Failed to leave workspace.');
+      }
+    } catch (err) {
+      setIsLeaveModalOpen(false);
+      const msg = getErrorMessage(err);
+      toast.error(msg);
+    } finally {
+      setIsLeaving(false);
+    }
   };
 
   const formatRole = (role) => {
@@ -358,6 +442,22 @@ export default function DashboardLayout() {
                 <span>Help Center</span>
               </button>
 
+              {activeWorkspace && (
+                <>
+                  <div className="dropdown-menu-divider"></div>
+                  <button
+                    className="dropdown-menu-item danger"
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      setIsLeaveModalOpen(true);
+                    }}
+                  >
+                    <FiUserMinus className="item-icon" />
+                    <span>Leave Workspace</span>
+                  </button>
+                </>
+              )}
+
               <div className="dropdown-menu-divider"></div>
 
               <button onClick={handleLogout} className="dropdown-menu-item logout">
@@ -394,6 +494,158 @@ export default function DashboardLayout() {
           }} />
         </div>
       </main>
+
+      {/* Leave Workspace Confirmation Modal */}
+      {isLeaveModalOpen && (
+        <div className="modal-overlay" onClick={() => !isLeaving && setIsLeaveModalOpen(false)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+            <div className="modal-header">
+              <h3 style={{ fontSize: '17px', fontWeight: 750, color: 'var(--text-heading)', margin: 0 }}>
+                Leave workspace?
+              </h3>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => !isLeaving && setIsLeaveModalOpen(false)}
+                disabled={isLeaving}
+                aria-label="Close"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+
+            <div style={{ padding: '8px 0 20px 0' }}>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-primary)', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
+                You will lose access to <strong>{activeWorkspace?.workspaceName || 'this workspace'}</strong> and its features.
+              </p>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              justify: 'flex-end',
+              gap: '10px',
+              borderTop: '1px solid var(--border-color)',
+              paddingTop: '16px'
+            }}>
+              <button
+                type="button"
+                onClick={() => setIsLeaveModalOpen(false)}
+                disabled={isLeaving}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-color)',
+                  padding: '9px 16px',
+                  borderRadius: '30px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: isLeaving ? 'not-allowed' : 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmLeaveWorkspace}
+                disabled={isLeaving}
+                style={{
+                  backgroundColor: '#E11D48',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  padding: '9px 18px',
+                  borderRadius: '30px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: isLeaving ? 'not-allowed' : 'pointer',
+                  opacity: isLeaving ? 0.7 : 1,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                {isLeaving ? 'Leaving...' : 'Leave Workspace'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Workspace Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="modal-overlay" onClick={() => !isDeletingWorkspace && setIsDeleteModalOpen(false)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+            <div className="modal-header">
+              <h3 style={{ fontSize: '17px', fontWeight: 750, color: 'var(--text-heading)', margin: 0 }}>
+                Delete workspace?
+              </h3>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => !isDeletingWorkspace && setIsDeleteModalOpen(false)}
+                disabled={isDeletingWorkspace}
+                aria-label="Close"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+
+            <div style={{ padding: '8px 0 20px 0' }}>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-primary)', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
+                Are you sure you want to delete <strong>{activeWorkspace?.workspaceName || 'this workspace'}</strong>? All feature flags, environments, and data associated with it will be permanently deleted.
+              </p>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              justify: 'flex-end',
+              gap: '10px',
+              borderTop: '1px solid var(--border-color)',
+              paddingTop: '16px'
+            }}>
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={isDeletingWorkspace}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-color)',
+                  padding: '9px 16px',
+                  borderRadius: '30px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: isDeletingWorkspace ? 'not-allowed' : 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmDeleteWorkspace}
+                disabled={isDeletingWorkspace}
+                style={{
+                  backgroundColor: '#E11D48',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  padding: '9px 18px',
+                  borderRadius: '30px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: isDeletingWorkspace ? 'not-allowed' : 'pointer',
+                  opacity: isDeletingWorkspace ? 0.7 : 1,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                {isDeletingWorkspace ? 'Deleting...' : 'Delete Workspace'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

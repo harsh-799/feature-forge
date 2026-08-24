@@ -38,9 +38,6 @@ export default function Onboarding() {
         setNewWorkspaceId(response.workspaceId);
         setNewWorkspaceName(workspaceName.trim());
         
-        // Cache new workspace keys locally for Environment API viewing in this browser
-        localStorage.setItem(`apiKeys_${response.workspaceId}`, JSON.stringify(response.apiKeys));
-        
         toast.success('Workspace created successfully!');
       } else {
         toast.error(response.message || 'Failed to create workspace.');

@@ -129,6 +129,16 @@ export const deleteWorkspace = async (workspaceId) => {
   return handleResponse(response);
 };
 
+export const regenerateApiKey = async (workspaceId, envData) => {
+  const payload = typeof envData === 'object' ? envData : { environmentName: envData };
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/regenerate-api-key`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(payload)
+  });
+  return handleResponse(response);
+};
+
 export default {
   listWorkspaces,
   createWorkspace,
@@ -142,6 +152,7 @@ export default {
   getPendingInvitations,
   revokeWorkspaceInvitation,
   leaveWorkspace,
-  deleteWorkspace
+  deleteWorkspace,
+  regenerateApiKey
 };
 

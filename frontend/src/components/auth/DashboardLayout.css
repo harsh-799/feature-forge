@@ -677,6 +677,15 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+.spin-icon {
+  animation: spinKey 1s linear infinite;
+}
+
+@keyframes spinKey {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Main Viewport */
 .app-main-viewport {
   margin-left: 260px;

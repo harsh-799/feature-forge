@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { 
   FiFolder, 
@@ -496,7 +497,7 @@ export default function DashboardLayout() {
       </main>
 
       {/* Leave Workspace Confirmation Modal */}
-      {isLeaveModalOpen && (
+      {isLeaveModalOpen && createPortal(
         <div className="modal-overlay" onClick={() => !isLeaving && setIsLeaveModalOpen(false)}>
           <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
             <div className="modal-header">
@@ -568,11 +569,12 @@ export default function DashboardLayout() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Delete Workspace Confirmation Modal */}
-      {isDeleteModalOpen && (
+      {isDeleteModalOpen && createPortal(
         <div className="modal-overlay" onClick={() => !isDeletingWorkspace && setIsDeleteModalOpen(false)}>
           <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
             <div className="modal-header">
@@ -644,7 +646,8 @@ export default function DashboardLayout() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

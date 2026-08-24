@@ -89,6 +89,10 @@
   gap: 16px; /* Reduced gap */
 }
 
+.header-right.logged-in {
+  margin-left: -4px;
+}
+
 /* White Pill Action Button */
 .btn-get-started-pill {
   height: 38px; /* Matches the 38px height of the logo circle */
@@ -319,4 +323,36 @@
     max-width: 240px;
     height: 38px !important;
   }
+}
+
+/* User Avatar Circle in Landing Page Navbar */
+.navbar-avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  color: var(--charcoal);
+  font-family: var(--heading);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-header.scrolled .navbar-avatar-circle {
+  width: 34px;
+  height: 34px;
+}
+
+.navbar-avatar-circle:hover {
+  transform: scale(1.05);
+  background-color: #FAF8F2;
 }

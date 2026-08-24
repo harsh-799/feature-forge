@@ -8,6 +8,7 @@ import './Navbar.css'
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +16,11 @@ export default function Navbar() {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
   }, []);
 
   const handleNavClick = (e, targetId) => {
@@ -69,21 +75,34 @@ export default function Navbar() {
         </a>
       </nav>
 
-      <div className={`header-right ${isMenuOpen ? 'open' : ''}`}>
-        <Link to="/login" className="navbar-link roll-down login-link" onClick={() => setIsMenuOpen(false)}>
-          <span className="link-text-container">
-            <span className="link-text-primary">Login</span>
-            <span className="link-text-secondary">Login</span>
-          </span>
-        </Link>
-        <Link to="/signup" className="btn-get-started-pill" onClick={() => setIsMenuOpen(false)}>
-          <span className="btn-text-crop roll-up">
-            <span className="link-text-container">
-              <span className="link-text-primary">Get Started</span>
-              <span className="link-text-secondary">Get Started</span>
+      <div className={`header-right ${isMenuOpen ? 'open' : ''} ${isAuthenticated ? 'logged-in' : ''}`}>
+        {isAuthenticated ? (
+          <Link to="/app/overview" className="btn-get-started-pill" onClick={() => setIsMenuOpen(false)}>
+            <span className="btn-text-crop roll-up">
+              <span className="link-text-container">
+                <span className="link-text-primary">Open App</span>
+                <span className="link-text-secondary">Open App</span>
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
+        ) : (
+          <>
+            <Link to="/login" className="navbar-link roll-down login-link" onClick={() => setIsMenuOpen(false)}>
+              <span className="link-text-container">
+                <span className="link-text-primary">Login</span>
+                <span className="link-text-secondary">Login</span>
+              </span>
+            </Link>
+            <Link to="/signup" className="btn-get-started-pill" onClick={() => setIsMenuOpen(false)}>
+              <span className="btn-text-crop roll-up">
+                <span className="link-text-container">
+                  <span className="link-text-primary">Get Started</span>
+                  <span className="link-text-secondary">Get Started</span>
+                </span>
+              </span>
+            </Link>
+          </>
+        )}
       </div>
     </header>
   )

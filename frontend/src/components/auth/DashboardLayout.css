@@ -875,9 +875,11 @@
   right: 0;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   background-color: rgba(38, 37, 33, 0.4);
   z-index: 95;
   backdrop-filter: blur(2px);
+  touch-action: none;
   animation: fadeIn 0.2s ease forwards;
 }
 
@@ -898,9 +900,47 @@
     left: -260px; /* Hide offscreen */
     width: 260px;
     height: 100vh;
+    height: 100dvh;
     z-index: 100;
     transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 0 24px rgba(38, 37, 33, 0.08);
+    padding: 18px 16px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .sidebar-top {
+    gap: 16px;
+  }
+
+  .sidebar-nav {
+    gap: 2px;
+  }
+
+  .nav-link-item {
+    padding: 9px 12px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  .sidebar-account-pill-btn {
+    padding: 8px 12px;
+    border-radius: 30px;
+  }
+
+  .pill-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .pill-user-name {
+    font-size: 12.5px;
+  }
+
+  .pill-user-role {
+    font-size: 10px;
   }
 
   .app-sidebar.sidebar-drawer-open {

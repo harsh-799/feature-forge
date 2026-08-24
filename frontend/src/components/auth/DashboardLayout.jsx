@@ -54,6 +54,19 @@ export default function DashboardLayout() {
   const profileRef = useRef(null);
   const optionsRef = useRef(null);
 
+  // Prevent background page scrolling when mobile sidebar drawer is open
+  useEffect(() => {
+    if (isSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isSidebarOpen]);
+
   useEffect(() => {
     const cachedEmail = localStorage.getItem('userEmail');
     setUserEmail(cachedEmail || 'developer@featureforge.com');

@@ -719,7 +719,9 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  right: 0;
+  width: 100%;
+  box-sizing: border-box;
   z-index: 90;
 }
 
@@ -781,7 +783,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  right: 0;
+  width: 100%;
   height: 100vh;
   background-color: rgba(38, 37, 33, 0.4);
   z-index: 95;
@@ -821,7 +824,11 @@
 
   .app-main-viewport {
     margin-left: 0;
-    padding: 80px 16px 40px; /* Shift down for mobile header */
+    padding: 72px 14px 32px; /* Shift down for mobile header */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .account-upward-dropdown {

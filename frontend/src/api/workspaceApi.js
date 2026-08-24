@@ -89,6 +89,14 @@ export const getWorkspaceActivity = async (workspaceId, page = 0, size = 10) => 
   return handleResponse(response);
 };
 
+export const removeWorkspaceMember = async (workspaceId, memberId) => {
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/members/${memberId}`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  });
+  return handleResponse(response);
+};
+
 export default {
   listWorkspaces,
   createWorkspace,
@@ -97,5 +105,7 @@ export default {
   getInvitationDetails,
   acceptWorkspaceInvitation,
   getWorkspaceOverview,
-  getWorkspaceActivity
+  getWorkspaceActivity,
+  removeWorkspaceMember
 };
+

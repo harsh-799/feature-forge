@@ -3,6 +3,7 @@ package com.featureforge.backend.repository;
 import com.featureforge.backend.dto.FeatureOverviewCount;
 import com.featureforge.backend.dto.response.FeatureSummaryResponse;
 import com.featureforge.backend.entity.Feature;
+import com.featureforge.backend.entity.User;
 import com.featureforge.backend.entity.Workspace;
 import com.featureforge.backend.enums.FeatureStatus;
 import org.springframework.data.domain.Page;
@@ -34,4 +35,11 @@ public interface FeatureRepository extends JpaRepository<Feature,Integer> {
             WHERE f.workspace = :workspace
             """)
     FeatureOverviewCount findFeatureCountForOverview(@Param("workspace") Workspace workspace);
+
+    Page<Feature> findAllByWorkspaceAndCreatedByAndStatusIn(
+            Workspace workspace,
+            User createdBy,
+            java.util.Collection<FeatureStatus> statuses,
+            Pageable pageable
+    );
 }

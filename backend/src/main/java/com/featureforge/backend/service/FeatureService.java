@@ -100,6 +100,7 @@ public class FeatureService {
                 .description(description)
                 .status(FeatureStatus.IN_DEVELOPMENT)
                 .workspace(workspace)
+                .createdBy(loggedInUser)
                 .build();
 
         Feature savedFeature = featureRepository.save(feature);
@@ -1002,5 +1003,58 @@ public class FeatureService {
 
 
         return featureActivationResponse;
+    }
+
+    public FeaturesPageResponse getDeveloperFlags(UUID workspaceId, int page, int size) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        workspaceId,
+                        loggedInUser
+                ).orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        Workspace workspace = member.getWorkspace();
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<FeatureStatus> developerActionStatuses = List.of(
+                FeatureStatus.IN_DEVELOPMENT,
+                FeatureStatus.QA_REJECTED
+        );
+
+        Page<Feature> featurePage = featureRepository.findAllByWorkspaceAndCreatedByAndStatusIn(
+                workspace,
+                loggedInUser,
+                developerActionStatuses,
+                pageable
+        );
+
+        List<FeatureSummaryResponse> featureSummaryResponsesList = new ArrayList<>();
+
+        for (Feature feature : featurePage.getContent()) {
+            FeatureSummaryResponse featureSummaryResponse = FeatureSummaryResponse.builder()
+                    .featureId(feature.getId())
+                    .name(feature.getName())
+                    .description(feature.getDescription())
+                    .status(feature.getStatus())
+                    .createdAt(feature.getCreatedAt())
+                    .isEnabled(false)
+                    .build();
+
+            featureSummaryResponsesList.add(featureSummaryResponse);
+        }
+
+        return FeaturesPageResponse.builder()
+                .success(true)
+                .message("Developer flags fetched successfully")
+                .page(featurePage.getNumber())
+                .size(featurePage.getSize())
+                .totalElements(featurePage.getTotalElements())
+                .isLast(featurePage.isLast())
+                .features(featureSummaryResponsesList)
+                .build();
     }
 }

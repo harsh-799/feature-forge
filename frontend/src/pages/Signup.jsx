@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiAlertCircle, FiCheck, FiX } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { register, getErrorMessage } from '../api/authApi'
+import { getRedirectUrl } from '../utils/navigation'
 import AuthLayout from '../components/auth/AuthLayout'
 import './Login.css' // Import shared login styling for consistency
 
@@ -73,8 +74,7 @@ export default function Signup() {
 
       // Smoothly exit and navigate to login
       setIsExiting(true);
-      const searchParams = new URLSearchParams(window.location.search);
-      const redirectUrl = searchParams.get('redirect');
+      const redirectUrl = getRedirectUrl();
       setTimeout(() => {
         if (redirectUrl) {
           navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
@@ -95,8 +95,7 @@ export default function Signup() {
     e.preventDefault();
     if (isLoading) return;
     setIsExiting(true);
-    const searchParams = new URLSearchParams(window.location.search);
-    const redirectUrl = searchParams.get('redirect');
+    const redirectUrl = getRedirectUrl();
     setTimeout(() => {
       if (redirectUrl) {
         navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
@@ -273,7 +272,11 @@ export default function Signup() {
 
         <p className="auth-redirect-text">
           Already have an account?{' '}
-          <a href="/login" className="auth-redirect-link" onClick={handleSignInClick}>
+          <a 
+            href={getRedirectUrl() ? `/login?redirect=${encodeURIComponent(getRedirectUrl())}` : '/login'} 
+            className="auth-redirect-link" 
+            onClick={handleSignInClick}
+          >
             Sign in
           </a>
         </p>

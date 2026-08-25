@@ -8,7 +8,10 @@ import { toast } from 'react-toastify'
 import './Environments.css'
 
 export default function Environments() {
-  const { currentWorkspaceId } = useOutletContext();
+  const context = useOutletContext() || {};
+  const currentWorkspaceId = context.currentWorkspaceId;
+  const userRole = (context.role || localStorage.getItem('currentWorkspaceRole') || localStorage.getItem('currentUserWorkspaceRole') || '').toUpperCase();
+  const isAdmin = userRole === 'ADMIN';
   
   // State for newly regenerated API keys (in-memory only for one-time reveal, NOT in localStorage)
   const [freshKeys, setFreshKeys] = useState({}); // { STAGING: 'ff_abc...' }
@@ -100,11 +103,11 @@ export default function Environments() {
 
           return (
             <div key={env.name} className="environment-item-card">
-              <div>
+              <div className="env-card-top">
                 {/* Card header */}
                 <div className="env-card-headline">
                   <div className="env-card-title-group">
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: env.color }} />
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: env.color, flexShrink: 0 }} />
                     <h3>{env.label}</h3>
                   </div>
                   <span className="env-card-status-pill">Active</span>
@@ -115,7 +118,7 @@ export default function Environments() {
               </div>
 
               {/* Key display section */}
-              <div>
+              <div className="env-card-bottom">
                 <div className="env-key-section-label">
                   <FiKey size={12} />
                   <span>SDK CLIENT API KEY</span>
@@ -145,18 +148,20 @@ export default function Environments() {
                   </div>
                 )}
 
-                {/* Regenerate API Key Action Button */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    className="env-regenerate-action-btn"
-                    onClick={() => setConfirmEnv(env)}
-                    disabled={isThisLoading}
-                  >
-                    <FiRefreshCw size={13} className={isThisLoading ? 'spin-icon' : ''} />
-                    <span>{isThisLoading ? 'Regenerating...' : 'Regenerate API Key'}</span>
-                  </button>
-                </div>
+                {/* Regenerate API Key Action Button - Only rendered for ADMIN role */}
+                {isAdmin && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      className="env-regenerate-action-btn"
+                      onClick={() => setConfirmEnv(env)}
+                      disabled={isThisLoading}
+                    >
+                      <FiRefreshCw size={13} className={isThisLoading ? 'spin-icon' : ''} />
+                      <span>{isThisLoading ? 'Regenerating...' : 'Regenerate API Key'}</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           );

@@ -47,7 +47,7 @@
 /* Grid matching Feature Flags grid list (.features-grid-list) */
 .environments-grid-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
   width: 100%;
   max-width: 100%;
@@ -63,14 +63,24 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
-  justify: space-between;
-  min-height: 220px;
+  justify-content: space-between;
   box-shadow: 0 4px 20px rgba(38, 37, 33, 0.01);
   transition: all 0.2s ease;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  height: 100%;
+}
+
+.env-card-top {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.env-card-bottom {
+  margin-top: auto;
 }
 
 .environment-item-card:hover {
@@ -81,7 +91,7 @@
 
 .env-card-headline {
   display: flex;
-  justify: space-between;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 14px;
   width: 100%;
@@ -121,6 +131,7 @@
   color: var(--text-primary);
   opacity: 0.8;
   margin: 0 0 20px 0;
+  min-height: 42px;
 }
 
 .env-key-section-label {

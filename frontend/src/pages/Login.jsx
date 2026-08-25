@@ -4,6 +4,7 @@ import { FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { login, getErrorMessage } from '../api/authApi'
 import { listWorkspaces } from '../api/workspaceApi'
+import { getRedirectUrl } from '../utils/navigation'
 import AuthLayout from '../components/auth/AuthLayout'
 import './Login.css'
 
@@ -56,8 +57,7 @@ export default function Login() {
       toast.success(response.message || 'Successfully signed in.');
 
       // Redirect check
-      const searchParams = new URLSearchParams(window.location.search);
-      const redirectUrl = searchParams.get('redirect');
+      const redirectUrl = getRedirectUrl();
       if (redirectUrl) {
         navigate(redirectUrl);
         return;
@@ -87,8 +87,13 @@ export default function Login() {
     e.preventDefault();
     if (isLoading) return;
     setIsExiting(true);
+    const redirectUrl = getRedirectUrl();
     setTimeout(() => {
-      navigate('/signup');
+      if (redirectUrl) {
+        navigate(`/signup?redirect=${encodeURIComponent(redirectUrl)}`);
+      } else {
+        navigate('/signup');
+      }
     }, 250);
   };
 
@@ -172,7 +177,11 @@ export default function Login() {
 
         <p className="auth-redirect-text">
           Don't have an account?{' '}
-          <a href="/signup" className="auth-redirect-link" onClick={handleCreateAccountClick}>
+          <a 
+            href={getRedirectUrl() ? `/signup?redirect=${encodeURIComponent(getRedirectUrl())}` : '/signup'} 
+            className="auth-redirect-link" 
+            onClick={handleCreateAccountClick}
+          >
             Create account
           </a>
         </p>

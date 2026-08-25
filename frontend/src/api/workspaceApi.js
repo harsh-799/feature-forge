@@ -81,13 +81,25 @@ export const getWorkspaceOverview = async (workspaceId) => {
   return handleResponse(response);
 };
 
-export const getWorkspaceActivity = async (workspaceId, page = 0, size = 10) => {
-  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/activity?page=${page}&size=${size}`, {
+export const getWorkspaceActivities = async (workspaceId, params = {}) => {
+  const query = new URLSearchParams();
+  const page = params.page !== undefined ? params.page : 0;
+  const size = params.size !== undefined ? params.size : 10;
+  query.append('page', page);
+  query.append('size', size);
+  if (params.activityType) query.append('activityType', params.activityType);
+  if (params.userId) query.append('userId', params.userId);
+  if (params.from) query.append('from', params.from);
+  if (params.to) query.append('to', params.to);
+
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/activities?${query.toString()}`, {
     method: 'GET',
     headers: getHeaders()
   });
   return handleResponse(response);
 };
+
+export const getWorkspaceActivity = getWorkspaceActivities;
 
 export const removeWorkspaceMember = async (workspaceId, memberId) => {
   const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/members/${memberId}`, {
@@ -147,6 +159,7 @@ export default {
   getInvitationDetails,
   acceptWorkspaceInvitation,
   getWorkspaceOverview,
+  getWorkspaceActivities,
   getWorkspaceActivity,
   removeWorkspaceMember,
   getPendingInvitations,

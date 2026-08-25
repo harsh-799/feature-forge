@@ -6,7 +6,8 @@ import RecentActivity from '../components/overview/RecentActivity'
 import './Overview.css'
 
 export default function Overview() {
-  const { currentWorkspaceName } = useOutletContext();
+  const { currentWorkspaceName, role } = useOutletContext();
+  const activeRole = role || localStorage.getItem('currentWorkspaceRole');
 
   const featureOverviewMetrics = [
     {
@@ -35,11 +36,6 @@ export default function Overview() {
     }
   ];
 
-  const pendingQAFeatures = [
-    { id: '1', name: 'user-onboarding-v2', status: 'STAGING' },
-    { id: '2', name: 'payment-gateway-stripe', status: 'STAGING' }
-  ];
-
   const recentActivities = [
     { title: 'Feature Flag Created', description: 'Beta Rollout created by John Doe', time: '2 hours ago' },
     { title: 'Member Joined Workspace', description: 'Jane Smith accepted invitation', time: '5 hours ago' },
@@ -63,7 +59,7 @@ export default function Overview() {
 
       {/* Two-Column Grid: QA Approvals and Recent Activity */}
       <div className="dashboard-grid-columns">
-        <PendingApprovals pendingQAFeatures={pendingQAFeatures} />
+        <PendingApprovals activeRole={activeRole} />
         <RecentActivity recentActivities={recentActivities} />
       </div>
     </div>

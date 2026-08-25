@@ -518,13 +518,12 @@ public class WorkspaceService {
 
         Workspace workspace = membership.getWorkspace();
 
-        Environment environment = environmentRepository.findById(regenerateApiKeyRequest.getEnvironmentId())
+        Environment environment = environmentRepository.findByWorkspaceAndName(
+                workspace,
+                regenerateApiKeyRequest.getEnvironmentName())
                 .orElseThrow(
                         () -> new InvalidEnvironmentException("The requested environment does not exist")
                 );
-
-        if (!environment.getWorkspace().getId().equals(workspace.getId()))
-            throw new WorkspaceMismatchException("The specified environment does not belong to this workspace.");
 
         String newApiKey = "ff_" + UUID.randomUUID();
         String newHashedApiKey = apiKeyManager.hashApiKey(newApiKey);

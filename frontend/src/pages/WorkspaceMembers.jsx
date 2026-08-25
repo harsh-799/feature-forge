@@ -9,6 +9,7 @@ import {
 import { getWorkspaceMembers, inviteWorkspaceMember, removeWorkspaceMember, getPendingInvitations, revokeWorkspaceInvitation } from '../api/workspaceApi'
 import { getErrorMessage } from '../api/authApi'
 import { toast } from 'react-toastify'
+import './WorkspaceMembers.css'
 
 export default function WorkspaceMembers() {
   const { currentWorkspaceId } = useOutletContext();
@@ -675,19 +676,16 @@ export default function WorkspaceMembers() {
       <div className="members-page-inner">
 
         {/* Back link */}
-        <div style={{ marginBottom: '24px' }}>
-          <Link to="/app/overview" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '6px',
-            fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none'
-          }}>
+        <div className="members-back-wrapper">
+          <Link to="/app/overview" className="members-back-link">
             <FiArrowLeft size={15} /> Back to Overview
           </Link>
         </div>
 
         {/* Page heading */}
-        <div style={{ marginBottom: '28px' }}>
-          <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.06em' }}>WORKSPACE MEMBERS</span>
-          <h1 style={{ fontSize: '27px', fontWeight: 700, color: 'var(--text-heading)', marginTop: '4px', letterSpacing: '-0.02em' }}>
+        <div className="members-header-wrapper">
+          <span className="members-header-subtitle">WORKSPACE MEMBERS</span>
+          <h1 className="members-header-title">
             Manage Members
           </h1>
         </div>
@@ -1049,32 +1047,20 @@ export default function WorkspaceMembers() {
       {/* Member Removal Confirmation Modal */}
       {confirmMember && createPortal(
         <div className="modal-overlay" onClick={() => !isRemovingMember && setConfirmMember(null)}>
-          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '460px', padding: '28px' }}>
+          <div className="modal-card members-remove-modal-card" onClick={e => e.stopPropagation()}>
             
             {/* Modal Header */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '12px',
-                  backgroundColor: '#FEF2F2',
-                  border: '1px solid #FECACA',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <FiAlertTriangle size={20} color="#DC2626" />
+            <div className="members-remove-modal-header">
+              <div className="env-modal-header-title-group">
+                <div className="members-remove-icon-badge">
+                  <FiAlertTriangle size={20} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-heading)', margin: 0, letterSpacing: '-0.01em' }}>
+                  <h3 className="members-remove-title">
                     Remove Member
                   </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', opacity: 0.8 }}>
-                      {confirmMember.email || confirmMember.name || 'Member'}
-                    </span>
+                  <div className="members-remove-subtitle">
+                    {confirmMember.email || confirmMember.name || 'Member'}
                   </div>
                 </div>
               </div>
@@ -1090,44 +1076,22 @@ export default function WorkspaceMembers() {
             </div>
 
             {/* Warning Callout Box */}
-            <div style={{
-              backgroundColor: '#FAF8F3',
-              border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '14px 16px',
-              marginBottom: '22px'
-            }}>
-              <p style={{ fontSize: '13px', color: 'var(--text-heading)', fontWeight: 600, margin: '0 0 6px 0' }}>
+            <div className="members-remove-warning-box">
+              <p className="members-remove-warning-title">
                 Are you sure you want to remove this member?
               </p>
-              <p style={{ fontSize: '12.5px', color: 'var(--text-primary)', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
+              <p className="members-remove-warning-desc">
                 This user will lose access to this workspace and all associated feature flags immediately.
               </p>
             </div>
 
             {/* Footer Actions */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '10px',
-              borderTop: '1px solid var(--border-color)',
-              paddingTop: '18px'
-            }}>
+            <div className="modal-footer-actions">
               <button
                 type="button"
                 onClick={() => setConfirmMember(null)}
                 disabled={isRemovingMember}
-                style={{
-                  backgroundColor: 'transparent',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border-color)',
-                  padding: '9px 18px',
-                  borderRadius: '30px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: isRemovingMember ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
+                className="modal-cancel-btn"
               >
                 Cancel
               </button>
@@ -1135,20 +1099,7 @@ export default function WorkspaceMembers() {
                 type="button"
                 onClick={handleConfirmRemoveMember}
                 disabled={isRemovingMember}
-                style={{
-                  backgroundColor: '#DC2626',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  padding: '9px 18px',
-                  borderRadius: '30px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: isRemovingMember ? 'not-allowed' : 'pointer',
-                  opacity: isRemovingMember ? 0.7 : 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
+                className="modal-destructive-btn"
               >
                 {isRemovingMember ? 'Removing...' : 'Remove Member'}
               </button>

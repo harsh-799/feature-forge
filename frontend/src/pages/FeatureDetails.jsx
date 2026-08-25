@@ -326,7 +326,7 @@ export default function FeatureDetails() {
   return (
     <div className="flag-details-container">
       <Link to="/app/features" className="back-nav-link">
-        <FiArrowLeft style={{ marginRight: '6px' }} /> Back to Feature Flags
+        <FiArrowLeft className="icon-margin-right" /> Back to Feature Flags
       </Link>
 
       <header className="details-main-header">
@@ -635,7 +635,7 @@ export default function FeatureDetails() {
                   )
                 ) : (
                   <div className="locked-action-overlay">
-                    <FiLock size={14} style={{ marginRight: '6px' }} />
+                    <FiLock size={14} className="icon-margin-right" />
                     <span>Review and approvals require QA Engineer authority.</span>
                   </div>
                 )}
@@ -708,80 +708,81 @@ export default function FeatureDetails() {
                 {isProdEnabled ? (
                   /* Active in Production state panel */
                   <div className="production-active-panel">
-                    <div className="production-status-indicator" style={{ marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
-                      <div className="status-indicator-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <h4 style={{ margin: 0 }}>Production Status</h4>
-                        <span className="status-badge-indicator in-production" style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', color: '#10B981', textTransform: 'uppercase', padding: '4px 8px', borderRadius: '4px', fontSize: '10.5px', fontWeight: '800', letterSpacing: '0.04em' }}>ACTIVE</span>
+                    <div className="production-status-indicator">
+                      <div className="status-indicator-header">
+                        <h4>Production Status</h4>
+                        <span className="status-badge-indicator in-production">ACTIVE</span>
                       </div>
-                      <div className="status-indicator-detail">
-                        <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Current Rollout: <strong>{prodConfig?.rolloutPercentage}%</strong></span>
+                      <div className="status-indicator-text">
+                        <span>Current Rollout: <strong>{prodConfig?.rolloutPercentage}%</strong></span>
                       </div>
                     </div>
 
                     <div className="production-rollout-section">
                       <div className="rollout-section-header">
                         <div>
-                          <h4>Rollout Management</h4>
-                          <p>Incrementally release this feature flag to a segment of your audience.</p>
+                          <h4>Target Rollout Percentage</h4>
+                          <p>Select what percentage of user evaluations resolve to true in Production.</p>
                         </div>
-                        <span className="rollout-value-text">{rolloutVal}%</span>
+                        <div className="rollout-value-text">{rolloutVal}%</div>
                       </div>
 
                       <div className="rollout-slider-track-container">
-                        <span className="slider-bound">0%</span>
+                        <span className="slider-limit-label">0%</span>
                         <input
                           type="range"
                           min="0"
                           max="100"
+                          step="5"
                           value={rolloutVal}
-                          onChange={(e) => setRolloutVal(parseInt(e.target.value))}
-                          className="rollout-slider-range"
-                          disabled={isSavingRollout || !isAdmin}
+                          onChange={(e) => setRolloutVal(Number(e.target.value))}
+                          disabled={isUpdatingRollout || isDeactivatingProd}
+                          className="custom-rollout-slider"
                         />
-                        <span className="slider-bound">100%</span>
+                        <span className="slider-limit-label">100%</span>
                       </div>
 
-                      <div className="rollout-actions-row" style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                      <div className="rollout-actions-row">
                         {isAdmin ? (
                           <>
                             <button
-                              onClick={handleSaveRollout}
-                              className="action-primary-btn"
-                              disabled={isSavingRollout || rolloutVal === (prodConfig?.rolloutPercentage ?? 0)}
-                              style={{ flex: 1 }}
+                              type="button"
+                              onClick={handleUpdateRollout}
+                              disabled={isUpdatingRollout || isDeactivatingProd || rolloutVal === prodConfig?.rolloutPercentage}
+                              className="stage-action-btn promote flex-fill"
                             >
-                              {isSavingRollout ? 'Saving Rollout...' : 'Update Rollout'}
+                              {isUpdatingRollout ? 'Updating...' : `Update Rollout to ${rolloutVal}%`}
                             </button>
                             <button
-                              onClick={() => setIsDeactivateConfirmOpen(true)}
-                              className="production-state-toggle-btn active"
-                              disabled={isSubmitting}
-                              style={{ width: 'auto', padding: '10px 16px', margin: 0 }}
+                              type="button"
+                              onClick={() => setConfirmDeactivate(true)}
+                              disabled={isUpdatingRollout || isDeactivatingProd}
+                              className="stage-action-btn reject btn-auto-no-margin"
                             >
                               Deactivate
                             </button>
                           </>
                         ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
-                            <div style={{ display: 'flex', gap: '12px' }}>
+                          <div className="btn-column-full">
+                            <div className="btn-row-gap">
                               <button
-                                className="action-primary-btn"
-                                disabled={true}
-                                style={{ flex: 1, opacity: 0.5, cursor: 'not-allowed' }}
+                                type="button"
+                                disabled
+                                className="stage-action-btn promote flex-fill btn-disabled-locked"
                               >
-                                Update Rollout
+                                Update Rollout to {rolloutVal}%
                               </button>
                               <button
-                                className="production-state-toggle-btn active"
-                                disabled={true}
-                                style={{ width: 'auto', padding: '10px 16px', margin: 0, opacity: 0.5, cursor: 'not-allowed' }}
+                                type="button"
+                                disabled
+                                className="stage-action-btn reject btn-auto-no-margin btn-disabled-locked"
                               >
                                 Deactivate
                               </button>
                             </div>
-                            <div className="locked-action-overlay" style={{ marginTop: 0 }}>
-                              <FiLock size={14} style={{ marginRight: '6px' }} />
-                              <span>Production controls are read-only for your role. Only Admins can modify.</span>
+                            <div className="locked-action-overlay locked-no-margin">
+                              <FiLock size={14} className="icon-margin-right" />
+                              <span>Only Admin role can adjust production rollout percentage or deactivate flag.</span>
                             </div>
                           </div>
                         )}
@@ -864,52 +865,43 @@ export default function FeatureDetails() {
         </div>
       </div>
 
-      {/* Deactivate Confirmation Modal */}
-      {isDeactivateConfirmOpen && createPortal(
-        <div className="modal-overlay" onClick={() => setIsDeactivateConfirmOpen(false)}>
-          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+      {/* Deactivation Confirmation Modal */}
+      {confirmDeactivate && createPortal(
+        <div className="modal-overlay" onClick={() => !isDeactivatingProd && setConfirmDeactivate(false)}>
+          <div className="modal-card modal-card-compact" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 style={{ fontSize: '16px', fontWeight: '750' }}>Deactivate Feature Flag?</h3>
-              <button className="modal-close-btn" onClick={() => setIsDeactivateConfirmOpen(false)}>
-                <FiX size={16} />
-              </button>
-            </div>
-            <div className="modal-body" style={{ padding: '8px 0 20px 0' }}>
-              <p style={{ fontSize: '13.5px', color: 'var(--text-primary)', lineHeight: '1.5', margin: 0 }}>
-                Are you sure you want to deactivate this feature in Production? This will immediately stop serving the feature to users.
-              </p>
-            </div>
-            <div className="modal-actions-row" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+              <h3 className="modal-title-heading">Deactivate Feature Flag?</h3>
               <button
                 type="button"
-                onClick={() => setIsDeactivateConfirmOpen(false)}
-                className="rejection-cancel-btn"
-                disabled={isSubmitting}
-                style={{ fontSize: '13px' }}
+                className="modal-close-btn"
+                onClick={() => !isDeactivatingProd && setConfirmDeactivate(false)}
+                disabled={isDeactivatingProd}
+                aria-label="Close"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+            <div className="modal-body modal-body-padding">
+              <p className="modal-body-text">
+                This will immediately set the Production rollout percentage to <strong>0%</strong> and disable flag evaluations in Production.
+              </p>
+            </div>
+            <div className="modal-actions-row modal-footer-actions">
+              <button
+                type="button"
+                className="modal-cancel-btn"
+                onClick={() => setConfirmDeactivate(false)}
+                disabled={isDeactivatingProd}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                onClick={async () => {
-                  setIsSubmitting(true);
-                  try {
-                    await deactivateFeatureProduction(id, { workspaceId: currentWorkspaceId });
-                    toast.success('Feature deactivated in PRODUCTION.');
-                    setIsDeactivateConfirmOpen(false);
-                    await loadFeatureDetails(false);
-                  } catch (err) {
-                    const msg = getErrorMessage(err);
-                    toast.error(msg);
-                  } finally {
-                    setIsSubmitting(false);
-                  }
-                }}
-                className="rejection-submit-btn"
-                disabled={isSubmitting}
-                style={{ background: '#EF4444', color: '#FFFFFF', padding: '8px 18px', borderRadius: '30px', fontSize: '13px', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+                onClick={handleDeactivateInProd}
+                disabled={isDeactivatingProd}
+                className="modal-destructive-btn"
               >
-                {isSubmitting ? 'Deactivating...' : 'Deactivate Feature'}
+                {isDeactivatingProd ? 'Deactivating...' : 'Deactivate Flag'}
               </button>
             </div>
           </div>

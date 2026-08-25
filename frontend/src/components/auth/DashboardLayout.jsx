@@ -373,7 +373,7 @@ export default function DashboardLayout() {
                     className="workspace-create-new-btn"
                     onClick={() => setIsSidebarOpen(false)}
                   >
-                    <FiPlus size={14} style={{ marginRight: '8px' }} /> Create Workspace
+                    <FiPlus size={14} className="dropdown-item-icon" /> Create Workspace
                   </Link>
 
                   {/* Include Admin Options in Dropdown when Collapsed */}
@@ -388,7 +388,7 @@ export default function DashboardLayout() {
                           navigate('/app/workspace/members');
                         }}
                       >
-                        <FiUsers className="item-icon" style={{ marginRight: '8px' }} />
+                        <FiUsers className="item-icon" />
                         <span>Manage Members</span>
                       </button>
                       <button 
@@ -398,7 +398,7 @@ export default function DashboardLayout() {
                           handleDeleteWorkspace(); 
                         }}
                       >
-                        <FiTrash2 className="item-icon" style={{ marginRight: '8px' }} />
+                        <FiTrash2 className="item-icon" />
                         <span>Delete Workspace</span>
                       </button>
                     </>
@@ -428,12 +428,12 @@ export default function DashboardLayout() {
                         navigate('/app/workspace/members');
                       }}
                     >
-                      <FiUsers className="item-icon" style={{ marginRight: '8px' }} />
+                      <FiUsers className="item-icon" />
                       <span>Manage Members</span>
                     </button>
                     <div className="options-divider"></div>
                     <button className="options-item destructive" onClick={handleDeleteWorkspace}>
-                      <FiTrash2 className="item-icon" style={{ marginRight: '8px' }} />
+                      <FiTrash2 className="item-icon" />
                       <span>Delete Workspace</span>
                     </button>
                   </div>
@@ -575,9 +575,9 @@ export default function DashboardLayout() {
       {/* Leave Workspace Confirmation Modal */}
       {isLeaveModalOpen && createPortal(
         <div className="modal-overlay" onClick={() => !isLeaving && setIsLeaveModalOpen(false)}>
-          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+          <div className="modal-card modal-card-compact" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 style={{ fontSize: '17px', fontWeight: 750, color: 'var(--text-heading)', margin: 0 }}>
+              <h3 className="modal-title-heading">
                 Leave workspace?
               </h3>
               <button
@@ -591,33 +591,18 @@ export default function DashboardLayout() {
               </button>
             </div>
 
-            <div style={{ padding: '8px 0 20px 0' }}>
-              <p style={{ fontSize: '13.5px', color: 'var(--text-primary)', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
+            <div className="modal-body-padding">
+              <p className="modal-body-text">
                 You will lose access to <strong>{activeWorkspace?.workspaceName || 'this workspace'}</strong> and its features.
               </p>
             </div>
 
-            <div style={{
-              display: 'flex',
-              justify: 'flex-end',
-              gap: '10px',
-              borderTop: '1px solid var(--border-color)',
-              paddingTop: '16px'
-            }}>
+            <div className="modal-footer-actions">
               <button
                 type="button"
                 onClick={() => setIsLeaveModalOpen(false)}
                 disabled={isLeaving}
-                style={{
-                  backgroundColor: 'transparent',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border-color)',
-                  padding: '9px 16px',
-                  borderRadius: '30px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: isLeaving ? 'not-allowed' : 'pointer'
-                }}
+                className="modal-cancel-btn"
               >
                 Cancel
               </button>
@@ -626,20 +611,7 @@ export default function DashboardLayout() {
                 type="button"
                 onClick={handleConfirmLeaveWorkspace}
                 disabled={isLeaving}
-                style={{
-                  backgroundColor: '#E11D48',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  padding: '9px 18px',
-                  borderRadius: '30px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: isLeaving ? 'not-allowed' : 'pointer',
-                  opacity: isLeaving ? 0.7 : 1,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
+                className="modal-destructive-btn"
               >
                 {isLeaving ? 'Leaving...' : 'Leave Workspace'}
               </button>
@@ -652,9 +624,9 @@ export default function DashboardLayout() {
       {/* Delete Workspace Confirmation Modal */}
       {isDeleteModalOpen && createPortal(
         <div className="modal-overlay" onClick={() => !isDeletingWorkspace && setIsDeleteModalOpen(false)}>
-          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+          <div className="modal-card modal-card-compact" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 style={{ fontSize: '17px', fontWeight: 750, color: 'var(--text-heading)', margin: 0 }}>
+              <h3 className="modal-title-heading">
                 Delete workspace?
               </h3>
               <button
@@ -668,33 +640,18 @@ export default function DashboardLayout() {
               </button>
             </div>
 
-            <div style={{ padding: '8px 0 20px 0' }}>
-              <p style={{ fontSize: '13.5px', color: 'var(--text-primary)', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
+            <div className="modal-body-padding">
+              <p className="modal-body-text">
                 Are you sure you want to delete <strong>{activeWorkspace?.workspaceName || 'this workspace'}</strong>? All feature flags, environments, and data associated with it will be permanently deleted.
               </p>
             </div>
 
-            <div style={{
-              display: 'flex',
-              justify: 'flex-end',
-              gap: '10px',
-              borderTop: '1px solid var(--border-color)',
-              paddingTop: '16px'
-            }}>
+            <div className="modal-footer-actions">
               <button
                 type="button"
                 onClick={() => setIsDeleteModalOpen(false)}
                 disabled={isDeletingWorkspace}
-                style={{
-                  backgroundColor: 'transparent',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border-color)',
-                  padding: '9px 16px',
-                  borderRadius: '30px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: isDeletingWorkspace ? 'not-allowed' : 'pointer'
-                }}
+                className="modal-cancel-btn"
               >
                 Cancel
               </button>
@@ -703,20 +660,7 @@ export default function DashboardLayout() {
                 type="button"
                 onClick={handleConfirmDeleteWorkspace}
                 disabled={isDeletingWorkspace}
-                style={{
-                  backgroundColor: '#E11D48',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  padding: '9px 18px',
-                  borderRadius: '30px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: isDeletingWorkspace ? 'not-allowed' : 'pointer',
-                  opacity: isDeletingWorkspace ? 0.7 : 1,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
+                className="modal-destructive-btn"
               >
                 {isDeletingWorkspace ? 'Deleting...' : 'Delete Workspace'}
               </button>

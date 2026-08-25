@@ -192,13 +192,13 @@ export default function FeatureFlags() {
       {/* Title & Create Flag CTA */}
       <div className="page-header-row">
         <header className="page-header-group">
-          <span style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.05em', marginBottom: '4px' }}>FEATURE FLAGS</span>
+          <span className="header-badge-tag">FEATURE FLAGS</span>
           <h1 className="page-header-title">Feature Flags</h1>
           <p className="page-header-description">Configure release lifecycles and target audiences independently.</p>
         </header>
         {canCreate && (
           <Link to="/app/features/new" className="create-flag-btn">
-            <FiPlus style={{ marginRight: '6px' }} /> Create Feature Flag
+            <FiPlus className="btn-icon-space" /> Create Feature Flag
           </Link>
         )}
       </div>
@@ -273,7 +273,7 @@ export default function FeatureFlags() {
           </p>
           {!(debouncedKeyword || keyword || statusFilter) && canCreate && (
             <Link to="/app/features/new" className="empty-state-create-btn">
-              <FiPlus style={{ marginRight: '6px' }} /> Create Your First Flag
+              <FiPlus className="btn-icon-space" /> Create Your First Flag
             </Link>
           )}
         </div>
@@ -323,7 +323,7 @@ export default function FeatureFlags() {
                   {/* Footer Row: Created Date and Manage Button */}
                   <div className="feature-card-footer">
                     <div className="feature-card-date-meta">
-                      <FiCalendar size={13} style={{ marginRight: '6px' }} />
+                      <FiCalendar size={13} className="btn-icon-space" />
                       <span>Created {new Date(feature.createdAt).toLocaleDateString()}</span>
                     </div>
                     <Link

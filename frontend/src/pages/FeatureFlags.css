@@ -6,6 +6,19 @@
   text-align: left;
 }
 
+.header-badge-tag {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.btn-icon-space {
+  margin-right: 6px;
+}
+
 .page-header-row {
   display: flex;
   justify-content: space-between;

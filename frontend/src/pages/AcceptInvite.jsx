@@ -4,6 +4,7 @@ import { toast } from 'react-toastify'
 import { BrandMark } from '../components/landing/Brand'
 import { acceptWorkspaceInvitation, listWorkspaces } from '../api/workspaceApi'
 import { getErrorMessage } from '../api/authApi'
+import './AcceptInvite.css'
 
 export default function AcceptInvite() {
   const navigate = useNavigate();
@@ -50,51 +51,22 @@ export default function AcceptInvite() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
-      backgroundColor: '#FAF8F3',
-      fontFamily: 'var(--sans)',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '460px',
-        backgroundColor: '#FFFFFF',
-        border: '1px solid var(--border-color)',
-        borderRadius: '20px',
-        padding: '40px',
-        textAlign: 'center',
-        boxShadow: '0 8px 30px rgba(38, 37, 33, 0.02)'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+    <div className="accept-invite-page-container">
+      <div className="accept-invite-card">
+        <div className="accept-invite-logo-wrapper">
           <BrandMark />
         </div>
-        <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-heading)', letterSpacing: '-0.02em', marginBottom: '8px' }}>
+        <h1 className="accept-invite-title">
           Workspace Invitation
         </h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: '24px' }}>
+        <p className="accept-invite-description">
           You have been invited to collaborate on this workspace. Accept to join and start managing flags.
         </p>
 
         <button 
           onClick={handleAccept} 
           disabled={isLoading || !token}
-          style={{
-            width: '100%',
-            padding: '14px',
-            borderRadius: '30px',
-            border: 'none',
-            backgroundColor: 'var(--charcoal)',
-            color: '#FFFFFF',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: isLoading || !token ? 'not-allowed' : 'pointer',
-            opacity: isLoading || !token ? 0.7 : 1
-          }}
+          className="accept-invite-btn"
         >
           {isLoading ? 'Accepting Invitation...' : 'Accept Invitation'}
         </button>

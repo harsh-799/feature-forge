@@ -107,7 +107,7 @@ export default function Environments() {
                 {/* Card header */}
                 <div className="env-card-headline">
                   <div className="env-card-title-group">
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: env.color, flexShrink: 0 }} />
+                    <span className="env-color-dot" style={{ backgroundColor: env.color }} />
                     <h3>{env.label}</h3>
                   </div>
                   <span className="env-card-status-pill">Active</span>
@@ -143,14 +143,14 @@ export default function Environments() {
 
                 {freshKey && (
                   <div className="env-fresh-warning-note">
-                    <FiAlertTriangle size={13} style={{ flexShrink: 0 }} />
+                    <FiAlertTriangle size={13} className="env-icon-shrink" />
                     <span>Copy this key now. It will be hidden after copying.</span>
                   </div>
                 )}
 
                 {/* Regenerate API Key Action Button - Only rendered for ADMIN role */}
                 {isAdmin && (
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <div className="env-btn-row-right">
                     <button
                       type="button"
                       className="env-regenerate-action-btn"
@@ -171,31 +171,21 @@ export default function Environments() {
       {/* Confirmation Modal rendered via portal to cover entire viewport */}
       {confirmEnv && createPortal(
         <div className="modal-overlay" onClick={() => setConfirmEnv(null)}>
-          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '460px', padding: '28px' }}>
+          <div className="modal-card env-modal-compact" onClick={e => e.stopPropagation()}>
             
             {/* Top Header Row */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '12px',
-                  backgroundColor: '#FFFBEB',
-                  border: '1px solid #FDE68A',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <FiAlertTriangle size={20} color="#D97706" />
+            <div className="env-modal-header-row">
+              <div className="env-modal-header-title-group">
+                <div className="env-modal-icon-badge">
+                  <FiAlertTriangle size={20} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-heading)', margin: 0, letterSpacing: '-0.01em' }}>
+                  <h3 className="env-modal-title">
                     Regenerate API Key
                   </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: confirmEnv.color }} />
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', opacity: 0.8 }}>
+                  <div className="env-modal-subtitle-row">
+                    <span className="env-modal-badge-dot" style={{ backgroundColor: confirmEnv.color }} />
+                    <span className="env-modal-badge-text">
                       {confirmEnv.label} Environment
                     </span>
                   </div>
@@ -212,43 +202,21 @@ export default function Environments() {
             </div>
 
             {/* Warning Callout Box */}
-            <div style={{
-              backgroundColor: '#FAF8F3',
-              border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '14px 16px',
-              marginBottom: '22px'
-            }}>
-              <p style={{ fontSize: '13px', color: 'var(--text-heading)', fontWeight: 600, margin: '0 0 6px 0' }}>
+            <div className="env-modal-warning-box">
+              <p className="env-modal-warning-title">
                 Are you sure you want to proceed?
               </p>
-              <p style={{ fontSize: '12.5px', color: 'var(--text-primary)', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
+              <p className="env-modal-warning-desc">
                 The current API key will be immediately revoked. Any SDKs or applications using the old key will stop working until updated with the new key.
               </p>
             </div>
 
             {/* Footer Action Row */}
-            <div style={{
-              display: 'flex',
-              justify: 'flex-end',
-              gap: '10px',
-              borderTop: '1px solid var(--border-color)',
-              paddingTop: '18px'
-            }}>
+            <div className="modal-footer-actions">
               <button
                 type="button"
                 onClick={() => setConfirmEnv(null)}
-                style={{
-                  backgroundColor: 'transparent',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border-color)',
-                  padding: '9px 18px',
-                  borderRadius: '30px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
+                className="modal-cancel-btn"
               >
                 Cancel
               </button>
@@ -256,24 +224,9 @@ export default function Environments() {
               <button
                 type="button"
                 onClick={handleConfirmRegenerate}
-                style={{
-                  backgroundColor: 'var(--charcoal)',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  padding: '9px 20px',
-                  borderRadius: '30px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '7px',
-                  boxShadow: '0 4px 12px rgba(38, 37, 33, 0.15)',
-                  transition: 'all 0.15s ease'
-                }}
+                className="modal-destructive-btn"
               >
-                <FiRefreshCw size={13} />
-                <span>Regenerate Key</span>
+                Regenerate
               </button>
             </div>
           </div>

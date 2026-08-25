@@ -296,3 +296,102 @@
     font-size: 12px;
   }
 }
+
+/* Modal and badge helper classes */
+.env-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.env-icon-shrink {
+  flex-shrink: 0;
+}
+
+.env-btn-row-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.env-modal-compact {
+  max-width: 460px;
+  padding: 28px;
+}
+
+.env-modal-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.env-modal-header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.env-modal-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #DC2626;
+  flex-shrink: 0;
+}
+
+.env-modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.env-modal-subtitle-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+.env-modal-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.env-modal-badge-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+.env-modal-warning-box {
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.env-modal-warning-title {
+  font-size: 13px;
+  color: var(--text-heading);
+  font-weight: 600;
+  margin: 0 0 6px 0;
+}
+
+.env-modal-warning-desc {
+  font-size: 12.5px;
+  color: var(--text-primary);
+  opacity: 0.8;
+  margin: 0;
+  line-height: 1.5;
+}

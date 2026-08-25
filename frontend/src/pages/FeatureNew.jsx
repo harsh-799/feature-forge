@@ -54,7 +54,7 @@ export default function FeatureNew() {
   return (
     <div className="new-flag-page-container">
       <Link to="/app/features" className="back-nav-link">
-        <FiArrowLeft style={{ marginRight: '6px' }} /> Back to Feature Flags
+        <FiArrowLeft className="btn-icon-space" /> Back to Feature Flags
       </Link>
 
       <div className="new-flag-split-card">

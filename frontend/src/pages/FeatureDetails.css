@@ -1562,3 +1562,39 @@ input:disabled + .toggle-switch-slider {
   }
 }
 
+/* Feature Details helper classes */
+.icon-margin-right {
+  margin-right: 6px;
+}
+
+.flex-fill {
+  flex: 1;
+}
+
+.btn-auto-no-margin {
+  width: auto;
+  padding: 10px 16px;
+  margin: 0;
+}
+
+.btn-column-full {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-row-gap {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-disabled-locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.locked-no-margin {
+  margin-top: 0;
+}
+

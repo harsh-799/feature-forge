@@ -192,19 +192,11 @@ export default function Signup() {
                 {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
               </button>
             </div>
-            <div className="password-hint-row" style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '12px',
-              marginTop: '6px',
-              color: (password.length >= 8 && password.length <= 15) ? '#2F9254' : '#5A5852',
-              transition: 'color 0.2s ease'
-            }}>
+            <div className={`password-hint-row ${(password.length >= 8 && password.length <= 15) ? 'hint-valid' : ''}`}>
               {(password.length >= 8 && password.length <= 15) ? (
-                <FiCheck size={14} style={{ color: '#2F9254', flexShrink: 0 }} />
+                <FiCheck size={14} className="password-hint-icon-valid" />
               ) : (
-                <FiAlertCircle size={14} style={{ color: '#88867f', flexShrink: 0 }} />
+                <FiAlertCircle size={14} className="password-hint-icon-invalid" />
               )}
               <span>8-15 characters required</span>
             </div>
@@ -235,9 +227,9 @@ export default function Signup() {
               {confirmPassword && (
                 <div className="password-match-indicator">
                   {confirmPassword === password ? (
-                    <FiCheck size={18} style={{ color: '#2F9254' }} />
+                    <FiCheck size={18} className="password-match-icon-success" />
                   ) : (
-                    <FiX size={18} style={{ color: '#EF4444' }} />
+                    <FiX size={18} className="password-match-icon-error" />
                   )}
                 </div>
               )}

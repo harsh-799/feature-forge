@@ -1,5 +1,6 @@
 package com.featureforge.backend.service;
 
+import com.featureforge.backend.dto.FeatureOverviewCount;
 import com.featureforge.backend.dto.request.*;
 import com.featureforge.backend.dto.response.*;
 import com.featureforge.backend.entity.*;
@@ -11,6 +12,7 @@ import com.featureforge.backend.exception.*;
 import com.featureforge.backend.repository.*;
 import com.featureforge.backend.util.ApiKeyManager;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -566,5 +568,31 @@ public class WorkspaceService {
         userWorkspaceResponse.setData(userWorkspacesList);
 
         return userWorkspaceResponse;
+    }
+
+    public FeatureOverviewResponse getFeatureOverview(UUID workspaceId) {
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership membership = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(workspaceId,loggedInUser)
+                .orElseThrow(
+                        () -> new AccessDeniedException("Access denied: You are not a member of this workspace.")
+                );
+
+        Workspace workspace = membership.getWorkspace();
+
+        FeatureOverviewCount count = featureRepository.findFeatureCountForOverview(workspace);
+
+        System.out.println(count.getDevelopment());
+
+        FeatureOverviewResponse response = new FeatureOverviewResponse();
+        response.setSuccess(true);
+        response.setMessage("Feature overview counts fetched successfully.");
+        response.setActive(count != null ? count.getActive() : 0);
+        response.setDevelopment(count != null ? count.getDevelopment() : 0);
+        response.setStaging(count != null ? count.getStaging() : 0);
+        response.setProduction(count != null ? count.getProduction() : 0);
+
+        return response;
     }
 }

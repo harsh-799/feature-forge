@@ -164,4 +164,12 @@ public class WorkspaceController {
                 .body(activityLogService.getWorkspaceActivities(workspaceId, page, size, activityType, userId, from, to));
     }
 
+    @GetMapping("/{workspaceId}/dashboard/feature-overview")
+    public ResponseEntity<FeatureOverviewResponse> featureOverview(
+            @PathVariable(name = "workspaceId") UUID workspaceId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(workspaceService.getFeatureOverview(workspaceId));
+    }
+
 }

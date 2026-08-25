@@ -61,16 +61,16 @@ export default function Activity() {
 
     if (activityTypeFilter) params.activityType = activityTypeFilter;
     if (userIdFilter) params.userId = userIdFilter;
-    if (fromDate) params.fromDate = fromDate;
-    if (toDate) params.toDate = toDate;
+    if (fromDate) params.from = fromDate;
+    if (toDate) params.to = toDate;
 
     getWorkspaceActivities(currentWorkspaceId, params)
       .then((res) => {
         if (!isMounted) return;
-        if (res && res.content) {
-          setActivities(res.content);
-          setTotalPages(res.totalPages || 0);
-          setIsLast(res.last !== undefined ? res.last : true);
+        if (res && res.activities) {
+          setActivities(res.activities);
+          setTotalPages(res.totalElements ? Math.ceil(res.totalElements / (res.size || 15)) : 0);
+          setIsLast(res.isLast !== undefined ? res.isLast : true);
         } else if (Array.isArray(res)) {
           setActivities(res);
           setTotalPages(1);

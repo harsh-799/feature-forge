@@ -151,6 +151,14 @@ export const regenerateApiKey = async (workspaceId, envData) => {
   return handleResponse(response);
 };
 
+export const getFeatureOverview = async (workspaceId) => {
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/dashboard/feature-overview`, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(response);
+};
+
 export default {
   listWorkspaces,
   createWorkspace,
@@ -166,6 +174,7 @@ export default {
   revokeWorkspaceInvitation,
   leaveWorkspace,
   deleteWorkspace,
-  regenerateApiKey
+  regenerateApiKey,
+  getFeatureOverview
 };
 

@@ -51,7 +51,22 @@ export default function Onboarding() {
   };
 
   const handleCopy = (envName, val) => {
-    navigator.clipboard.writeText(val);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(val);
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = val;
+      textarea.style.position = 'fixed';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(textarea);
+    }
     setCopiedKey(envName);
     toast.success(`${envName} API key copied!`);
     setTimeout(() => {
@@ -149,7 +164,7 @@ export default function Onboarding() {
             </div>
 
             <div className="onboard-warning-banner">
-              <strong>IMPORTANT:</strong> Store these keys safely in your environment variables. You will use these keys to authenticate evaluation requests from your microservices.
+              <strong>IMPORTANT:</strong> Store these keys safely in your environment variables. You will use these keys to authenticate evaluation requests.
             </div>
 
             <button onClick={handleContinue} className="onboard-continue-btn">

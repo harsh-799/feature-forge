@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiCheckCircle } from 'react-icons/fi';
 
-export default function PendingApprovals({ activeRole }) {
-  if (!activeRole) {
+export default function PendingApprovals({ activeRole, pendingQAFeatures = [], isLoading }) {
+  if (isLoading || !activeRole) {
     return (
       <div className="dashboard-panel-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '320px' }}>
         <span style={{ fontSize: '13px', color: 'var(--text-primary)', opacity: 0.6 }}>Loading panel...</span>
@@ -14,32 +14,20 @@ export default function PendingApprovals({ activeRole }) {
   let title = 'Pending QA Approvals';
   let subtitle = 'Features waiting for QA review';
   let emptyText = 'No features are currently waiting for QA approval.';
-  let featuresList = [];
+  let featuresList = pendingQAFeatures || [];
 
   if (activeRole === 'ADMIN') {
     title = 'Pending QA Approvals';
     subtitle = 'Features waiting for QA review';
     emptyText = 'No features are currently waiting for QA approval.';
-    featuresList = [
-      { id: '1', name: 'user-onboarding-v2', status: 'STAGING', actionText: 'Review →' },
-      { id: '2', name: 'payment-gateway-stripe', status: 'STAGING', actionText: 'Review →' }
-    ];
   } else if (activeRole === 'QA') {
     title = 'Pending QA Reviews';
     subtitle = 'Features awaiting your review';
     emptyText = 'No features are currently waiting for QA approval.';
-    featuresList = [
-      { id: '3', name: 'checkout-retry-logic', status: 'STAGING', actionText: 'Review →' },
-      { id: '4', name: 'payment-gateway-v2', status: 'STAGING', actionText: 'Review →' }
-    ];
   } else if (activeRole === 'DEVELOPER') {
     title = 'My Flags';
     subtitle = 'Flags you own that need action';
     emptyText = 'No flags need your attention.';
-    featuresList = [
-      { id: '5', name: 'checkout-retry-logic', status: 'DRAFT', actionText: 'Submit for QA →' },
-      { id: '6', name: 'dark-mode-toggle', status: 'REJECTED', actionText: 'View feedback →' }
-    ];
   }
 
   return (
@@ -62,20 +50,33 @@ export default function PendingApprovals({ activeRole }) {
             <div className="pending-approvals-list">
               {featuresList.map((item) => {
                 let statusClass = 'status-badge-staging';
-                if (item.status === 'DRAFT') {
+                let statusLabel = item.status;
+                let actionText = 'Review →';
+
+                if (item.status === 'IN_DEVELOPMENT') {
                   statusClass = 'status-badge-draft';
-                } else if (item.status === 'REJECTED') {
+                  statusLabel = 'DRAFT';
+                  actionText = 'Submit for QA →';
+                } else if (item.status === 'QA_REJECTED') {
                   statusClass = 'status-badge-rejected';
+                  statusLabel = 'REJECTED';
+                  actionText = 'View feedback →';
+                } else if (item.status === 'READY_FOR_QA') {
+                  statusClass = 'status-badge-staging';
+                  statusLabel = 'STAGING';
+                  actionText = 'Review →';
                 }
 
+                const featId = item.featureId || item.id;
+
                 return (
-                  <div key={item.id} className="approval-row-item">
+                  <div key={featId} className="approval-row-item">
                     <div className="approval-item-info">
                       <span className="approval-item-name">{item.name}</span>
-                      <span className={statusClass}>{item.status}</span>
+                      <span className={statusClass}>{statusLabel}</span>
                     </div>
-                    <Link to={`/app/features/${item.id}`} className="panel-action-link">
-                      {item.actionText}
+                    <Link to={`/app/features/${featId}`} className="panel-action-link">
+                      {actionText}
                     </Link>
                   </div>
                 );

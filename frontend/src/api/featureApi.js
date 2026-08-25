@@ -173,6 +173,17 @@ export const deactivateFeatureStaging = async (featureId, data) => {
   return handleResponse(response);
 };
 
+export const getDeveloperFlags = async (workspaceId, { page = 0, size = 6 } = {}) => {
+  const query = new URLSearchParams();
+  query.append('page', page);
+  query.append('size', size);
+  const response = await fetch(`${API_BASE_URL}/workspace/${workspaceId}/features/my-flags?${query.toString()}`, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(response);
+};
+
 export default {
   createFeature,
   listFeatures,
@@ -189,5 +200,6 @@ export default {
   activateFeatureDevelopment,
   deactivateFeatureDevelopment,
   activateFeatureStaging,
-  deactivateFeatureStaging
+  deactivateFeatureStaging,
+  getDeveloperFlags
 };

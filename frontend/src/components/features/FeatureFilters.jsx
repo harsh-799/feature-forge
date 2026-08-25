@@ -27,22 +27,20 @@ export default function FeatureFilters({
         />
       </div>
 
-      {isAdmin && (
-        <div className="filter-select-wrapper">
-          <select
-            value={selectedEnv}
-            onChange={(e) => {
-              setSelectedEnv(e.target.value);
-              setPage(0);
-            }}
-            className="filter-status-select"
-          >
-            <option value="DEVELOPMENT">DEVELOPMENT</option>
-            <option value="STAGING">STAGING</option>
-            <option value="PRODUCTION">PRODUCTION</option>
-          </select>
-        </div>
-      )}
+      <div className="filter-select-wrapper">
+        <select
+          value={selectedEnv}
+          onChange={(e) => {
+            setSelectedEnv(e.target.value);
+            setPage(0);
+          }}
+          className="filter-status-select"
+        >
+          <option value="DEVELOPMENT">DEVELOPMENT</option>
+          <option value="STAGING">STAGING</option>
+          <option value="PRODUCTION">PRODUCTION</option>
+        </select>
+      </div>
 
       <div className="filter-select-wrapper">
         <select

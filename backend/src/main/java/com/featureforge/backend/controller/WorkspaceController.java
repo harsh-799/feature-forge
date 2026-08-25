@@ -63,6 +63,17 @@ public class WorkspaceController {
         );
     }
 
+    @GetMapping("/{workspaceId}/features/my-flags")
+    public ResponseEntity<FeaturesPageResponse> getDeveloperFlags(
+            @PathVariable(name = "workspaceId") UUID workspaceId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                featureService.getDeveloperFlags(workspaceId, page, size)
+        );
+    }
+
     @GetMapping("/{workspaceId}/features/{featureId}")
     public ResponseEntity<FeatureDetailsApiResponse> getFeatureDetails(
             @PathVariable(name = "workspaceId") UUID workspaceId,

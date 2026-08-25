@@ -54,4 +54,8 @@ public class Feature {
     private FeatureStatus status;
 
     private String rejectionReason;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by_id")
+    private User createdBy;
 }

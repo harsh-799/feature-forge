@@ -18,7 +18,9 @@ import {
   FiUsers, 
   FiTrash2, 
   FiMenu, 
-  FiX 
+  FiX,
+  FiChevronLeft,
+  FiChevronRight
 } from 'react-icons/fi'
 import { listWorkspaces, leaveWorkspace, deleteWorkspace } from '../../api/workspaceApi'
 import { getErrorMessage } from '../../api/authApi'
@@ -41,6 +43,19 @@ export default function DashboardLayout() {
   
   // Mobile sidebar drawer state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Desktop collapsible sidebar state
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem('sidebarCollapsed') === 'true';
+  });
+
+  const handleToggleCollapse = () => {
+    setIsCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('sidebarCollapsed', String(next));
+      return next;
+    });
+  };
 
   // Leave workspace modal state
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
@@ -288,13 +303,24 @@ export default function DashboardLayout() {
       )}
 
       {/* Sidebar navigation panel */}
-      <aside className={`app-sidebar ${isSidebarOpen ? 'sidebar-drawer-open' : ''}`}>
+      <aside className={`app-sidebar ${isSidebarOpen ? 'sidebar-drawer-open' : ''} ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
         <div className="sidebar-top">
           <div className="sidebar-header-wrapper">
             <Link to="/" className="sidebar-brand-logo" onClick={() => setIsSidebarOpen(false)}>
               <BrandMark />
               <span className="sidebar-brand-name">FeatureForge</span>
             </Link>
+
+            {/* Desktop collapse toggle button */}
+            <button
+              className="sidebar-collapse-toggle-btn"
+              onClick={handleToggleCollapse}
+              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            >
+              {isCollapsed ? <FiChevronRight size={16} /> : <FiChevronLeft size={16} />}
+            </button>
+
             {/* Mobile close button inside drawer */}
             <button 
               className="sidebar-close-btn" 
@@ -312,6 +338,7 @@ export default function DashboardLayout() {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="workspace-selector-btn"
                 aria-expanded={isDropdownOpen}
+                title={isCollapsed ? (activeWorkspace ? activeWorkspace.workspaceName : 'Select Project') : ''}
               >
                 <div className="workspace-btn-content">
                   <FiFolder className="workspace-icon" />
@@ -348,6 +375,34 @@ export default function DashboardLayout() {
                   >
                     <FiPlus size={14} style={{ marginRight: '8px' }} /> Create Workspace
                   </Link>
+
+                  {/* Include Admin Options in Dropdown when Collapsed */}
+                  {isCollapsed && isAdmin && (
+                    <>
+                      <div className="workspace-dropdown-divider"></div>
+                      <button
+                        className="options-item"
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          setIsSidebarOpen(false);
+                          navigate('/app/workspace/members');
+                        }}
+                      >
+                        <FiUsers className="item-icon" style={{ marginRight: '8px' }} />
+                        <span>Manage Members</span>
+                      </button>
+                      <button 
+                        className="options-item destructive" 
+                        onClick={() => { 
+                          setIsDropdownOpen(false); 
+                          handleDeleteWorkspace(); 
+                        }}
+                      >
+                        <FiTrash2 className="item-icon" style={{ marginRight: '8px' }} />
+                        <span>Delete Workspace</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -393,6 +448,8 @@ export default function DashboardLayout() {
               to="/app/overview"
               className={({ isActive }) => `nav-link-item ${isActive ? 'active' : ''}`}
               onClick={() => setIsSidebarOpen(false)}
+              data-tooltip="Overview"
+              title={isCollapsed ? 'Overview' : ''}
             >
               <FiGrid className="nav-icon" />
               <span>Overview</span>
@@ -401,6 +458,8 @@ export default function DashboardLayout() {
               to="/app/features"
               className={({ isActive }) => `nav-link-item ${isActive || location.pathname.startsWith('/app/features') ? 'active' : ''}`}
               onClick={() => setIsSidebarOpen(false)}
+              data-tooltip="Feature Flags"
+              title={isCollapsed ? 'Feature Flags' : ''}
             >
               <FiToggleLeft className="nav-icon" />
               <span>Feature Flags</span>
@@ -409,6 +468,8 @@ export default function DashboardLayout() {
               to="/app/environments"
               className={({ isActive }) => `nav-link-item ${isActive ? 'active' : ''}`}
               onClick={() => setIsSidebarOpen(false)}
+              data-tooltip="Environments"
+              title={isCollapsed ? 'Environments' : ''}
             >
               <FiLayers className="nav-icon" />
               <span>Environments</span>
@@ -417,6 +478,8 @@ export default function DashboardLayout() {
               to="/app/activity"
               className={({ isActive }) => `nav-link-item ${isActive ? 'active' : ''}`}
               onClick={() => setIsSidebarOpen(false)}
+              data-tooltip="Activity"
+              title={isCollapsed ? 'Activity' : ''}
             >
               <FiClock className="nav-icon" />
               <span>Activity</span>

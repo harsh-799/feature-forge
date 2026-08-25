@@ -15,11 +15,14 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 32px 20px;
-  position: fixed;
+  position: sticky;
   top: 0;
-  bottom: 0;
-  left: 0;
+  height: 100vh;
+  height: 100dvh;
+  flex-shrink: 0;
   z-index: 10;
+  box-sizing: border-box;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), padding 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-top {
@@ -91,6 +94,31 @@
 
 .sidebar-close-btn:hover {
   background-color: rgba(38, 37, 33, 0.05);
+}
+
+/* Desktop Sidebar Collapse Toggle Button */
+.sidebar-collapse-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: #FFFFFF;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(38, 37, 33, 0.03);
+}
+
+.sidebar-collapse-toggle-btn:hover {
+  border-color: #CFCDBF;
+  color: var(--text-heading);
+  background-color: #FAF8F3;
+  transform: scale(1.05);
 }
 
 /* Workspace Selector layout wrapper */
@@ -688,9 +716,8 @@
 
 /* Main Viewport */
 .app-main-viewport {
-  margin-left: 260px;
-  /* Shift for sidebar */
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -890,6 +917,10 @@
 
 /* Responsive queries */
 @media (max-width: 1024px) {
+  .sidebar-collapse-toggle-btn {
+    display: none;
+  }
+
   .app-mobile-header {
     display: flex;
   }
@@ -962,5 +993,217 @@
 
   .account-upward-dropdown {
     width: 100%;
+  }
+}
+
+/* ========================================================
+   DESKTOP COLLAPSED SIDEBAR RAIL (min-width: 1025px)
+   ======================================================== */
+@media (min-width: 1025px) {
+  .app-sidebar.sidebar-collapsed {
+    width: 76px;
+    padding: 32px 14px;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-top {
+    gap: 24px;
+    align-items: center;
+  }
+
+  /* Header wrapper when collapsed: logo + inside toggle button */
+  .app-sidebar.sidebar-collapsed .sidebar-header-wrapper {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    width: 100%;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-brand-name {
+    display: none;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-brand-logo {
+    padding-left: 0;
+    justify-content: center;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-collapse-toggle-btn {
+    position: static;
+    transform: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    color: var(--text-heading);
+    box-shadow: 0 1px 4px rgba(38, 37, 33, 0.04);
+    z-index: 1;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-collapse-toggle-btn:hover {
+    border-color: #CFCDBF;
+    color: var(--accent);
+    background-color: #FAF8F3;
+    transform: scale(1.05);
+  }
+
+  /* Workspace Selector collapsed rail styling */
+  .app-sidebar.sidebar-collapsed .workspace-selector-container-wrapper {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .app-sidebar.sidebar-collapsed .workspace-selector-container {
+    flex: initial;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .app-sidebar.sidebar-collapsed .workspace-selector-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 12px;
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 6px rgba(38, 37, 33, 0.03);
+  }
+
+  .app-sidebar.sidebar-collapsed .workspace-selector-btn:hover {
+    border-color: #CFCDBF;
+    background-color: #FAF8F3;
+  }
+
+  .app-sidebar.sidebar-collapsed .workspace-btn-content {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .app-sidebar.sidebar-collapsed .workspace-name-text,
+  .app-sidebar.sidebar-collapsed .chevron-icon {
+    display: none;
+  }
+
+  .app-sidebar.sidebar-collapsed .workspace-options-menu-container {
+    display: none;
+  }
+
+  .app-sidebar.sidebar-collapsed .workspace-dropdown-menu {
+    left: 0;
+    width: 210px;
+  }
+
+  /* Navigation Links collapsed rail styling */
+  .app-sidebar.sidebar-collapsed .sidebar-nav {
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .app-sidebar.sidebar-collapsed .nav-link-item {
+    width: 48px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 10px;
+    border-left: 3px solid transparent;
+    position: relative;
+    box-sizing: border-box;
+    background-color: transparent;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .app-sidebar.sidebar-collapsed .nav-link-item span {
+    display: none;
+  }
+
+  .app-sidebar.sidebar-collapsed .nav-link-item:hover:not(.active) {
+    background-color: rgba(38, 37, 33, 0.04);
+    color: var(--text-heading);
+  }
+
+  /* Active Nav Item — Warm Ivory + Left Orange Accent Line */
+  .app-sidebar.sidebar-collapsed .nav-link-item.active {
+    background-color: #FAF8F3;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding-left: 0;
+    color: var(--text-heading);
+  }
+
+  .app-sidebar.sidebar-collapsed .nav-link-item .nav-icon {
+    font-size: 18px;
+  }
+
+  .app-sidebar.sidebar-collapsed .nav-link-item.active .nav-icon {
+    color: var(--accent);
+  }
+
+  /* Pure CSS Tooltips for collapsed rail */
+  .app-sidebar.sidebar-collapsed .nav-link-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--charcoal);
+    color: #FAF8F5;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    box-shadow: 0 4px 16px rgba(38, 37, 33, 0.12);
+    z-index: 999;
+  }
+
+  .app-sidebar.sidebar-collapsed .nav-link-item:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(2px);
+  }
+
+  /* User profile pill collapsed rail styling */
+  .app-sidebar.sidebar-collapsed .sidebar-bottom-pill-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-account-pill-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #FAF7F0;
+    border: 1px solid var(--border-color);
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-account-pill-btn:hover {
+    border-color: #CFCDBF;
+    background-color: #FFFFFF;
+  }
+
+  .app-sidebar.sidebar-collapsed .pill-left-content {
+    gap: 0;
+    justify-content: center;
+  }
+
+  .app-sidebar.sidebar-collapsed .pill-text-details,
+  .app-sidebar.sidebar-collapsed .pill-dots {
+    display: none;
+  }
+
+  .app-sidebar.sidebar-collapsed .account-upward-dropdown {
+    left: 0;
+    width: 220px;
   }
 }

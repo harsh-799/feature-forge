@@ -2,13 +2,16 @@ import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useOutletContext } from 'react-router-dom'
 import {
-  FiArrowLeft, FiMail, FiSearch, FiChevronDown,
+  FiArrowLeft,
   FiUsers, FiUserCheck, FiClock, FiShield, FiTerminal, FiCheckSquare,
-  FiMoreVertical, FiTrash2, FiAlertTriangle, FiX
+  FiAlertTriangle, FiX
 } from 'react-icons/fi'
 import { getWorkspaceMembers, inviteWorkspaceMember, removeWorkspaceMember, getPendingInvitations, revokeWorkspaceInvitation } from '../api/workspaceApi'
 import { getErrorMessage } from '../api/authApi'
 import { toast } from 'react-toastify'
+import InviteCollaborator from '../components/members/InviteCollaborator'
+import PendingInvitations from '../components/members/PendingInvitations'
+import MembersList from '../components/members/MembersList'
 import './WorkspaceMembers.css'
 
 export default function WorkspaceMembers() {
@@ -40,60 +43,6 @@ export default function WorkspaceMembers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
 
-  const renderRoleBadge = (role) => {
-    const normalized = (role || 'DEVELOPER').toUpperCase();
-    const label = normalized === 'ADMIN' ? 'Admin' : normalized === 'QA' ? 'QA' : 'Developer';
-    const styles = {
-      ADMIN: { color: '#1F2937', bg: '#F3F4F6', border: '#E5E7EB' },
-      QA: { color: '#1E40AF', bg: '#EFF6FF', border: '#DBEAFE' },
-      DEVELOPER: { color: '#9A3412', bg: '#FFF7ED', border: '#FFEDD5' }
-    };
-    const current = styles[normalized] || styles.DEVELOPER;
-    return (
-      <span style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        fontSize: '11.5px',
-        fontWeight: 500,
-        color: current.color,
-        backgroundColor: current.bg,
-        border: `1px solid ${current.border}`,
-        padding: '2px 9px',
-        borderRadius: '6px',
-        letterSpacing: '-0.01em'
-      }}>
-        {label}
-      </span>
-    );
-  };
-
-  const renderStatusBadge = (status) => {
-    const isPending = (status || '').toUpperCase() === 'PENDING';
-    return (
-      <span style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '5px',
-        fontSize: '11.5px',
-        fontWeight: 500,
-        color: isPending ? '#B45309' : '#15803D',
-        backgroundColor: isPending ? '#FFFBEB' : '#F0FDF4',
-        border: `1px solid ${isPending ? '#FDE68A' : '#BBF7D0'}`,
-        padding: '2px 9px',
-        borderRadius: '20px',
-        letterSpacing: '-0.01em'
-      }}>
-        <span style={{
-          width: '5px',
-          height: '5px',
-          borderRadius: '50%',
-          backgroundColor: isPending ? '#D97706' : '#22C55E',
-          flexShrink: 0
-        }} />
-        {isPending ? 'Pending' : 'Active'}
-      </span>
-    );
-  };
 
   const fetchMembers = async (showSkeleton = true) => {
     if (!currentWorkspaceId) return;
@@ -696,290 +645,48 @@ export default function WorkspaceMembers() {
           {/* â”€â”€ LEFT: Invite + Table â”€â”€ */}
           <div style={{ minWidth: 0 }}>
 
-            {/* Invite Collaborator accordion */}
-            <div style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid var(--border-color)',
-              borderRadius: '16px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.01)',
-              marginBottom: '20px',
-              overflow: 'hidden'
-            }}>
-              <div
-                className={`invite-header${inviteOpen ? ' open' : ''}`}
-                onClick={() => setInviteOpen(p => !p)}
-                role="button"
-                aria-expanded={inviteOpen}
-              >
-                <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', margin: 0 }}>
-                  Invite Collaborator
-                </h3>
-                <FiChevronDown size={16} className={`invite-chevron${inviteOpen ? ' open' : ''}`} />
-              </div>
-              <div className={`invite-body${inviteOpen ? ' open' : ''}`}>
-                <div style={{ height: '1px', backgroundColor: 'var(--border-color)' }} />
-                <form onSubmit={handleInvite} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', padding: '18px 20px' }}>
-                  <div style={{ flex: '1 1 180px', minWidth: 0, position: 'relative' }}>
-                    <FiMail size={15} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-primary)', opacity: 0.55 }} />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="collaborator@domain.com"
-                      disabled={isSubmitting}
-                      style={{
-                        width: '100%', padding: '10px 12px 10px 38px',
-                        borderRadius: '30px', border: '1px solid var(--border-color)',
-                        outline: 'none', fontFamily: 'var(--sans)', fontSize: '13px',
-                        backgroundColor: '#FAF8F3',
-                        transition: 'border-color 0.2s ease, background-color 0.2s ease'
-                      }}
-                    />
-                  </div>
-                  <select
-                    value={inviteRole}
-                    onChange={e => setInviteRole(e.target.value)}
-                    disabled={isSubmitting}
-                    className="members-role-select"
-                    style={{ minWidth: '130px' }}
-                  >
-                    <option value="DEVELOPER">Developer</option>
-                    <option value="QA">QA</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
-                  <button type="submit" disabled={isSubmitting} style={{
-                    backgroundColor: 'var(--charcoal)', color: '#FFFFFF', border: 'none',
-                    padding: '10px 20px', borderRadius: '30px', fontSize: '13px',
-                    fontWeight: 600, cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                    opacity: isSubmitting ? 0.65 : 1, whiteSpace: 'nowrap',
-                    transition: 'opacity 0.2s ease'
-                  }}>
-                    {isSubmitting ? 'Sending...' : 'Send Invitation'}
-                  </button>
-                </form>
-              </div>
-            </div>
+            {/* Invite Collaborator component */}
+            <InviteCollaborator
+              inviteOpen={inviteOpen}
+              setInviteOpen={setInviteOpen}
+              email={email}
+              setEmail={setEmail}
+              inviteRole={inviteRole}
+              setInviteRole={setInviteRole}
+              isSubmitting={isSubmitting}
+              handleInvite={handleInvite}
+            />
 
-            {/* Pending Invitations accordion (renders only when pendingInvitations > 0) */}
+            {/* Pending Invitations component */}
             {pendingInvitations.length > 0 && (
-              <div style={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid var(--border-color)',
-                borderRadius: '16px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.01)',
-                marginBottom: '20px',
-                overflow: 'hidden'
-              }}>
-                <div
-                  className={`invite-header${pendingOpen ? ' open' : ''}`}
-                  onClick={() => setPendingOpen(p => !p)}
-                  role="button"
-                  aria-expanded={pendingOpen}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', margin: 0 }}>
-                      Pending Invitations
-                    </h3>
-                    <span style={{
-                      fontSize: '11.5px', fontWeight: 600, color: '#92400E',
-                      backgroundColor: '#FEF3C7', border: '1px solid #FDE68A',
-                      padding: '1px 8px', borderRadius: '12px'
-                    }}>
-                      {pendingInvitations.length}
-                    </span>
-                  </div>
-                  <FiChevronDown size={16} className={`invite-chevron${pendingOpen ? ' open' : ''}`} />
-                </div>
-                <div className={`invite-body${pendingOpen ? ' open' : ''}`}>
-                  <div style={{ height: '1px', backgroundColor: 'var(--border-color)' }} />
-                  <div className="members-table-wrapper">
-                    <table className="members-table">
-                      <thead>
-                        <tr style={{ backgroundColor: '#FAF8F3', borderBottom: '1px solid var(--border-color)' }}>
-                          <th className="member-th-cell">INVITEE</th>
-                          <th className="member-th-cell">ROLE</th>
-                          <th className="member-th-cell">STATUS</th>
-                          <th className="member-th-cell member-th-action" />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {pendingInvitations.map((inv, idx) => (
-                          <tr key={inv.id || idx} style={{ borderBottom: idx === pendingInvitations.length - 1 ? 'none' : '1px solid var(--border-color)' }}>
-                            <td className="member-info-cell">
-                              <span className="member-email-text">{inv.email}</span>
-                              {inv.invitedAt && (
-                                <span className="member-name-text">
-                                  Invited {new Date(inv.invitedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </span>
-                              )}
-                            </td>
-                            <td className="member-badge-cell">
-                              {renderRoleBadge(inv.role)}
-                            </td>
-                            <td className="member-badge-cell">
-                              {renderStatusBadge('PENDING')}
-                            </td>
-                            <td className="member-action-cell">
-                              <button
-                                type="button"
-                                className={`member-action-btn${openPendingMenuIdx === idx ? ' active' : ''}`}
-                                aria-label="Invitation options"
-                                aria-expanded={openPendingMenuIdx === idx}
-                                onClick={(e) => handleTogglePendingMenu(e, idx)}
-                              >
-                                <FiMoreVertical size={16} />
-                              </button>
-                              {openPendingMenuIdx === idx && createPortal(
-                                <div
-                                  ref={pendingMenuRef}
-                                  className={`member-action-dropdown ${pendingMenuPos.openUpward ? 'open-upward' : ''}`}
-                                  style={{
-                                    position: 'fixed',
-                                    top: pendingMenuPos.openUpward ? 'auto' : `${pendingMenuPos.top}px`,
-                                    bottom: pendingMenuPos.openUpward ? `${window.innerHeight - pendingMenuPos.top}px` : 'auto',
-                                    right: `${pendingMenuPos.right}px`,
-                                    zIndex: 9999
-                                  }}
-                                  role="menu"
-                                >
-                                  <button
-                                    type="button"
-                                    className="member-action-item"
-                                    role="menuitem"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setOpenPendingMenuIdx(null);
-                                      handleRevokeInvitation(inv);
-                                    }}
-                                  >
-                                    <FiTrash2 size={14} style={{ flexShrink: 0 }} />
-                                    <span>Revoke Invitation</span>
-                                  </button>
-                                </div>,
-                                document.body
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+              <PendingInvitations
+                pendingInvitations={pendingInvitations}
+                pendingOpen={pendingOpen}
+                setPendingOpen={setPendingOpen}
+                openPendingMenuIdx={openPendingMenuIdx}
+                setOpenPendingMenuIdx={setOpenPendingMenuIdx}
+                handleTogglePendingMenu={handleTogglePendingMenu}
+                pendingMenuPos={pendingMenuPos}
+                pendingMenuRef={pendingMenuRef}
+                handleRevokeInvitation={handleRevokeInvitation}
+              />
             )}
 
-            {/* Members table */}
-            <div className="members-table-card">
-              <div className="members-filter-row">
-                <div className="members-search-input-wrapper">
-                  <FiSearch size={14} style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-primary)', opacity: 0.55 }} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="Search members by email..."
-                    className="members-search-input"
-                  />
-                </div>
-                <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="members-role-select">
-                  <option value="">All Roles</option>
-                  <option value="ADMIN">Admin</option>
-                  <option value="QA">QA</option>
-                  <option value="DEVELOPER">Developer</option>
-                </select>
-              </div>
-
-              {isLoading ? (
-                <div style={{ padding: '40px', textAlign: 'center', fontSize: '13px', color: 'var(--text-primary)' }}>
-                  Loading members...
-                </div>
-              ) : (
-                <div className="members-table-wrapper">
-                  <table className="members-table">
-                    <thead>
-                      <tr style={{ backgroundColor: '#FAF8F3', borderBottom: '1px solid var(--border-color)' }}>
-                        <th className="member-th-cell">MEMBER</th>
-                        <th className="member-th-cell">ROLE</th>
-                        <th className="member-th-cell">STATUS</th>
-                        <th className="member-th-cell member-th-action" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredMembers.length === 0 ? (
-                        <tr>
-                          <td colSpan="4" style={{ padding: '32px 20px', textAlign: 'center', fontSize: '13px', color: 'var(--text-primary)', opacity: 0.6 }}>
-                            No members match your criteria.
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredMembers.map((m, idx) => {
-                          const currentUserEmail = localStorage.getItem('userEmail');
-                          const isSelf = currentUserEmail && m.email && currentUserEmail.trim().toLowerCase() === m.email.trim().toLowerCase();
-                          return (
-                            <tr key={idx} style={{ borderBottom: idx === filteredMembers.length - 1 ? 'none' : '1px solid var(--border-color)' }}>
-                              <td className="member-info-cell">
-                                <span className="member-email-text">{m.email}</span>
-                                {m.name && <span className="member-name-text">{m.name}</span>}
-                              </td>
-                              <td className="member-badge-cell">
-                                {renderRoleBadge(m.role)}
-                              </td>
-                              <td className="member-badge-cell">
-                                {renderStatusBadge(m.status)}
-                              </td>
-                              <td className="member-action-cell">
-                                {!isSelf && (
-                                  <>
-                                    <button
-                                      type="button"
-                                      className={`member-action-btn${openMenuIdx === idx ? ' active' : ''}`}
-                                      aria-label="Member options"
-                                      aria-expanded={openMenuIdx === idx}
-                                      onClick={(e) => handleToggleMenu(e, idx)}
-                                    >
-                                      <FiMoreVertical size={16} />
-                                    </button>
-                                    {openMenuIdx === idx && createPortal(
-                                      <div
-                                        ref={menuRef}
-                                        className={`member-action-dropdown ${menuPos.openUpward ? 'open-upward' : ''}`}
-                                        style={{
-                                          position: 'fixed',
-                                          top: menuPos.openUpward ? 'auto' : `${menuPos.top}px`,
-                                          bottom: menuPos.openUpward ? `${window.innerHeight - menuPos.top}px` : 'auto',
-                                          right: `${menuPos.right}px`,
-                                          zIndex: 9999
-                                        }}
-                                        role="menu"
-                                      >
-                                        <button
-                                          type="button"
-                                          className="member-action-item"
-                                          role="menuitem"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenMenuIdx(null);
-                                            setConfirmMember(m);
-                                          }}
-                                        >
-                                          <FiTrash2 size={14} style={{ flexShrink: 0 }} />
-                                          <span>Remove Member</span>
-                                        </button>
-                                      </div>,
-                                      document.body
-                                    )}
-                                  </>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+            {/* Members list component */}
+            <MembersList
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              roleFilter={roleFilter}
+              setRoleFilter={setRoleFilter}
+              isLoading={isLoading}
+              filteredMembers={filteredMembers}
+              openMenuIdx={openMenuIdx}
+              setOpenMenuIdx={setOpenMenuIdx}
+              handleToggleMenu={handleToggleMenu}
+              menuPos={menuPos}
+              menuRef={menuRef}
+              setConfirmMember={setConfirmMember}
+            />
           </div>
 
           {/* — RIGHT: Summary Panel — */}

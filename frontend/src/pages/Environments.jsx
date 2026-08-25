@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useOutletContext } from 'react-router-dom'
-import { FiKey, FiRefreshCw, FiX, FiAlertTriangle, FiCopy } from 'react-icons/fi'
+import { FiX, FiAlertTriangle } from 'react-icons/fi'
 import { regenerateApiKey } from '../api/workspaceApi'
 import { getErrorMessage } from '../api/authApi'
 import { toast } from 'react-toastify'
+import EnvironmentCard from '../components/environments/EnvironmentCard'
 import './Environments.css'
 
 export default function Environments() {
@@ -96,76 +97,17 @@ export default function Environments() {
 
       {/* Grid matching Feature Flags list (.features-grid-list) */}
       <div className="environments-grid-list">
-        {environmentsList.map((env) => {
-          const freshKey = freshKeys[env.name];
-          const displayKey = freshKey || 'ff_••••••••••••••••••••••••••••••••';
-          const isThisLoading = loadingEnv === env.name;
-
-          return (
-            <div key={env.name} className="environment-item-card">
-              <div className="env-card-top">
-                {/* Card header */}
-                <div className="env-card-headline">
-                  <div className="env-card-title-group">
-                    <span className="env-color-dot" style={{ backgroundColor: env.color }} />
-                    <h3>{env.label}</h3>
-                  </div>
-                  <span className="env-card-status-pill">Active</span>
-                </div>
-
-                {/* Description */}
-                <p className="env-card-description">{env.description}</p>
-              </div>
-
-              {/* Key display section */}
-              <div className="env-card-bottom">
-                <div className="env-key-section-label">
-                  <FiKey size={12} />
-                  <span>SDK CLIENT API KEY</span>
-                </div>
-
-                <div className={`env-key-input-box ${freshKey ? 'fresh-active' : ''}`}>
-                  <code className={`env-key-code ${freshKey ? 'fresh-text' : ''}`}>
-                    {displayKey}
-                  </code>
-
-                  {freshKey && (
-                    <button
-                      type="button"
-                      className="env-copy-icon-btn"
-                      onClick={() => handleCopyFreshKey(env.name, env.label, freshKey)}
-                      title="Copy API Key"
-                    >
-                      <FiCopy size={15} />
-                    </button>
-                  )}
-                </div>
-
-                {freshKey && (
-                  <div className="env-fresh-warning-note">
-                    <FiAlertTriangle size={13} className="env-icon-shrink" />
-                    <span>Copy this key now. It will be hidden after copying.</span>
-                  </div>
-                )}
-
-                {/* Regenerate API Key Action Button - Only rendered for ADMIN role */}
-                {isAdmin && (
-                  <div className="env-btn-row-right">
-                    <button
-                      type="button"
-                      className="env-regenerate-action-btn"
-                      onClick={() => setConfirmEnv(env)}
-                      disabled={isThisLoading}
-                    >
-                      <FiRefreshCw size={13} className={isThisLoading ? 'spin-icon' : ''} />
-                      <span>{isThisLoading ? 'Regenerating...' : 'Regenerate API Key'}</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        {environmentsList.map((env) => (
+          <EnvironmentCard
+            key={env.name}
+            env={env}
+            isAdmin={isAdmin}
+            freshKey={freshKeys[env.name]}
+            isThisLoading={loadingEnv === env.name}
+            handleCopyFreshKey={handleCopyFreshKey}
+            setConfirmEnv={setConfirmEnv}
+          />
+        ))}
       </div>
 
       {/* Confirmation Modal rendered via portal to cover entire viewport */}

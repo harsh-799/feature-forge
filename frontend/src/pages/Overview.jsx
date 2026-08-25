@@ -1,5 +1,8 @@
-import { useOutletContext, Link } from 'react-router-dom'
-import { FiGrid, FiToggleLeft, FiLayers, FiClock, FiToggleRight, FiCode, FiGitPullRequest, FiCheckCircle } from 'react-icons/fi'
+import { useOutletContext } from 'react-router-dom'
+import { FiToggleRight, FiCode, FiGitPullRequest, FiCheckCircle } from 'react-icons/fi'
+import FeatureOverview from '../components/overview/FeatureOverview'
+import PendingApprovals from '../components/overview/PendingApprovals'
+import RecentActivity from '../components/overview/RecentActivity'
 import './Overview.css'
 
 export default function Overview() {
@@ -56,103 +59,12 @@ export default function Overview() {
       </div>
 
       {/* Feature Overview Section */}
-      <div className="feature-overview-section">
-        <div className="feature-overview-header">
-          <h2 className="feature-overview-title">Feature Overview</h2>
-          <p className="feature-overview-desc">Key metrics across active feature flags and deployment environments</p>
-        </div>
-
-        <div className="feature-overview-grid">
-          {featureOverviewMetrics.map((item, idx) => (
-            <div key={idx} className="feature-overview-card">
-              <div className="feature-card-top">
-                <span className="feature-card-top-icon">{item.icon}</span>
-                <span className="feature-card-top-label">{item.label}</span>
-              </div>
-              <div className="feature-card-middle">
-                <span className="feature-card-value">{item.value}</span>
-              </div>
-              <div className="feature-card-bottom">
-                {item.subcaption}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <FeatureOverview featureOverviewMetrics={featureOverviewMetrics} />
 
       {/* Two-Column Grid: QA Approvals and Recent Activity */}
       <div className="dashboard-grid-columns">
-        {/* Left Column: Pending QA Approvals */}
-        <div className="dashboard-panel-card">
-          <div>
-            <div className="panel-header">
-              <h3 className="panel-title">Pending QA Approvals</h3>
-              <p className="panel-subtitle">Features waiting for QA review</p>
-            </div>
-            <div className="panel-content">
-              {pendingQAFeatures.length === 0 ? (
-                <div className="panel-empty-state-container">
-                  <div className="panel-empty-icon-circle">
-                    <FiCheckCircle size={22} />
-                  </div>
-                  <h4 className="panel-empty-main-msg">All caught up</h4>
-                  <p className="panel-empty-sub-msg">No features are currently waiting for QA approval.</p>
-                </div>
-              ) : (
-                <div className="pending-approvals-list">
-                  {pendingQAFeatures.map((item) => (
-                    <div key={item.id} className="approval-row-item">
-                      <div className="approval-item-info">
-                        <span className="approval-item-name">{item.name}</span>
-                        <span className="status-badge-staging">{item.status}</span>
-                      </div>
-                      <Link to={`/app/features/${item.id}`} className="panel-action-link">
-                        Review →
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="panel-footer">
-            <Link to="/app/features" className="panel-action-link">
-              {pendingQAFeatures.length === 0 ? 'View feature flags →' : 'View all approvals →'}
-            </Link>
-          </div>
-        </div>
-
-        {/* Right Column: Recent Activity */}
-        <div className="dashboard-panel-card">
-          <div>
-            <div className="panel-header">
-              <h3 className="panel-title">Recent Activity</h3>
-              <p className="panel-subtitle">Workspace history and audit trail</p>
-            </div>
-            <div className="panel-content">
-              {recentActivities.length === 0 ? (
-                <div className="panel-empty-state">No recent activity.</div>
-              ) : (
-                <div className="recent-activity-list">
-                  {recentActivities.map((act, idx) => (
-                    <div key={idx} className="activity-row-item">
-                      <div className="activity-item-main">
-                        <span className="activity-item-title">{act.title}</span>
-                        <span className="activity-item-desc">{act.description}</span>
-                      </div>
-                      <span className="activity-item-time">{act.time}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="panel-footer">
-            <Link to="/app/activity" className="panel-action-link">
-              View activity →
-            </Link>
-          </div>
-        </div>
+        <PendingApprovals pendingQAFeatures={pendingQAFeatures} />
+        <RecentActivity recentActivities={recentActivities} />
       </div>
     </div>
   );

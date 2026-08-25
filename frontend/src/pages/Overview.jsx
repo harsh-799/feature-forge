@@ -1,14 +1,35 @@
 import { useOutletContext, Link } from 'react-router-dom'
-import { FiGrid, FiToggleLeft, FiLayers, FiClock } from 'react-icons/fi'
+import { FiGrid, FiToggleLeft, FiLayers, FiClock, FiToggleRight, FiCode, FiGitPullRequest, FiCheckCircle } from 'react-icons/fi'
 import './Overview.css'
 
 export default function Overview() {
   const { currentWorkspaceName } = useOutletContext();
 
-  const metrics = [
-    { label: 'Feature Flags', value: '4 active', icon: <FiToggleLeft size={20} className="icon-blue" /> },
-    { label: 'Environments', value: '3 configured', icon: <FiLayers size={20} className="icon-green" /> },
-    { label: 'Activity Logs', value: '12 entries', icon: <FiClock size={20} className="icon-orange" /> }
+  const featureOverviewMetrics = [
+    {
+      label: 'Active Features',
+      value: '12',
+      subcaption: 'vs previous month',
+      icon: <FiToggleRight size={18} />
+    },
+    {
+      label: 'Development',
+      value: '4',
+      subcaption: 'flags currently in draft',
+      icon: <FiCode size={18} />
+    },
+    {
+      label: 'Staging',
+      value: '6',
+      subcaption: 'flags undergoing testing',
+      icon: <FiGitPullRequest size={18} />
+    },
+    {
+      label: 'Production',
+      value: '8',
+      subcaption: 'live flags serving traffic',
+      icon: <FiCheckCircle size={18} />
+    }
   ];
 
   return (
@@ -23,23 +44,29 @@ export default function Overview() {
         </p>
       </div>
 
-      {/* Metrics Row */}
-      <div className="metrics-grid">
-        {metrics.map((m, idx) => (
-          <div key={idx} className="metric-card">
-            <div className="metric-icon-box">
-              {m.icon}
-            </div>
-            <div>
-              <div className="metric-label">
-                {m.label}
+      {/* Feature Overview Section */}
+      <div className="feature-overview-section">
+        <div className="feature-overview-header">
+          <h2 className="feature-overview-title">Feature Overview</h2>
+          <p className="feature-overview-desc">Key metrics across active feature flags and deployment environments</p>
+        </div>
+
+        <div className="feature-overview-grid">
+          {featureOverviewMetrics.map((item, idx) => (
+            <div key={idx} className="feature-overview-card">
+              <div className="feature-card-top">
+                <span className="feature-card-top-icon">{item.icon}</span>
+                <span className="feature-card-top-label">{item.label}</span>
               </div>
-              <div className="metric-value">
-                {m.value}
+              <div className="feature-card-middle">
+                <span className="feature-card-value">{item.value}</span>
+              </div>
+              <div className="feature-card-bottom">
+                {item.subcaption}
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Quick Setup Card */}

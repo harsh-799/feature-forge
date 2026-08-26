@@ -16,7 +16,8 @@ import {
   activateFeatureDevelopment,
   deactivateFeatureDevelopment,
   activateFeatureStaging,
-  deactivateFeatureStaging
+  deactivateFeatureStaging,
+  deleteFeature
 } from '../api/featureApi'
 import { getErrorMessage } from '../api/authApi'
 import { toast } from 'react-toastify'
@@ -48,6 +49,7 @@ export default function FeatureDetails() {
 
   // Custom confirmation modal
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Environment config toggle state
   const [isTogglingEnv, setIsTogglingEnv] = useState(false);
@@ -64,10 +66,10 @@ export default function FeatureDetails() {
     const startTime = Date.now();
     try {
       const response = await getFeatureDetails(id, currentWorkspaceId);
-      
+
       if (response && response.success) {
         const data = response.data;
-        
+
         // Enforce a minimum loader duration of 350ms to prevent skeleton screen flashing/flicker
         if (showSkeleton) {
           const elapsed = Date.now() - startTime;
@@ -83,8 +85,8 @@ export default function FeatureDetails() {
 
         // Load active production rollout value
         const prodConfig = data.environments.find(e => e.name === 'PRODUCTION');
-        if (prodConfig && prodConfig.rolloutPercentage !== null && prodConfig.rolloutPercentage !== undefined) {
-          setRolloutVal(prodConfig.rolloutPercentage);
+        if (prodConfig) {
+          setRolloutVal(prodConfig.rolloutPercentage ?? 0);
         }
       } else {
         toast.error(response?.message || 'Failed to load feature flag details.');
@@ -114,11 +116,22 @@ export default function FeatureDetails() {
 
     setIsSubmitting(true);
     try {
-      await updateFeature(id, {
-        name: editName.trim(),
-        description: editDesc.trim() || null,
+      const payload = {
         workspaceId: currentWorkspaceId
-      });
+      };
+
+      const trimmedName = editName.trim();
+      const trimmedDesc = editDesc.trim();
+
+      if (trimmedName !== feature.name) {
+        payload.name = trimmedName;
+      }
+
+      if (trimmedDesc !== (feature.description || '')) {
+        payload.description = trimmedDesc || null;
+      }
+
+      await updateFeature(id, payload);
       toast.success('Feature details updated successfully!');
       loadFeatureDetails();
     } catch (err) {
@@ -271,6 +284,23 @@ export default function FeatureDetails() {
     }
   };
 
+  const handleDeleteFeature = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await deleteFeature(id, { workspaceId: currentWorkspaceId });
+      toast.success('Feature flag deleted successfully!');
+      setConfirmDelete(false);
+      navigate('/app/features');
+    } catch (err) {
+      const msg = getErrorMessage(err);
+      toast.error(msg);
+      setConfirmDelete(false);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleToggleEnvironment = async (envName, currentEnabled) => {
     if (isTogglingEnv) return;
     setIsTogglingEnv(true);
@@ -363,10 +393,9 @@ export default function FeatureDetails() {
 
             <div className={`timeline-connector ${feature.status !== 'IN_DEVELOPMENT' ? 'finished' : ''}`}></div>
 
-            <div className={`timeline-step ${
-              feature.status === 'READY_FOR_QA' || feature.status === 'QA_VERIFIED' || feature.status === 'QA_REJECTED' || feature.status === 'IN_PRODUCTION'
+            <div className={`timeline-step ${feature.status === 'READY_FOR_QA' || feature.status === 'QA_VERIFIED' || feature.status === 'QA_REJECTED' || feature.status === 'IN_PRODUCTION'
                 ? 'finished' : ''
-            } ${feature.status === 'QA_REJECTED' ? 'rejected' : ''}`}>
+              } ${feature.status === 'QA_REJECTED' ? 'rejected' : ''}`}>
               <div className="step-node">2</div>
               <div className="step-label">Staging / QA</div>
             </div>
@@ -540,13 +569,33 @@ export default function FeatureDetails() {
               </div>
             </div>
           </div>
+
+          {/* Delete Feature Card */}
+          {isAdminOrDev && (
+            <div className="details-section-card delete-feature-card" style={{ marginTop: '24px' }}>
+              <h3 style={{ marginBottom: '4px' }}>Delete Feature</h3>
+              <p className="section-subtitle" style={{ marginBottom: '16px' }}>
+                Permanently remove this feature and its environment configurations. This action cannot be undone.
+              </p>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(true)}
+                  className="rejection-submit-btn"
+                  style={{ backgroundColor: '#EF4444', borderColor: '#EF4444', padding: '10px 20px', fontSize: '13px', fontWeight: '600' }}
+                >
+                  Delete Feature
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Side: Active Controls */}
         <div className="details-right-pane">
           <div className="details-section-card action-card">
             <h3>Release Controls</h3>
-            
+
             {/* Stage: IN_DEVELOPMENT */}
             {feature.status === 'IN_DEVELOPMENT' && (
               <div className="action-stage-box">
@@ -710,7 +759,7 @@ export default function FeatureDetails() {
                 {isProdEnabled ? (
                   /* Active in Production state panel */
                   <div className="production-active-panel">
-                    <div className="production-status-indicator" style={{ marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                    <div className="production-status-indicator" style={{ marginBottom: isAdmin ? '20px' : '0px', borderBottom: isAdmin ? '1px solid var(--border-color)' : 'none', paddingBottom: isAdmin ? '16px' : '0px' }}>
                       <div className="status-indicator-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <h4 style={{ margin: 0 }}>Production Status</h4>
                         <span className="status-badge-indicator in-production" style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', color: '#10B981', textTransform: 'uppercase', padding: '4px 8px', borderRadius: '4px', fontSize: '10.5px', fontWeight: '800', letterSpacing: '0.04em' }}>ACTIVE</span>
@@ -720,78 +769,53 @@ export default function FeatureDetails() {
                       </div>
                     </div>
 
-                    <div className="production-rollout-section">
-                      <div className="rollout-section-header">
-                        <div>
-                          <h4>Rollout Management</h4>
-                          <p>Incrementally release this feature flag to a segment of your audience.</p>
-                        </div>
-                        <span className="rollout-value-text">{rolloutVal}%</span>
-                      </div>
-
-                      <div className="rollout-slider-track-container">
-                        <span className="slider-bound">0%</span>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={rolloutVal}
-                          onChange={(e) => setRolloutVal(parseInt(e.target.value))}
-                          className="rollout-slider-range"
-                          disabled={isSavingRollout || !isAdmin}
-                          style={{
-                            background: `linear-gradient(to right, #FF6B00 0%, #FF6B00 ${rolloutVal}%, #E5E2DA ${rolloutVal}%, #E5E2DA 100%)`
-                          }}
-                        />
-                        <span className="slider-bound">100%</span>
-                      </div>
-
-                      <div className="rollout-actions-row" style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                        {isAdmin ? (
-                          <>
-                            <button
-                              onClick={handleSaveRollout}
-                              className="action-primary-btn"
-                              disabled={isSavingRollout || rolloutVal === (prodConfig?.rolloutPercentage ?? 0)}
-                              style={{ flex: 1 }}
-                            >
-                              {isSavingRollout ? 'Saving Rollout...' : 'Update Rollout'}
-                            </button>
-                            <button
-                              onClick={() => setConfirmDeactivate(true)}
-                              className="production-state-toggle-btn active"
-                              disabled={isSubmitting}
-                              style={{ width: 'auto', padding: '10px 16px', margin: 0 }}
-                            >
-                              Deactivate
-                            </button>
-                          </>
-                        ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                              <button
-                                className="action-primary-btn"
-                                disabled={true}
-                                style={{ flex: 1, opacity: 0.5, cursor: 'not-allowed' }}
-                              >
-                                Update Rollout
-                              </button>
-                              <button
-                                className="production-state-toggle-btn active"
-                                disabled={true}
-                                style={{ width: 'auto', padding: '10px 16px', margin: 0, opacity: 0.5, cursor: 'not-allowed' }}
-                              >
-                                Deactivate
-                              </button>
-                            </div>
-                            <div className="locked-action-overlay" style={{ marginTop: 0 }}>
-                              <FiLock size={14} style={{ marginRight: '6px' }} />
-                              <span>Production controls are read-only for your role. Only Admins can modify.</span>
-                            </div>
+                    {isAdmin && (
+                      <div className="production-rollout-section">
+                        <div className="rollout-section-header">
+                          <div>
+                            <h4>Rollout Management</h4>
+                            <p>Incrementally release this feature flag to a segment of your audience.</p>
                           </div>
-                        )}
+                          <span className="rollout-value-text">{rolloutVal}%</span>
+                        </div>
+
+                        <div className="rollout-slider-track-container">
+                          <span className="slider-bound">0%</span>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={rolloutVal}
+                            onChange={(e) => setRolloutVal(parseInt(e.target.value))}
+                            className="rollout-slider-range"
+                            disabled={isSavingRollout || !isAdmin}
+                            style={{
+                              background: `linear-gradient(to right, #FF6B00 0%, #FF6B00 ${rolloutVal}%, #E5E2DA ${rolloutVal}%, #E5E2DA 100%)`
+                            }}
+                          />
+                          <span className="slider-bound">100%</span>
+                        </div>
+
+                        <div className="rollout-actions-row" style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                          <button
+                            onClick={handleSaveRollout}
+                            className="action-primary-btn"
+                            disabled={isSavingRollout || rolloutVal === (prodConfig?.rolloutPercentage ?? 0)}
+                            style={{ flex: 1 }}
+                          >
+                            {isSavingRollout ? 'Saving Rollout...' : 'Update Rollout'}
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeactivate(true)}
+                            className="production-state-toggle-btn active"
+                            disabled={isSubmitting}
+                            style={{ width: 'auto', padding: '10px 16px', margin: 0 }}
+                          >
+                            Deactivate
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ) : (
                   /* Inactive / Activation controls state */
@@ -830,7 +854,7 @@ export default function FeatureDetails() {
                             </button>
                             <button
                               type="submit"
-                              className="rejection-submit-btn"
+                              className="rejection-submit-btn production-activate-btn"
                               disabled={isSubmitting}
                             >
                               {isSubmitting ? 'Activating...' : 'Activate Feature'}
@@ -900,6 +924,44 @@ export default function FeatureDetails() {
                 style={{ padding: '8px 16px', fontSize: '13px', backgroundColor: '#EF4444', borderColor: '#EF4444' }}
               >
                 {isSubmitting ? 'Deactivating...' : 'Deactivate'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDelete && createPortal(
+        <div className="modal-overlay" onClick={() => !isSubmitting && setConfirmDelete(false)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+            <div className="modal-header">
+              <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Delete Feature Flag?</h3>
+              <button className="modal-close-btn" onClick={() => !isSubmitting && setConfirmDelete(false)} disabled={isSubmitting}>
+                <FiX size={16} />
+              </button>
+            </div>
+            <div className="modal-body" style={{ padding: '8px 0 20px 0' }}>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-primary)', lineHeight: '1.5', margin: 0 }}>
+                Are you sure you want to delete this feature flag? The feature flag and all of its environment configurations will be permanently removed. This action cannot be undone.
+              </p>
+            </div>
+            <div className="modal-actions-row" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="rejection-cancel-btn"
+                disabled={isSubmitting}
+                style={{ padding: '8px 16px', fontSize: '13px' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteFeature}
+                className="rejection-submit-btn"
+                disabled={isSubmitting}
+                style={{ padding: '8px 16px', fontSize: '13px', backgroundColor: '#EF4444', borderColor: '#EF4444' }}
+              >
+                {isSubmitting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>

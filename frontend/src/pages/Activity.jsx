@@ -36,7 +36,7 @@ export default function Activity() {
     getWorkspaceMembers(currentWorkspaceId)
       .then((data) => {
         if (isMounted) {
-          const list = Array.isArray(data) ? data : (data?.members || []);
+          const list = Array.isArray(data) ? data : (data?.membersData || data?.members || []);
           setMembers(list);
         }
       })
@@ -61,8 +61,8 @@ export default function Activity() {
 
     if (activityTypeFilter) params.activityType = activityTypeFilter;
     if (userIdFilter) params.userId = userIdFilter;
-    if (fromDate) params.from = fromDate;
-    if (toDate) params.to = toDate;
+    if (fromDate) params.from = `${fromDate}T00:00:00`;
+    if (toDate) params.to = `${toDate}T23:59:59`;
 
     getWorkspaceActivities(currentWorkspaceId, params)
       .then((res) => {

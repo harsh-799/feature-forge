@@ -173,6 +173,15 @@ export const deactivateFeatureStaging = async (featureId, data) => {
   return handleResponse(response);
 };
 
+export const deleteFeature = async (featureId, data) => {
+  const response = await fetch(`${API_BASE_URL}/features/${featureId}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+    body: JSON.stringify(data)
+  });
+  return handleResponse(response);
+};
+
 export const getDeveloperFlags = async (workspaceId, { page = 0, size = 6 } = {}) => {
   const query = new URLSearchParams();
   query.append('page', page);
@@ -201,5 +210,6 @@ export default {
   deactivateFeatureDevelopment,
   activateFeatureStaging,
   deactivateFeatureStaging,
-  getDeveloperFlags
+  getDeveloperFlags,
+  deleteFeature
 };

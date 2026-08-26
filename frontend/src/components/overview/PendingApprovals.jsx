@@ -17,9 +17,9 @@ export default function PendingApprovals({ activeRole, pendingQAFeatures = [], i
   let featuresList = pendingQAFeatures || [];
 
   if (activeRole === 'ADMIN') {
-    title = 'Pending QA Approvals';
-    subtitle = 'Features waiting for QA review';
-    emptyText = 'No features are currently waiting for QA approval.';
+    title = 'Ready for Production';
+    subtitle = 'Features approved by QA and ready to be released';
+    emptyText = 'No features are currently ready for production release.';
   } else if (activeRole === 'QA') {
     title = 'Pending QA Reviews';
     subtitle = 'Features awaiting your review';
@@ -65,6 +65,10 @@ export default function PendingApprovals({ activeRole, pendingQAFeatures = [], i
                   statusClass = 'status-badge-staging';
                   statusLabel = 'STAGING';
                   actionText = 'Review →';
+                } else if (item.status === 'QA_VERIFIED') {
+                  statusClass = 'status-badge-approved';
+                  statusLabel = 'QA APPROVED';
+                  actionText = 'Release →';
                 }
 
                 const featId = item.featureId || item.id;
@@ -87,7 +91,7 @@ export default function PendingApprovals({ activeRole, pendingQAFeatures = [], i
       </div>
       <div className="panel-footer">
         <Link to="/app/features" className="panel-action-link">
-          {featuresList.length === 0 ? 'View feature flags →' : (activeRole === 'DEVELOPER' ? 'View feature flags →' : 'View all approvals →')}
+          {activeRole === 'ADMIN' ? 'View release queue →' : (featuresList.length === 0 ? 'View feature flags →' : (activeRole === 'DEVELOPER' ? 'View feature flags →' : 'View all approvals →'))}
         </Link>
       </div>
     </div>

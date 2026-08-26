@@ -122,7 +122,20 @@ export default function Overview() {
 
     // Fetch Pending Features (Role-based)
     setIsLoadingPending(true);
-    if (activeRole === 'ADMIN' || activeRole === 'QA') {
+    if (activeRole === 'ADMIN') {
+      listFeatures(currentWorkspaceId, { environment: 'STAGING', status: 'QA_VERIFIED', page: 0, size: 4 })
+        .then((res) => {
+          if (!isMounted) return;
+          const list = res?.features || (Array.isArray(res) ? res : []);
+          setPendingFeatures(list);
+        })
+        .catch(() => {
+          // silent catch
+        })
+        .finally(() => {
+          if (isMounted) setIsLoadingPending(false);
+        });
+    } else if (activeRole === 'QA') {
       listFeatures(currentWorkspaceId, { environment: 'STAGING', status: 'READY_FOR_QA', page: 0, size: 4 })
         .then((res) => {
           if (!isMounted) return;

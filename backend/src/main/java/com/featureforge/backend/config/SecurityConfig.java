@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/register").permitAll()
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers("/api/v1/evaluate").permitAll()
+                .requestMatchers("/health").permitAll()
                 .anyRequest().authenticated()
         );
 

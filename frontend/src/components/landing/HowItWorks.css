@@ -4,9 +4,16 @@
   background-color: transparent;
 }
 
+@media (max-width: 768px) {
+  .workflow-section {
+    padding: 58px 16px;
+  }
+}
+
 .workflow-steps {
   display: flex;
-  align-items: stretch; /* Stretches the card wrapper height to be identical */
+  align-items: stretch;
+  /* Stretches the card wrapper height to be identical */
   justify-content: space-between;
   gap: 12px;
   position: relative;
@@ -35,19 +42,24 @@
 }
 
 .workflow-card {
-  background-color: #F8F3EA; /* Warm cream */
-  border: 1px solid #E5E3DB; /* Thin warm border */
-  border-radius: 16px; /* Cohesive rounded corners */
+  background-color: #F8F3EA;
+  /* Warm cream */
+  border: 1px solid #E5E3DB;
+  /* Thin warm border */
+  border-radius: 16px;
+  /* Cohesive rounded corners */
   padding: 20px 16px 16px;
   box-shadow: 0 4px 12px rgba(18, 18, 18, 0.015);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
   display: flex;
   flex-direction: column;
-  flex: 1; /* Stretch card to fill wrapper */
+  flex: 1;
+  /* Stretch card to fill wrapper */
 }
 
 .workflow-card:hover {
-  transform: translateY(-5px); /* Small lift on hover */
+  transform: translateY(-5px);
+  /* Small lift on hover */
   box-shadow: 0 10px 24px rgba(18, 18, 18, 0.04);
 }
 
@@ -91,8 +103,10 @@
   color: var(--text-primary);
   line-height: 1.5;
   margin-bottom: 16px;
-  height: 56px; /* Set height for up to 3 lines of text so descriptions align */
-  overflow: visible; /* Prevent clipping */
+  height: 56px;
+  /* Set height for up to 3 lines of text so descriptions align */
+  overflow: visible;
+  /* Prevent clipping */
 }
 
 @media (max-width: 1100px) {
@@ -104,14 +118,17 @@
 
 /* Mini UI Snippets Inside Cards */
 .mini-ui-snippet {
-  background-color: #FAF8F3; /* Soft light background for contrast */
+  background-color: #FAF8F3;
+  /* Soft light background for contrast */
   border: 1px solid #E5E3DB;
   border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  margin-top: auto; /* Align snippet to the bottom of the card */
-  height: 130px; /* Set unified height so all 5 mockups sit at the exact same vertical position */
+  margin-top: auto;
+  /* Align snippet to the bottom of the card */
+  height: 130px;
+  /* Set unified height so all 5 mockups sit at the exact same vertical position */
   width: 100%;
   box-sizing: border-box;
 }
@@ -132,9 +149,17 @@
   border-radius: 50%;
 }
 
-.ui-circle.red { background-color: #FF5F56; }
-.ui-circle.yellow { background-color: #FFBD2E; }
-.ui-circle.green { background-color: #27C93F; }
+.ui-circle.red {
+  background-color: #FF5F56;
+}
+
+.ui-circle.yellow {
+  background-color: #FFBD2E;
+}
+
+.ui-circle.green {
+  background-color: #27C93F;
+}
 
 .ui-header-title {
   font-size: 9px;
@@ -388,7 +413,8 @@
   justify-content: center;
   height: 40px;
   color: #C8C5BA;
-  align-self: center; /* Center the arrow vertically relative to stretched cards */
+  align-self: center;
+  /* Center the arrow vertically relative to stretched cards */
 }
 
 @media (max-width: 1100px) {

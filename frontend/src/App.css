@@ -45,14 +45,21 @@
   line-height: 1.6;
 }
 
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 28px;
+    line-height: 1.12;
+  }
+}
+
 /* ========================================================
    GLOBAL SCROLL REVEAL UTILITIES
    ======================================================== */
 .reveal-on-scroll {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
@@ -115,17 +122,23 @@
 }
 
 .Toastify__toast-container .Toastify__toast {
-  background-color: var(--charcoal) !important; /* Warm Charcoal Black */
-  color: #FAF8F5 !important; /* Warm Off-White text */
-  border: 1px solid rgba(255, 255, 255, 0.08) !important; /* Muted border */
+  background-color: var(--charcoal) !important;
+  /* Warm Charcoal Black */
+  color: #FAF8F5 !important;
+  /* Warm Off-White text */
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  /* Muted border */
   border-radius: 14px !important;
   box-shadow: 0 10px 30px rgba(18, 18, 18, 0.1) !important;
   font-family: var(--sans) !important;
   font-size: 13.5px !important;
   font-weight: 600 !important;
-  padding: 12px 18px; /* Thinner padding for a modern, sleek profile */
-  min-height: unset;   /* Overrides Toastify's 64px min-height without !important */
-  margin-bottom: 12px; /* Overrides Toastify's default margin without !important */
+  padding: 12px 18px;
+  /* Thinner padding for a modern, sleek profile */
+  min-height: unset;
+  /* Overrides Toastify's 64px min-height without !important */
+  margin-bottom: 12px;
+  /* Overrides Toastify's default margin without !important */
 }
 
 .Toastify__toast-body {
@@ -166,6 +179,7 @@
     opacity: 0;
     transform: translateY(-10px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -177,6 +191,7 @@
     opacity: 1;
     transform: translateY(0);
   }
+
   to {
     opacity: 0;
     transform: translateY(-8px);

@@ -5,6 +5,12 @@
   border-top: 1px solid #E5E3DB;
 }
 
+@media (max-width: 768px) {
+  .features-section {
+    padding: 58px 16px;
+  }
+}
+
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -94,7 +100,8 @@
 .feature-card:hover .feature-icon-wrapper {
   transform: scale(1.08) rotate(-4deg);
   color: #FFFFFF;
-  background-color: var(--accent); /* Orange icon animation on hover */
+  background-color: var(--accent);
+  /* Orange icon animation on hover */
   border-color: var(--accent);
 }
 

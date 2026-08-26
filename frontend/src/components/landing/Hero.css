@@ -1,6 +1,7 @@
 /* Hero Section and Columns Layout */
 .hero-section {
-  padding-top: 124px; /* Reduced vertical space below navbar by 24px */
+  padding-top: 124px;
+  /* Reduced vertical space below navbar by 24px */
   padding-bottom: 80px;
   width: 100%;
   max-width: 1280px;
@@ -11,7 +12,7 @@
 
 @media (max-width: 768px) {
   .hero-section {
-    padding: 120px 20px 64px;
+    padding: 124px 20px 44px;
   }
 }
 
@@ -75,7 +76,8 @@
 .hero-title {
   font-size: 68px;
   line-height: 1.08;
-  font-weight: 700; /* Reduced font weight from 800 to 700 (~12.5%) */
+  font-weight: 700;
+  /* Reduced font weight from 800 to 700 (~12.5%) */
   color: var(--text-heading);
   letter-spacing: -0.04em;
   margin-bottom: 24px;
@@ -83,7 +85,8 @@
 
 @media (max-width: 768px) {
   .hero-title {
-    font-size: 44px;
+    font-size: 34px;
+    line-height: 1.05;
   }
 }
 
@@ -111,6 +114,7 @@
     flex-direction: column;
     width: 100%;
   }
+
   .hero-button-group button {
     width: 100%;
   }
@@ -120,11 +124,14 @@
   background-color: var(--charcoal);
   color: #FFFFFF;
   border: 1px solid var(--charcoal);
-  height: 54px; /* Set height around 54px */
-  padding: 0 34px; /* Slightly more horizontal padding */
+  height: 54px;
+  /* Set height around 54px */
+  padding: 0 34px;
+  /* Slightly more horizontal padding */
   font-size: 15px;
   font-weight: 600;
-  border-radius: 99px; /* Pill shaped */
+  border-radius: 99px;
+  /* Pill shaped */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -140,14 +147,19 @@
 
 /* Secondary Button (Visually matching navbar button height/proportions) */
 .btn-secondary-outline {
-  background-color: rgba(255, 255, 255, 0.5); /* Warm white translucent background */
+  background-color: rgba(255, 255, 255, 0.5);
+  /* Warm white translucent background */
   color: var(--text-heading);
-  border: 1px solid var(--border-color); /* Thin subtle border */
-  height: 54px; /* Same height as primary button */
-  padding: 0 34px; /* Same padding as primary button */
+  border: 1px solid var(--border-color);
+  /* Thin subtle border */
+  height: 54px;
+  /* Same height as primary button */
+  padding: 0 34px;
+  /* Same padding as primary button */
   font-size: 15px;
   font-weight: 600;
-  border-radius: 99px; /* Same pill shape */
+  border-radius: 99px;
+  /* Same pill shape */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -219,10 +231,11 @@
   border-radius: 12px;
   padding: 12px 14px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.02);
-  width: 220px; /* Increased card width */
+  width: 220px;
+  /* Increased card width */
   text-align: left;
-  transition: 
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+  transition:
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -248,13 +261,27 @@
 }
 
 @keyframes floatCard {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 @keyframes floatGauge {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-4px) scale(1.025); }
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-4px) scale(1.025);
+  }
 }
 
 .rollout-card .card-header {
@@ -337,7 +364,8 @@
 }
 
 .rollout-stage.hovered .card-flag {
-  transform: translate3d(25px, -25px, 30px); /* Smooth spring hover offset */
+  transform: translate3d(25px, -25px, 30px);
+  /* Smooth spring hover offset */
   box-shadow: 0 24px 50px rgba(18, 18, 18, 0.08);
 }
 
@@ -426,7 +454,7 @@
   border-radius: 50%;
   background-color: var(--charcoal);
   border: 2px solid #FFFFFF;
-  box-shadow: 0 1.5px 3px rgba(0,0,0,0.15);
+  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.15);
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -456,12 +484,14 @@
 /* Card 2: Analytics Telemetry (Middle Card) */
 .card-analytics {
   z-index: 20;
-  top: 215px; /* Leaves a gap below Card 1 */
+  top: 215px;
+  /* Leaves a gap below Card 1 */
   left: 50px;
 }
 
 .rollout-stage.hovered .card-analytics {
-  transform: translate3d(0, 0, 0); /* Keep static as the visual anchor */
+  transform: translate3d(0, 0, 0);
+  /* Keep static as the visual anchor */
   box-shadow: 0 16px 40px rgba(18, 18, 18, 0.06);
 }
 
@@ -507,12 +537,14 @@
 /* Card 3: Status Details (Bottom-Left) */
 .card-status {
   z-index: 10;
-  top: 380px; /* Leaves a gap below Card 2 */
+  top: 380px;
+  /* Leaves a gap below Card 2 */
   left: 15px;
 }
 
 .rollout-stage.hovered .card-status {
-  transform: translate3d(-25px, 25px, -30px); /* Move away from Card 2 on hover */
+  transform: translate3d(-25px, 25px, -30px);
+  /* Move away from Card 2 on hover */
   box-shadow: 0 10px 30px rgba(18, 18, 18, 0.04);
 }
 
@@ -554,8 +586,18 @@
 }
 
 @keyframes blinkGreen {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 6px #27C93F; }
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+    box-shadow: 0 0 6px #27C93F;
+  }
 }
 
 .status-value {
@@ -567,15 +609,18 @@
 /* Circular Rollout Progress Gauge */
 .rollout-circular-gauge {
   position: absolute;
-  top: 160px; /* Aligned next to Card 2 */
-  left: 300px; /* Placed to the right of Card 2 */
-  width: 110px; /* Increased circular progress dial width */
+  top: 160px;
+  /* Aligned next to Card 2 */
+  left: 300px;
+  /* Placed to the right of Card 2 */
+  width: 110px;
+  /* Increased circular progress dial width */
   height: 110px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #FFFFFF 0%, #FAF8F2 40%, #E3E0D4 100%);
   border: 1px solid var(--border-color);
   z-index: 40;
-  transition: 
+  transition:
     transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 16px 40px rgba(18, 18, 18, 0.06);
@@ -585,7 +630,8 @@
 }
 
 .rollout-stage.hovered .rollout-circular-gauge {
-  transform: translate3d(35px, -15px, 40px) scale(1.02); /* Clean hover offset */
+  transform: translate3d(35px, -15px, 40px) scale(1.02);
+  /* Clean hover offset */
   box-shadow: 0 24px 50px rgba(18, 18, 18, 0.12);
 }
 
@@ -613,12 +659,13 @@
 }
 
 .gauge-knob {
-  width: 78px; /* Adjusted knob width for 110px dial scale */
+  width: 78px;
+  /* Adjusted knob width for 110px dial scale */
   height: 78px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #FFFFFF 0%, #FAF9F5 60%, #EAE8DF 100%);
   border: 1px solid var(--border-color);
-  box-shadow: 
+  box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.05),
     inset 0 1px 2px rgba(255, 255, 255, 0.8);
   display: flex;
@@ -630,13 +677,15 @@
 
 .gauge-value-text {
   font-family: var(--mono);
-  font-size: 14px; /* Adjusted value text font scale */
+  font-size: 14px;
+  /* Adjusted value text font scale */
   font-weight: 800;
   color: var(--text-heading);
 }
 
 .gauge-label-text {
-  font-size: 8px; /* Adjusted label text font scale */
+  font-size: 8px;
+  /* Adjusted label text font scale */
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -666,8 +715,18 @@
 }
 
 @keyframes blinkIndicator {
-  0%, 100% { opacity: 0.25; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 4px var(--accent); }
+
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+    box-shadow: 0 0 4px var(--accent);
+  }
 }
 
 /* Responsive visual stage adjustments */
@@ -681,10 +740,49 @@
   .hero-visual-showcase {
     height: 400px;
   }
+
   .rollout-stage-container {
     transform: scale(0.82);
     margin-top: -30px;
     margin-bottom: -30px;
+  }
+
+  /* Reduce card width/padding by ~15-20% on mobile */
+  .rollout-card {
+    width: 180px;
+    padding: 10px 12px;
+  }
+
+  /* Reduce the vertical gap between the three stacked cards */
+  .card-flag {
+    top: 10px;
+    left: 10px;
+  }
+  .card-analytics {
+    top: 165px;
+    left: 35px;
+  }
+  .card-status {
+    top: 300px;
+    left: 10px;
+  }
+
+  /* Shrink the floating rollout dial slightly and reposition it closer to the cards */
+  .rollout-circular-gauge {
+    width: 88px;
+    height: 88px;
+    top: 130px;
+    left: 220px;
+  }
+  .gauge-knob {
+    width: 60px;
+    height: 60px;
+  }
+  .gauge-value-text {
+    font-size: 11px;
+  }
+  .gauge-label-text {
+    font-size: 7px;
   }
 }
 
@@ -692,6 +790,7 @@
   .hero-visual-showcase {
     height: 340px;
   }
+
   .rollout-stage-container {
     transform: scale(0.72);
     margin-top: -60px;
@@ -703,6 +802,7 @@
   .hero-visual-showcase {
     height: 290px;
   }
+
   .rollout-stage-container {
     transform: scale(0.62);
     margin-top: -85px;

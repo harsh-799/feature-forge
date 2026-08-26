@@ -8,6 +8,12 @@
   background-color: transparent;
 }
 
+@media (max-width: 768px) {
+  .cta-section {
+    padding: 36px 16px 72px;
+  }
+}
+
 .cta-card {
   background-color: #F8F3EA; /* Warm cream */
   border: 1px solid #E5E3DB; /* Subtle border */

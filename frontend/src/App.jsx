@@ -12,6 +12,7 @@ import Environments from './pages/Environments'
 import Activity from './pages/Activity'
 import WorkspaceMembers from './pages/WorkspaceMembers'
 import AcceptInvite from './pages/AcceptInvite'
+import AccountCenter from './pages/AccountCenter'
 import DashboardLayout from './components/auth/DashboardLayout'
 
 // Import base React-Toastify styling
@@ -66,6 +67,7 @@ function App() {
           <Route path="environments" element={<Environments />} />
           <Route path="activity" element={<Activity />} />
           <Route path="workspace/members" element={<WorkspaceMembers />} />
+          <Route path="account" element={<AccountCenter />} />
         </Route>
 
         {/* Accept Collaboration Invitation page */}

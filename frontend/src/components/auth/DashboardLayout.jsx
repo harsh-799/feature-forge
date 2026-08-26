@@ -501,7 +501,7 @@ export default function DashboardLayout() {
                 className="dropdown-menu-item"
                 onClick={() => {
                   setIsProfileOpen(false);
-                  toast.info('Account Settings are coming soon.');
+                  navigate('/app/account');
                 }}
               >
                 <FiUser className="item-icon" />

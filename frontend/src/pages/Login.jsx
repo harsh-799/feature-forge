@@ -51,7 +51,7 @@ export default function Login() {
       if (response.token) {
         localStorage.setItem('token', response.token);
         localStorage.setItem('userEmail', response.email || email);
-        localStorage.setItem('userFullname', response.fullname || '');
+        localStorage.setItem('userFullname', response.fullName || response.fullname || '');
       }
 
       toast.success(response.message || 'Successfully signed in.');

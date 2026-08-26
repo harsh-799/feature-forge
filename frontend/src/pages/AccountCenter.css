@@ -181,22 +181,44 @@
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
+  .account-center-content {
+    padding: 16px;
+    border-radius: 16px;
+    margin: 0 -4px; /* stretch flush on very small screens */
+  }
+
+  .account-center-header {
+    margin-bottom: 20px;
+  }
+
+  .account-title {
+    font-size: 22px;
+  }
+
   .account-card {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
+    padding: 16px;
   }
-  
+
+  .account-avatar-circle {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+
   .security-card {
     flex-direction: column;
     align-items: stretch;
-    gap: 20px;
+    gap: 16px;
+    padding: 16px;
   }
-  
+
   .security-card-right {
     width: 100%;
   }
-  
+
   .security-change-btn {
     width: 100%;
     text-align: center;
@@ -379,8 +401,23 @@
 }
 
 @media (max-width: 600px) {
+  /* Reduce right padding so placeholder text isn't clipped on small screens */
+  .cp-input {
+    padding-right: 40px;
+  }
+
+  /* Confirm password: tuck the match indicator inside the right padding zone */
+  .confirm-password-wrapper .cp-input {
+    padding-right: 68px; /* room for indicator + eye toggle */
+  }
+
+  .confirm-password-wrapper .password-match-indicator {
+    right: 36px;
+  }
+
   .cp-actions {
     flex-direction: column-reverse;
+    gap: 10px;
   }
 
   .cp-cancel-btn,

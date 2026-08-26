@@ -1,7 +1,9 @@
 package com.featureforge.backend.controller;
 
+import com.featureforge.backend.dto.request.ChangePasswordRequest;
 import com.featureforge.backend.dto.request.LoginRequest;
 import com.featureforge.backend.dto.request.RegisterRequest;
+import com.featureforge.backend.dto.response.ChangePasswordResponse;
 import com.featureforge.backend.dto.response.LoginResponse;
 import com.featureforge.backend.dto.response.RegisterResponse;
 import com.featureforge.backend.service.AuthService;
@@ -27,6 +29,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequest));
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<ChangePasswordResponse> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(authService.changePassword(request));
     }
 
 }

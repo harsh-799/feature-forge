@@ -1,10 +1,13 @@
 package com.featureforge.backend.service;
 
+import com.featureforge.backend.dto.request.ChangePasswordRequest;
 import com.featureforge.backend.dto.request.LoginRequest;
 import com.featureforge.backend.dto.request.RegisterRequest;
+import com.featureforge.backend.dto.response.ChangePasswordResponse;
 import com.featureforge.backend.dto.response.LoginResponse;
 import com.featureforge.backend.dto.response.RegisterResponse;
 import com.featureforge.backend.entity.User;
+import com.featureforge.backend.exception.InvalidCurrentPasswordException;
 import com.featureforge.backend.exception.UserAlreadyExistsException;
 import com.featureforge.backend.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -15,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -66,5 +70,27 @@ public class AuthService {
                 .fullName(user.getUser().getFullname())
                 .email(user.getUser().getEmail())
                 .build();
+    }
+
+    public ChangePasswordResponse changePassword(ChangePasswordRequest request) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User loggedInUser = customUserDetails.getUser();
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), loggedInUser.getPassword())) {
+            throw new InvalidCurrentPasswordException("Current password is incorrect");
+        }
+
+        loggedInUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(loggedInUser);
+
+        ChangePasswordResponse response = new ChangePasswordResponse();
+        response.setSuccess(true);
+        response.setMessage("Password updated successfully");
+
+        return response;
+
     }
 }

@@ -583,8 +583,6 @@ public class WorkspaceService {
 
         FeatureOverviewCount count = featureRepository.findFeatureCountForOverview(workspace);
 
-        System.out.println(count.getDevelopment());
-
         FeatureOverviewResponse response = new FeatureOverviewResponse();
         response.setSuccess(true);
         response.setMessage("Feature overview counts fetched successfully.");

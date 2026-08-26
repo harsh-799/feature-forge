@@ -31,7 +31,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequest));
     }
 
-    @PutMapping("/change-password")
+    @PatchMapping("/change-password")
     public ResponseEntity<ChangePasswordResponse> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.changePassword(request));
     }

@@ -501,6 +501,7 @@ export default function DashboardLayout() {
                 className="dropdown-menu-item"
                 onClick={() => {
                   setIsProfileOpen(false);
+                  setIsSidebarOpen(false);
                   navigate('/app/account');
                 }}
               >

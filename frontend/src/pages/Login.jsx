@@ -70,7 +70,7 @@ export default function Login() {
         localStorage.setItem('currentWorkspaceName', workspaces[0].workspaceName);
         localStorage.setItem('currentWorkspaceRole', workspaces[0].role || 'DEVELOPER');
         localStorage.setItem('currentUserWorkspaceRole', workspaces[0].role);
-        navigate('/app/features');
+        navigate('/app/overview');
       } else {
         navigate('/app/onboarding');
       }

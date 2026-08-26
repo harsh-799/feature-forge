@@ -1,0 +1,126 @@
+/* SECTION 2: Features Grid */
+.features-section {
+  padding: 96px 24px;
+  background-color: transparent;
+  border-top: 1px solid #E5E3DB;
+}
+
+@media (max-width: 768px) {
+  .features-section {
+    padding: 58px 16px;
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 960px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive 2x3 Visual Rhythm Cards */
+.feature-card {
+  border-radius: 16px;
+  border: 1px solid #E5E3DB;
+  padding: 32px 28px;
+  box-shadow: 0 4px 12px rgba(18, 18, 18, 0.01);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s, border-color 0.4s;
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-card-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Hover lift and shadow elevation */
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 36px rgba(18, 18, 18, 0.04);
+}
+
+/* Theme 1: Warm Cream */
+.feature-card.bg-cream {
+  background-color: #F8F3EA;
+}
+
+/* Theme 2: Soft Beige */
+.feature-card.bg-beige {
+  background-color: #FAF8F3;
+}
+
+/* Theme 3: Dark Charcoal Card */
+.feature-card.bg-dark {
+  background-color: #121212;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.feature-card.bg-dark .feature-title {
+  color: #FFFFFF;
+}
+
+.feature-card.bg-dark .feature-description {
+  color: #A1A1AA;
+}
+
+.feature-card.bg-dark .feature-icon-wrapper {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--accent);
+}
+
+/* Icon Wrap Style */
+.feature-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: #FFFFFF;
+  border: 1px solid #E5E3DB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--charcoal);
+  margin-bottom: 24px;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s, background-color 0.4s;
+}
+
+.feature-card:hover .feature-icon-wrapper {
+  transform: scale(1.08) rotate(-4deg);
+  color: #FFFFFF;
+  background-color: var(--accent);
+  /* Orange icon animation on hover */
+  border-color: var(--accent);
+}
+
+.feature-card.bg-dark:hover .feature-icon-wrapper {
+  color: #121212;
+  background-color: #FFFFFF;
+  border-color: #FFFFFF;
+}
+
+.feature-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.feature-description {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}

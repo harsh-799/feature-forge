@@ -1,0 +1,96 @@
+:root {
+  --bg-warm: #FAF8F3; /* Warm Off White page background */
+  --bg-canvas: #FAF8F3; /* Match page background for layout sections */
+  --bg-card: #FFFFFF; /* Soft White container background */
+  --charcoal: #262521; /* Warm Charcoal Black primary text */
+  --accent: #F97316; /* Warm Orange accent */
+  --accent-hover: #EA580C;
+  --secondary-bg: #F4F2EB; /* Soft Beige */
+  --border-color: #E6E4DD; /* Very Light Warm Gray border */
+  --text-heading: #262521;
+  --text-primary: #5A5852;
+  
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--bg-warm);
+  color: var(--text-primary);
+  font-family: var(--sans);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-warm);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--heading);
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+p {
+  line-height: 1.6;
+  margin: 0;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  background-color: var(--secondary-bg);
+  padding: 0.2em 0.4em;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  color: var(--text-heading);
+}
+
+.navbar-logo-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              width 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border-color);
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.navbar-logo-circle:hover {
+  transform: scale(1.05) rotate(-8deg);
+  border-color: #CFCDBF;
+}

@@ -1,0 +1,63 @@
+.accept-invite-page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #FAF8F3;
+  font-family: var(--sans);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.accept-invite-card {
+  width: 100%;
+  max-width: 460px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(38, 37, 33, 0.02);
+  box-sizing: border-box;
+}
+
+.accept-invite-logo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.accept-invite-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  margin-top: 0;
+}
+
+.accept-invite-description {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  margin-top: 0;
+}
+
+.accept-invite-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 30px;
+  border: none;
+  background-color: var(--charcoal);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.accept-invite-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}

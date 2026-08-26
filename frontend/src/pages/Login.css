@@ -1,0 +1,275 @@
+.auth-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.auth-form-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.auth-form-subtitle {
+  font-size: 14px;
+  color: var(--text-primary);
+  opacity: 0.8;
+  margin-bottom: 32px;
+}
+
+.auth-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  position: relative;
+}
+
+.form-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.form-input {
+  width: 100%;
+  height: 44px;
+  background-color: #FAF8F3; /* Warm neutral background */
+  border: 1px solid #E5E3DB; /* Thin subtle border */
+  border-radius: 8px; /* Rounded but not excessive pill */
+  padding: 0 14px;
+  font-size: 13.5px;
+  font-family: var(--sans);
+  color: var(--text-heading);
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Focused input state transitions to FeatureForge orange accent */
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12); /* Subtle orange focus ring */
+}
+
+.form-input.has-error {
+  border-color: #C12A2A;
+}
+
+.form-input.has-error:focus {
+  box-shadow: 0 0 0 3px rgba(193, 42, 42, 0.12);
+}
+
+/* Password wrapper and toggle icon styling */
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrapper .form-input {
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  opacity: 0.6;
+  cursor: pointer;
+  outline: none;
+  transition: opacity 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  opacity: 1;
+}
+
+/* Form error inline label */
+.form-error-msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #C12A2A;
+  margin-top: 2px;
+}
+
+.error-icon {
+  margin-top: 1px;
+}
+
+/* Themed primary button - charcoal pill button */
+.auth-submit-btn {
+  width: 100%;
+  height: 48px;
+  background-color: var(--charcoal);
+  color: #FFFFFF;
+  border: 1px solid var(--charcoal);
+  border-radius: 99px; /* Pill shaped action button */
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-top: 8px;
+  outline: none;
+}
+
+.auth-submit-btn:hover {
+  background-color: #121212;
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 20px rgba(18, 18, 18, 0.12);
+}
+
+.auth-submit-btn:active {
+  transform: translateY(0);
+}
+
+.btn-arrow {
+  transition: transform 0.2s ease;
+}
+
+.auth-submit-btn:hover .btn-arrow {
+  transform: translateX(3px);
+}
+
+/* Underform redirection links */
+.auth-redirect-text {
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-top: 24px;
+}
+
+.auth-redirect-link {
+  font-weight: 600;
+  color: var(--text-heading);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.auth-redirect-link:hover {
+  color: var(--accent); /* Redirect text highlights orange on hover */
+}
+
+/* ========================================================
+   FORM ROUTE TRANSITIONS (LOGIN <-> SIGNUP)
+   ======================================================== */
+.enter-form {
+  animation: formEnter 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.exit-to-signup {
+  animation: formExitToSignup 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes formEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes formExitToSignup {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* Disabled Submit Buttons (Grayed out) */
+.auth-submit-btn:disabled {
+  background-color: #B2B6BD !important;
+  border-color: #B2B6BD !important;
+  color: #FFFFFF !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.auth-submit-btn:disabled .btn-arrow {
+  transform: none !important;
+}
+
+/* Password Match Indicator Inside Input */
+.confirm-password-wrapper .form-input {
+  padding-right: 72px !important;
+}
+
+.password-match-indicator {
+  position: absolute;
+  right: 44px;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+}
+
+/* Password Hint Row Styling */
+.password-hint-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin-top: 6px;
+  color: #5A5852;
+  transition: color 0.2s ease;
+}
+
+.password-hint-row.hint-valid {
+  color: #2F9254;
+}
+
+.password-hint-icon-valid {
+  color: #2F9254;
+  flex-shrink: 0;
+}
+
+.password-hint-icon-invalid {
+  color: #88867f;
+  flex-shrink: 0;
+}
+
+.password-match-icon-success {
+  color: #2F9254;
+}
+
+.password-match-icon-error {
+  color: #EF4444;
+}

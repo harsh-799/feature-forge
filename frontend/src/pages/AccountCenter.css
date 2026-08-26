@@ -1,0 +1,428 @@
+.account-center-page {
+  font-family: var(--sans);
+  text-align: left;
+}
+
+.account-center-header {
+  margin-bottom: 32px;
+}
+
+.account-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent); /* Orange accent */
+  letter-spacing: 0.05em;
+}
+
+.account-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-top: 4px;
+  letter-spacing: -0.02em;
+}
+
+.account-desc {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+.account-center-content {
+  background-color: var(--secondary-bg); /* Warm cream card background */
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.account-card {
+  background-color: #FFFFFF; /* White card contrast on Ivory container */
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.account-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.02);
+}
+
+.account-avatar-wrapper {
+  flex-shrink: 0;
+}
+
+.account-avatar-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: var(--charcoal); /* Charcoal black avatar */
+  color: #FFFFFF;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.01em;
+}
+
+.account-details-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.account-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.account-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.account-email-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+.account-email-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.account-email-text {
+  font-size: 13.5px;
+}
+
+/* Security Card Styling */
+.security-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.security-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.security-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.security-icon {
+  font-size: 18px;
+  color: var(--text-heading);
+}
+
+.security-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.security-desc {
+  font-size: 13.5px;
+  color: var(--text-primary);
+  opacity: 0.8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.security-card-right {
+  flex-shrink: 0;
+}
+
+.security-change-btn {
+  padding: 10px 20px;
+  background-color: var(--charcoal); /* Black button color */
+  color: #FFFFFF;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.security-change-btn:hover {
+  background-color: #33322d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .account-center-content {
+    padding: 16px;
+    border-radius: 16px;
+    margin: 0 -4px; /* stretch flush on very small screens */
+  }
+
+  .account-center-header {
+    margin-bottom: 20px;
+  }
+
+  .account-title {
+    font-size: 22px;
+  }
+
+  .account-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .account-avatar-circle {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+
+  .security-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .security-card-right {
+    width: 100%;
+  }
+
+  .security-change-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ── Change-Password Inline Form ─────────────────────────────── */
+
+.security-card--expanded {
+  display: block; /* override flex so form fills naturally */
+}
+
+.cp-form-wrapper {
+  width: 100%;
+}
+
+.cp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cp-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cp-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+  letter-spacing: 0.01em;
+}
+
+.cp-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cp-input {
+  width: 100%;
+  padding: 10px 80px 10px 14px; /* right room for toggle + indicator */
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text-heading);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.cp-input:focus {
+  border-color: var(--charcoal);
+  box-shadow: 0 0 0 3px rgba(35, 34, 29, 0.06);
+}
+
+.cp-input--error {
+  border-color: #e53e3e;
+}
+
+.cp-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  opacity: 0.6;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.15s;
+}
+
+.cp-toggle-btn:hover {
+  opacity: 1;
+}
+
+/* Place match indicator to the left of the eye toggle */
+.confirm-password-wrapper .password-match-indicator {
+  position: absolute;
+  right: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.cp-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #e53e3e;
+  font-weight: 500;
+}
+
+.cp-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.cp-cancel-btn {
+  padding: 9px 20px;
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  border-radius: 30px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cp-cancel-btn:hover {
+  border-color: var(--charcoal);
+  color: var(--charcoal);
+}
+
+.cp-submit-btn {
+  padding: 9px 22px;
+  background-color: var(--charcoal);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 30px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cp-submit-btn:hover:not(:disabled) {
+  background-color: #33322d;
+}
+
+.cp-submit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* password-hint-row / password-match-indicator come from Login.css
+   which is imported in AccountCenter.jsx via the shared index.css chain.
+   Duplicate minimal rules here so the page is self-contained. */
+.password-hint-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-primary);
+  opacity: 0.7;
+  transition: color 0.2s;
+}
+
+.password-hint-row.hint-valid {
+  color: #2d9c5f;
+  opacity: 1;
+}
+
+.password-hint-icon-valid {
+  color: #2d9c5f;
+}
+
+.password-hint-icon-invalid {
+  color: var(--text-primary);
+  opacity: 0.5;
+}
+
+.password-match-icon-success {
+  color: #2d9c5f;
+}
+
+.password-match-icon-error {
+  color: #e53e3e;
+}
+
+@media (max-width: 600px) {
+  /* Reduce right padding so placeholder text isn't clipped on small screens */
+  .cp-input {
+    padding-right: 40px;
+  }
+
+  /* Confirm password: tuck the match indicator inside the right padding zone */
+  .confirm-password-wrapper .cp-input {
+    padding-right: 68px; /* room for indicator + eye toggle */
+  }
+
+  .confirm-password-wrapper .password-match-indicator {
+    right: 36px;
+  }
+
+  .cp-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .cp-cancel-btn,
+  .cp-submit-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

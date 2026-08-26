@@ -1,0 +1,209 @@
+/* ========================================================
+   GLOBAL LAYOUT & SECTION HEADERS
+   ======================================================= */
+.section-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.section-subtitle-tag {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  background-color: #FFF3EB;
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(249, 115, 22, 0.15);
+}
+
+.section-title {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text-heading);
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.section-description {
+  font-size: 16px;
+  color: var(--text-primary);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 28px;
+    line-height: 1.12;
+  }
+}
+
+/* ========================================================
+   GLOBAL SCROLL REVEAL UTILITIES
+   ======================================================== */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Base scroll offset mapping for elements */
+#features,
+#how-it-works,
+#docs,
+#get-started-section {
+  scroll-margin-top: 96px;
+}
+
+/* Global Back Button Hover Animations */
+.back-nav-link {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+  width: fit-content;
+}
+
+.back-nav-link:hover {
+  color: var(--text-heading);
+  transform: translateX(-3px);
+}
+
+.back-nav-link svg {
+  transition: transform 0.2s ease;
+}
+
+.back-nav-link:hover svg {
+  transform: translateX(-2px);
+}
+
+/* ========================================================
+   CUSTOM REACT-TOASTIFY FEATUREFORGE OVERRIDES
+   ======================================================== */
+.Toastify__toast-container {
+  padding: 24px;
+  width: 380px;
+  top: 24px;
+  right: 24px;
+}
+
+@media (max-width: 480px) {
+  .Toastify__toast-container {
+    width: 100%;
+    padding: 16px;
+    top: 8px;
+    right: 0;
+  }
+}
+
+.Toastify__toast-container .Toastify__toast {
+  background-color: var(--charcoal) !important;
+  /* Warm Charcoal Black */
+  color: #FAF8F5 !important;
+  /* Warm Off-White text */
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  /* Muted border */
+  border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(18, 18, 18, 0.1) !important;
+  font-family: var(--sans) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  padding: 12px 18px;
+  /* Thinner padding for a modern, sleek profile */
+  min-height: unset;
+  /* Overrides Toastify's 64px min-height without !important */
+  margin-bottom: 12px;
+  /* Overrides Toastify's default margin without !important */
+}
+
+.Toastify__toast-body {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+}
+
+.Toastify__close-button {
+  color: #FAF8F5 !important;
+  opacity: 0.5;
+  align-self: center !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 0.8;
+}
+
+/* Custom Status indicator dots/icons */
+.toast-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.toast-status-dot.orange {
+  background-color: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+/* Custom animations overrides */
+@keyframes toastEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.Toastify__bounce-enter--top-right,
+.Toastify__slide-enter--top-right {
+  animation: toastEnter 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.Toastify__bounce-exit--top-right,
+.Toastify__slide-exit--top-right {
+  animation: toastExit 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}

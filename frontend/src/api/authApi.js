@@ -55,4 +55,20 @@ export const getErrorMessage = (error) => {
   return error.message || 'Something went wrong. Please try again.';
 };
 
-export default { login, register, getErrorMessage };
+export const changePassword = async (payload) => {
+  const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+    method: 'PATCH',
+    headers: getHeaders(),
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw { response: { data: errorData } };
+  }
+
+  // 204 No Content – no body to parse
+  return null;
+};
+
+export default { login, register, changePassword, getErrorMessage };

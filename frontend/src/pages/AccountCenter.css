@@ -202,3 +202,190 @@
     text-align: center;
   }
 }
+
+/* ── Change-Password Inline Form ─────────────────────────────── */
+
+.security-card--expanded {
+  display: block; /* override flex so form fills naturally */
+}
+
+.cp-form-wrapper {
+  width: 100%;
+}
+
+.cp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cp-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cp-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+  letter-spacing: 0.01em;
+}
+
+.cp-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cp-input {
+  width: 100%;
+  padding: 10px 80px 10px 14px; /* right room for toggle + indicator */
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text-heading);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.cp-input:focus {
+  border-color: var(--charcoal);
+  box-shadow: 0 0 0 3px rgba(35, 34, 29, 0.06);
+}
+
+.cp-input--error {
+  border-color: #e53e3e;
+}
+
+.cp-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  opacity: 0.6;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.15s;
+}
+
+.cp-toggle-btn:hover {
+  opacity: 1;
+}
+
+/* Place match indicator to the left of the eye toggle */
+.confirm-password-wrapper .password-match-indicator {
+  position: absolute;
+  right: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.cp-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #e53e3e;
+  font-weight: 500;
+}
+
+.cp-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.cp-cancel-btn {
+  padding: 9px 20px;
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  border-radius: 30px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cp-cancel-btn:hover {
+  border-color: var(--charcoal);
+  color: var(--charcoal);
+}
+
+.cp-submit-btn {
+  padding: 9px 22px;
+  background-color: var(--charcoal);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 30px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cp-submit-btn:hover:not(:disabled) {
+  background-color: #33322d;
+}
+
+.cp-submit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* password-hint-row / password-match-indicator come from Login.css
+   which is imported in AccountCenter.jsx via the shared index.css chain.
+   Duplicate minimal rules here so the page is self-contained. */
+.password-hint-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-primary);
+  opacity: 0.7;
+  transition: color 0.2s;
+}
+
+.password-hint-row.hint-valid {
+  color: #2d9c5f;
+  opacity: 1;
+}
+
+.password-hint-icon-valid {
+  color: #2d9c5f;
+}
+
+.password-hint-icon-invalid {
+  color: var(--text-primary);
+  opacity: 0.5;
+}
+
+.password-match-icon-success {
+  color: #2d9c5f;
+}
+
+.password-match-icon-error {
+  color: #e53e3e;
+}
+
+@media (max-width: 600px) {
+  .cp-actions {
+    flex-direction: column-reverse;
+  }
+
+  .cp-cancel-btn,
+  .cp-submit-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

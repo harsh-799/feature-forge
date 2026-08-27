@@ -23,6 +23,8 @@ import {
   FiChevronRight
 } from 'react-icons/fi'
 import { listWorkspaces, leaveWorkspace, deleteWorkspace } from '../../api/workspaceApi'
+import { useAuth } from './AuthContext'
+
 import { getErrorMessage } from '../../api/authApi'
 import { toast } from 'react-toastify'
 import { BrandMark } from '../landing/Brand'
@@ -31,6 +33,8 @@ import './DashboardLayout.css'
 export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
+
   const [workspaces, setWorkspaces] = useState([]);
   const [activeWorkspace, setActiveWorkspace] = useState(null); // { workspaceId, workspaceName, role }
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -151,13 +155,8 @@ export default function DashboardLayout() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userFullname');
-    localStorage.removeItem('currentWorkspaceId');
-    localStorage.removeItem('currentWorkspaceName');
     setIsSidebarOpen(false);
-    navigate('/login');
+    logout();
   };
 
   const handleDeleteWorkspace = () => {

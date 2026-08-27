@@ -5,10 +5,14 @@ import { FiCopy, FiCheck, FiArrowRight } from 'react-icons/fi'
 import { createWorkspace } from '../api/workspaceApi'
 import { getErrorMessage } from '../api/authApi'
 import { BrandMark } from '../components/landing/Brand'
+import { useAuth } from '../components/auth/AuthContext'
 import './Onboarding.css'
+
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const [workspaceName, setWorkspaceName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [createdKeys, setCreatedKeys] = useState(null); // { DEVELOPMENT: 'ff_...', STAGING: 'ff_...', PRODUCTION: 'ff_...' }
@@ -84,11 +88,7 @@ export default function Onboarding() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('currentWorkspaceId');
-    localStorage.removeItem('currentWorkspaceName');
-    navigate('/login');
+    logout();
   };
 
   return (

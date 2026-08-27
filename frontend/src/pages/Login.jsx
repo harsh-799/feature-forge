@@ -2,14 +2,18 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi'
 import { toast } from 'react-toastify'
-import { login, getErrorMessage } from '../api/authApi'
+import { login as apiLogin, getErrorMessage } from '../api/authApi'
 import { listWorkspaces } from '../api/workspaceApi'
+import { useAuth } from '../components/auth/AuthContext'
+
 import { getRedirectUrl } from '../utils/navigation'
 import AuthLayout from '../components/auth/AuthLayout'
 import './Login.css'
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -45,13 +49,11 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await login({ email, password });
+      const response = await apiLogin({ email, password });
 
       // Persist authenticating JWT token if returned
       if (response.token) {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('userEmail', response.email || email);
-        localStorage.setItem('userFullname', response.fullName || response.fullname || '');
+        login(response.token, response.email || email, response.fullName || response.fullname || '');
       }
 
       toast.success(response.message || 'Successfully signed in.');

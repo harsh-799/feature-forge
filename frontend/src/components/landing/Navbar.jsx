@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom'
 import { handleNavLinkClick } from './scroll'
 import { BrandMark } from './Brand'
 import { FiMenu, FiX } from 'react-icons/fi'
+import { useAuth } from '../auth/AuthContext'
 import './Navbar.css'
+
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { authState } = useAuth();
+  const isAuthenticated = authState === 'authenticated';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,10 +21,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsAuthenticated(!!token);
-  }, []);
 
   const handleNavClick = (e, targetId) => {
     setIsMenuOpen(false);
@@ -76,7 +75,9 @@ export default function Navbar() {
       </nav>
 
       <div className={`header-right ${isMenuOpen ? 'open' : ''} ${isAuthenticated ? 'logged-in' : ''}`}>
-        {isAuthenticated ? (
+        {authState === 'initializing' ? (
+          <div style={{ width: '100px', height: '40px' }} />
+        ) : isAuthenticated ? (
           <Link to="/app/overview" className="btn-get-started-pill" onClick={() => setIsMenuOpen(false)}>
             <span className="btn-text-crop roll-up">
               <span className="link-text-container">

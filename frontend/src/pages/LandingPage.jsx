@@ -37,6 +37,26 @@ export default function LandingPage() {
     };
   }, []);
 
+  // Scroll to hash target on load/navigation
+  useEffect(() => {
+    if (window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      const timer = setTimeout(() => {
+        const target = document.getElementById(hash);
+        if (target) {
+          const offset = 96;
+          const elementPosition = target.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - offset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   return (
     <div className="landing-layout" id="top">
       <Navbar />

@@ -82,7 +82,7 @@ export default function Hero() {
                 </span>
               </span>
             </button>
-            <button className="btn-secondary-outline" onClick={(e) => handleNavLinkClick(e, 'docs')}>
+            <button className="btn-secondary-outline" onClick={() => navigate('/documentation')}>
               <span className="btn-text-crop roll-up">
                 <span className="link-text-container">
                   <span className="link-text-primary">

@@ -66,12 +66,12 @@ export default function Navbar() {
             <span className="link-text-secondary">How it Works</span>
           </span>
         </a>
-        <a href="#docs" className="navbar-link roll-up" onClick={(e) => handleNavClick(e, 'docs')}>
+        <Link to="/documentation" className="navbar-link roll-up" onClick={() => setIsMenuOpen(false)}>
           <span className="link-text-container">
             <span className="link-text-primary">Documentation</span>
             <span className="link-text-secondary">Documentation</span>
           </span>
-        </a>
+        </Link>
       </nav>
 
       <div className={`header-right ${isMenuOpen ? 'open' : ''} ${isAuthenticated ? 'logged-in' : ''}`}>

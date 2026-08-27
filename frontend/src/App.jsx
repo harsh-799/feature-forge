@@ -14,6 +14,8 @@ import WorkspaceMembers from './pages/WorkspaceMembers'
 import AcceptInvite from './pages/AcceptInvite'
 import AccountCenter from './pages/AccountCenter'
 import DashboardLayout from './components/auth/DashboardLayout'
+import Documentation from './pages/Documentation'
+
 
 // Import base React-Toastify styling
 import 'react-toastify/dist/ReactToastify.css'
@@ -73,6 +75,10 @@ function App() {
         <Routes>
           {/* Landing Page Root Route */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Documentation Route */}
+          <Route path="/documentation" element={<Documentation />} />
+
 
           {/* Auth routes */}
           <Route path="/login" element={<Login />} />

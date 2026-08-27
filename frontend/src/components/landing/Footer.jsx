@@ -6,6 +6,11 @@ import './Footer.css'
 
 export default function Footer() {
   const handleNavClick = (e, targetId) => {
+    if (targetId === 'top') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (window.location.pathname !== '/') {
       e.preventDefault();
       window.location.href = `/#${targetId}`;
@@ -44,7 +49,7 @@ export default function Footer() {
           {/* Right Column: Developer links */}
           <div className="footer-links-col">
             <h4 className="footer-links-title">Developers</h4>
-            <a href="#docs" className="footer-link" onClick={(e) => handleNavClick(e, 'docs')}>Documentation</a>
+            <Link to="/documentation" className="footer-link">Documentation</Link>
             <a href="https://github.com/harsh-799/feature-forge" target="_blank" rel="noopener noreferrer" className="footer-link">GitHub <FiExternalLink size={11} style={{ marginLeft: '2px', verticalAlign: 'middle', opacity: 0.7 }} /></a>
             <Link to="/login" className="footer-link">Login</Link>
           </div>

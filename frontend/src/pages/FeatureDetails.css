@@ -1755,3 +1755,57 @@ select.details-form-input {
   background-size: 16px;
   padding-right: 40px;
 }
+
+/* Upcoming Scheduled Changes Card Styles */
+.schedule-item-card {
+  background-color: #FAF8F3;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.schedule-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.schedule-item-action {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.schedule-item-detail,
+.schedule-item-time {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.schedule-detail-label,
+.schedule-time-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.schedule-detail-value,
+.schedule-time-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.status-badge-indicator.pending {
+  background-color: rgba(249, 115, 22, 0.08);
+  color: var(--accent);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.04);
+}

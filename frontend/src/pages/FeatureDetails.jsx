@@ -24,6 +24,38 @@ import { getErrorMessage } from '../api/authApi'
 import { toast } from 'react-toastify'
 import './FeatureDetails.css'
 
+const getActionLabel = (action) => {
+  switch (action) {
+    case 'ACTIVATE':
+      return 'Activate Feature';
+    case 'UPDATE_ROLLOUT':
+      return 'Update Rollout';
+    case 'DEACTIVATE':
+      return 'Deactivate Feature';
+    default:
+      return action;
+  }
+};
+
+const formatScheduleTime = (timeStr) => {
+  if (!timeStr) return '';
+  const date = new Date(timeStr);
+  
+  const formattedDate = date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+  
+  const formattedTime = date.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+  
+  return `${formattedDate} · ${formattedTime}`;
+};
+
 export default function FeatureDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -1100,6 +1132,49 @@ export default function FeatureDetails() {
                       </div>
                     )}
                   </form>
+                </div>
+
+                {/* Visual separator/divider for Upcoming Schedules */}
+                <div className="schedule-divider" />
+
+                {/* Upcoming Scheduled Changes Section */}
+                <div className="upcoming-schedules-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
+                  <div className="upcoming-schedules-header-group">
+                    <h4 className="schedule-header">Upcoming Scheduled Changes</h4>
+                    <p className="schedule-subheader">Production actions scheduled for this feature.</p>
+                  </div>
+
+                  {feature.scheduledChanges && feature.scheduledChanges.filter(s => s.status === 'PENDING').length > 0 ? (
+                    <div className="schedule-items-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+                      {feature.scheduledChanges
+                        .filter(s => s.status === 'PENDING')
+                        .map((change) => (
+                          <div key={change.id} className="schedule-item-card">
+                            <div className="schedule-item-header">
+                              <span className="schedule-item-action">{getActionLabel(change.action)}</span>
+                              <span className="status-badge-indicator pending">PENDING</span>
+                            </div>
+
+                            {change.action !== 'DEACTIVATE' && (
+                              <div className="schedule-item-detail">
+                                <span className="schedule-detail-label">Rollout</span>
+                                <span className="schedule-detail-value">{change.rolloutPercentage}%</span>
+                              </div>
+                            )}
+
+                            <div className="schedule-item-time">
+                              <span className="schedule-time-label">Scheduled for</span>
+                              <span className="schedule-time-value">{formatScheduleTime(change.scheduledAt)}</span>
+                            </div>
+                          </div>
+                        ))
+                      }
+                    </div>
+                  ) : (
+                    <p className="schedule-subheader" style={{ fontStyle: 'italic', opacity: 0.6, margin: 0 }}>
+                      No upcoming changes scheduled.
+                    </p>
+                  )}
                 </div>
               </div>
             )}

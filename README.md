@@ -72,7 +72,7 @@ Java Application ──> FeatureForge Java SDK ──> POST /api/v1/evaluate + X
 
 Below is the database entity relational layout of the FeatureForge platform. It models users, workspaces, invitations, environment setups, audit logs, and environment-specific feature flag configurations.
 
-![FeatureForge Database Schema](docs/database-schema.png)
+![FeatureForge Database Schema](docs/image.png)
 
 ---
 
@@ -260,3 +260,7 @@ feature-forge/
     ├── .env                  # API url configuration
     └── package.json          # Frontend dependencies
 ```
+
+---
+
+Made by **Harsh Anand**

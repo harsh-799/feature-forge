@@ -19,7 +19,9 @@ public class FeatureDetailsResponse {
 
     private String rejectionReason;
 
-    List<FeatureEnvironmentDetailsResponse> environments;
+    private List<FeatureEnvironmentDetailsResponse> environments;
+
+    private List<FeatureScheduleDetailsResponse> scheduledChanges;
 
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdatedAt;

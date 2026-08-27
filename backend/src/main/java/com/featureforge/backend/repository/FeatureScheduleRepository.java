@@ -19,4 +19,6 @@ public interface FeatureScheduleRepository extends JpaRepository<FeatureSchedule
 
     void deleteByFeature(Feature feature);
 
+    List<FeatureSchedule> findByFeatureAndStatus(Feature feature, ScheduleStatus status);
+
 }

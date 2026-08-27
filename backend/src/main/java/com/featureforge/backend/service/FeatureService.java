@@ -779,6 +779,24 @@ public class FeatureService {
             featureEnvironmentList.add(environmentDetails);
         }
 
+        List<FeatureSchedule> featureScheduleList = featureScheduleRepository
+                .findByFeatureAndStatus(feature, ScheduleStatus.PENDING);
+
+        List<FeatureScheduleDetailsResponse> featureScheduleDetailsResponseList = new ArrayList<>();
+
+        for (FeatureSchedule featureSchedule : featureScheduleList) {
+            FeatureScheduleDetailsResponse featureScheduleDetailsResponse = FeatureScheduleDetailsResponse
+                    .builder()
+                    .id(feature.getId())
+                    .action(featureSchedule.getAction())
+                    .rolloutPercentage(featureSchedule.getRolloutPercentage())
+                    .scheduledAt(featureSchedule.getScheduledAt())
+                    .status(featureSchedule.getStatus())
+                    .build();
+
+            featureScheduleDetailsResponseList.add(featureScheduleDetailsResponse);
+        }
+
         FeatureDetailsResponse featureDetailsResponse = FeatureDetailsResponse
                 .builder()
                 .id(feature.getId())
@@ -788,6 +806,7 @@ public class FeatureService {
                 .status(feature.getStatus())
                 .rejectionReason(feature.getRejectionReason())
                 .environments(featureEnvironmentList)
+                .scheduledChanges(featureScheduleDetailsResponseList)
                 .createdAt(feature.getCreatedAt())
                 .lastUpdatedAt(feature.getUpdatedAt())
                 .build();

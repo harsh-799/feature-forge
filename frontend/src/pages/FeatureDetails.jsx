@@ -17,7 +17,8 @@ import {
   deactivateFeatureDevelopment,
   activateFeatureStaging,
   deactivateFeatureStaging,
-  deleteFeature
+  deleteFeature,
+  scheduleProductionAction
 } from '../api/featureApi'
 import { getErrorMessage } from '../api/authApi'
 import { toast } from 'react-toastify'
@@ -47,6 +48,13 @@ export default function FeatureDetails() {
   const [rolloutVal, setRolloutVal] = useState(50);
   const [isSavingRollout, setIsSavingRollout] = useState(false);
 
+  // Scheduled production actions state
+  const [scheduleAction, setScheduleAction] = useState('ACTIVATE');
+  const [scheduleRollout, setScheduleRollout] = useState(10);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('');
+  const [isScheduling, setIsScheduling] = useState(false);
+
   // Custom confirmation modal
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -58,6 +66,14 @@ export default function FeatureDetails() {
   const isAdminOrDev = activeRole === 'ADMIN' || activeRole === 'DEVELOPER';
   const isQA = activeRole === 'QA';
   const isAdmin = activeRole === 'ADMIN';
+
+  const todayStr = (() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  })();
 
   const loadFeatureDetails = async (showSkeleton = true) => {
     if (!id || !currentWorkspaceId) return;
@@ -87,6 +103,16 @@ export default function FeatureDetails() {
         const prodConfig = data.environments.find(e => e.name === 'PRODUCTION');
         if (prodConfig) {
           setRolloutVal(prodConfig.rolloutPercentage ?? 0);
+          if (prodConfig.enabled) {
+            setScheduleAction('UPDATE_ROLLOUT');
+            setScheduleRollout(prodConfig.rolloutPercentage !== null && prodConfig.rolloutPercentage !== undefined ? prodConfig.rolloutPercentage : 50);
+          } else {
+            setScheduleAction('ACTIVATE');
+            setScheduleRollout(10);
+          }
+        } else {
+          setScheduleAction('ACTIVATE');
+          setScheduleRollout(10);
         }
       } else {
         toast.error(response?.message || 'Failed to load feature flag details.');
@@ -298,6 +324,80 @@ export default function FeatureDetails() {
       setConfirmDelete(false);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleActionChange = (actionVal) => {
+    setScheduleAction(actionVal);
+    if (actionVal === 'UPDATE_ROLLOUT') {
+      const prodConfig = feature?.environments?.find(e => e.name === 'PRODUCTION');
+      setScheduleRollout(prodConfig && prodConfig.rolloutPercentage !== null && prodConfig.rolloutPercentage !== undefined ? prodConfig.rolloutPercentage : 50);
+    } else if (actionVal === 'ACTIVATE') {
+      setScheduleRollout(10);
+    } else {
+      setScheduleRollout(0);
+    }
+  };
+
+  const handleScheduleSubmit = async (e) => {
+    e.preventDefault();
+    if (isScheduling) return;
+
+    if (!scheduleDate || !scheduleTime) {
+      toast.error('Please select both a date and time.');
+      return;
+    }
+
+    const scheduledDateTimeStr = `${scheduleDate}T${scheduleTime}:00`;
+    const scheduledDateTime = new Date(scheduledDateTimeStr);
+    const now = new Date();
+
+    if (scheduledDateTime <= now) {
+      toast.error('Scheduled date and time must be in the future.');
+      return;
+    }
+
+    let targetRollout = null;
+    if (scheduleAction !== 'DEACTIVATE') {
+      const rollout = parseInt(scheduleRollout, 10);
+      if (isNaN(rollout) || rollout < 1 || rollout > 100) {
+        toast.error('Rollout percentage must be between 1 and 100.');
+        return;
+      }
+      targetRollout = rollout;
+    }
+
+    setIsScheduling(true);
+    try {
+      const payload = {
+        workspaceId: currentWorkspaceId,
+        action: scheduleAction,
+        targetRollout: targetRollout,
+        scheduledAt: scheduledDateTimeStr
+      };
+
+      const response = await scheduleProductionAction(id, payload);
+
+      if (response && response.success) {
+        const formattedTime = new Date(response.scheduledAt).toLocaleString(undefined, {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        });
+        toast.success(`${response.message || 'Feature action scheduled successfully.'} (Earliest execution: ${formattedTime})`);
+        
+        // Reset scheduling form date and time
+        setScheduleDate('');
+        setScheduleTime('');
+        // Reload details
+        await loadFeatureDetails(false);
+      } else {
+        toast.error(response?.message || 'Failed to schedule feature action.');
+      }
+    } catch (err) {
+      const msg = getErrorMessage(err);
+      toast.error(msg);
+    } finally {
+      setIsScheduling(false);
     }
   };
 
@@ -887,6 +987,120 @@ export default function FeatureDetails() {
                     )}
                   </div>
                 )}
+
+                {/* Scheduling Area */}
+                <div className="schedule-container">
+                  {!isProdEnabled ? (
+                    <>
+                      <h4 className="schedule-header">Schedule a Release</h4>
+                      <p className="schedule-subheader">Set a future time and rollout percentage to automatically enable this feature flag in production.</p>
+                    </>
+                  ) : (
+                    <>
+                      <h4 className="schedule-header">Schedule a Production Change</h4>
+                      <p className="schedule-subheader">Plan a progressive rollout modification or feature deactivation in production for a future time.</p>
+                    </>
+                  )}
+
+                  <form onSubmit={handleScheduleSubmit} className="activation-form schedule-form-element">
+                    {/* Action Selector: only visible if active (isProdEnabled is true) */}
+                    {isProdEnabled && (
+                      <div className="details-form-group">
+                        <label htmlFor="scheduleActionInput" className="details-form-label">ACTION</label>
+                        <select
+                          id="scheduleActionInput"
+                          value={scheduleAction}
+                          onChange={(e) => handleActionChange(e.target.value)}
+                          className="details-form-input"
+                          disabled={isScheduling || !isAdmin}
+                        >
+                          <option value="UPDATE_ROLLOUT">Update Rollout</option>
+                          <option value="DEACTIVATE">Deactivate Feature</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Rollout Percentage: visible for ACTIVATE and UPDATE_ROLLOUT */}
+                    {scheduleAction !== 'DEACTIVATE' && (
+                      <div className="details-form-group">
+                        <label htmlFor="scheduleRolloutInput" className="details-form-label">
+                          {scheduleAction === 'ACTIVATE' ? 'ROLLOUT PERCENTAGE' : 'TARGET ROLLOUT'}
+                        </label>
+                        <div className="activation-input-row">
+                          <input
+                            type="range"
+                            id="scheduleRolloutInput"
+                            min="1"
+                            max="100"
+                            value={scheduleRollout || 1}
+                            onChange={(e) => setScheduleRollout(parseInt(e.target.value, 10))}
+                            className="rollout-slider-range"
+                            disabled={isScheduling || !isAdmin}
+                            style={{
+                              background: `linear-gradient(to right, #FF6B00 0%, #FF6B00 ${scheduleRollout || 1}%, #E5E2DA ${scheduleRollout || 1}%, #E5E2DA 100%)`
+                            }}
+                          />
+                          <span className="slider-percentage-badge">{scheduleRollout || 1}%</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Date Picker */}
+                    <div className="details-form-group">
+                      <label htmlFor="scheduleDateInput" className="details-form-label">
+                        {!isProdEnabled ? 'RELEASE DATE' : 'DATE'}
+                      </label>
+                      <input
+                        type="date"
+                        id="scheduleDateInput"
+                        value={scheduleDate}
+                        min={todayStr}
+                        onChange={(e) => setScheduleDate(e.target.value)}
+                        className="details-form-input"
+                        disabled={isScheduling || !isAdmin}
+                        required
+                      />
+                    </div>
+
+                    {/* Time Picker */}
+                    <div className="details-form-group">
+                      <label htmlFor="scheduleTimeInput" className="details-form-label">
+                        {!isProdEnabled ? 'RELEASE TIME' : 'TIME'}
+                      </label>
+                      <input
+                        type="time"
+                        id="scheduleTimeInput"
+                        value={scheduleTime}
+                        onChange={(e) => setScheduleTime(e.target.value)}
+                        className="details-form-input"
+                        disabled={isScheduling || !isAdmin}
+                        required
+                      />
+                    </div>
+
+                    {/* Helper note about scheduler cycle timing */}
+                    <p className="schedule-timing-note">
+                      Actions execute on the first scheduler cycle (up to 10 seconds delay) after the selected time.
+                    </p>
+
+                    {/* Submit Button / Locked overlay */}
+                    {isAdmin ? (
+                      <button
+                        type="submit"
+                        className="action-primary-btn"
+                        disabled={isScheduling}
+                        style={{ marginTop: '8px' }}
+                      >
+                        {isScheduling ? 'Scheduling...' : !isProdEnabled ? 'Schedule Release' : 'Schedule Change'}
+                      </button>
+                    ) : (
+                      <div className="locked-action-overlay" style={{ marginTop: '12px' }}>
+                        <FiLock size={14} style={{ marginRight: '6px' }} />
+                        <span>Scheduling production actions requires Admin authority.</span>
+                      </div>
+                    )}
+                  </form>
+                </div>
               </div>
             )}
           </div>

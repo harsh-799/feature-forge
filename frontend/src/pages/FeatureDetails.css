@@ -653,7 +653,8 @@
   gap: 28px !important;
 }
 
-.production-toggle-section {
+.production-toggle-section,
+.production-active-panel {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1683,4 +1684,74 @@ input:disabled+.toggle-switch-slider {
 
 .production-activate-btn:hover:not(:disabled) {
   background-color: #E85F00 !important;
+}
+
+/* Scheduling form styles */
+.schedule-divider {
+  border-top: 1px solid var(--border-color);
+  margin: 24px 0;
+  width: 100%;
+}
+
+.schedule-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.schedule-header {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.schedule-subheader {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  opacity: 0.8;
+  margin: 0;
+}
+
+.schedule-form-element {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.schedule-timing-note {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-primary);
+  opacity: 0.7;
+  line-height: 1.4;
+  margin: -4px 0 4px 0;
+}
+
+.rollout-number-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Specific styling to override native date/time pickers to match our theme */
+input[type="date"].details-form-input,
+input[type="time"].details-form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--sans);
+  color: var(--text-heading);
+}
+
+select.details-form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23262521' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
 }

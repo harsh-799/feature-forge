@@ -94,6 +94,13 @@ export const deactivateFeatureProduction = async (featureId, data) => {
   });
 };
 
+export const scheduleProductionAction = async (featureId, data) => {
+  return request(`/features/${featureId}/production/schedule`, {
+    method: 'PATCH',
+    body: JSON.stringify(data)
+  });
+};
+
 export const activateFeatureDevelopment = async (featureId, data) => {
   return request(`/features/${featureId}/development/activate`, {
     method: 'PATCH',
@@ -151,6 +158,7 @@ export default {
   activateFeatureProduction,
   updateRolloutProduction,
   deactivateFeatureProduction,
+  scheduleProductionAction,
   activateFeatureDevelopment,
   deactivateFeatureDevelopment,
   activateFeatureStaging,

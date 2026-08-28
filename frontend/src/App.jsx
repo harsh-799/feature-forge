@@ -13,6 +13,7 @@ import Activity from './pages/Activity'
 import WorkspaceMembers from './pages/WorkspaceMembers'
 import AcceptInvite from './pages/AcceptInvite'
 import AccountCenter from './pages/AccountCenter'
+import ResetPassword from './pages/ResetPassword'
 import DashboardLayout from './components/auth/DashboardLayout'
 import Documentation from './pages/Documentation'
 
@@ -54,6 +55,7 @@ function App() {
           {/* Auth routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Protected Dashboard Workspace Onboarding */}
           <Route 

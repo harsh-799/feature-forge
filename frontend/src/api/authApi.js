@@ -21,6 +21,19 @@ export const changePassword = async (payload) => {
   });
 };
 
+export const forgotPassword = async (email) => {
+  return request(`/auth/forgot-password?email=${encodeURIComponent(email)}`, {
+    method: 'POST'
+  });
+};
+
+export const resetPassword = async (token, resetData) => {
+  return request(`/auth/reset-password?token=${encodeURIComponent(token)}`, {
+    method: 'POST',
+    body: JSON.stringify(resetData)
+  });
+};
+
 export const getErrorMessage = (error) => {
   if (error.response && error.response.data) {
     const data = error.response.data;
@@ -34,4 +47,4 @@ export const getErrorMessage = (error) => {
   return error.message || 'Something went wrong. Please try again.';
 };
 
-export default { login, register, changePassword, getErrorMessage };
+export default { login, register, changePassword, forgotPassword, resetPassword, getErrorMessage };

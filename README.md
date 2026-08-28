@@ -150,7 +150,8 @@ Add the dependency block to your `pom.xml`:
 
 ### Basic Usage
 
-Initialize the `FeatureForgeClient` and perform evaluations:
+Initialize the `FeatureForgeClient` using your environment API key and the production FeatureForge evaluation server:
+
 ```java
 import com.featureforge.sdk.FeatureForgeClient;
 import com.featureforge.sdk.exception.FeatureForgeException;
@@ -159,7 +160,7 @@ public class Main {
     public static void main(String[] args) {
         FeatureForgeClient client = new FeatureForgeClient(
             "YOUR_ENVIRONMENT_API_KEY",
-            "YOUR_FEATUREFORGE_BACKEND_URL"
+            "https://featureforge-api.onrender.com"
         );
 
         try {
@@ -175,16 +176,17 @@ public class Main {
 
 ---
 
-## API Overview
+## Using the Feature Evaluation API
 
-### POST `/api/v1/evaluate`
-Evaluates a feature flag state directly over HTTP.
+Applications integrate with the real-time Feature Evaluation API rather than the FeatureForge dashboard. This production endpoint evaluates flag configurations in real-time.
 
-#### Headers
+### POST `https://featureforge-api.onrender.com/api/v1/evaluate`
+
+#### Required Headers
 - `Content-Type`: `application/json`
-- `X-API-Key`: `YOUR_ENVIRONMENT_API_KEY` (copied from the Environments tab)
+- `X-API-Key`: `YOUR_ENVIRONMENT_API_KEY` (Copied from the dashboard's Environments tab)
 
-#### Request Body
+#### Request Body (JSON)
 ```json
 {
   "featureKey": "INDEPENDENCE_DAY_HERO",
@@ -205,6 +207,15 @@ Evaluates a feature flag state directly over HTTP.
   "success": false,
   "message": "Invalid API key provided"
 }
+```
+*Note: If the requested feature key is not found, the API returns a `400 Bad Request` with `{"success": false, "message": "feature not found"}`.*
+
+#### cURL Integration Example
+```bash
+curl -X POST https://featureforge-api.onrender.com/api/v1/evaluate \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_ENVIRONMENT_API_KEY" \
+  -d '{"featureKey": "INDEPENDENCE_DAY_HERO", "user": "user_123"}'
 ```
 
 ---

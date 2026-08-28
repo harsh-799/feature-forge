@@ -450,14 +450,42 @@ if (enabled) {
           <section id="realtime-evaluation" className="docs-section">
             <h2 className="docs-title">Real-time Evaluation</h2>
             <p className="docs-p">
-              The evaluation logic calculates the rollout bucket deterministically on the backend during the API call. 
+              FeatureForge evaluates feature flags in real-time. Instead of querying config states inside your database, your applications check features by calling the production evaluation API directly or via our SDKs.
             </p>
+
+            <h3 className="docs-subtitle">Evaluation Flow</h3>
+            <div className="docs-diagram-box" style={{ background: '#FAF8F3', maxWidth: '340px', margin: '24px auto' }}>
+              <div className="docs-comparison-flow">
+                <div className="docs-comparison-step">Application</div>
+                <div className="docs-comparison-arrow">↓</div>
+                <div className="docs-comparison-step">FeatureForge Java SDK / HTTP API</div>
+                <div className="docs-comparison-arrow">↓</div>
+                <div className="docs-comparison-step" style={{ backgroundColor: '#FFF3EB', borderColor: 'rgba(249, 115, 22, 0.2)', color: 'var(--accent)', fontWeight: '600' }}>
+                  POST /api/v1/evaluate
+                </div>
+                <div className="docs-comparison-arrow">↓</div>
+                <div className="docs-comparison-step">FeatureForge Evaluation Engine</div>
+                <div className="docs-comparison-arrow">↓</div>
+                <div className="docs-comparison-step" style={{ backgroundColor: '#24231f', color: '#ffffff', fontWeight: '600' }}>
+                  Feature Enabled / Disabled
+                </div>
+              </div>
+            </div>
+
+            <h3 className="docs-subtitle">How Evaluation Works</h3>
             <p className="docs-p">
-              The backend retrieves the feature configuration and uses a hash-based allocation algorithm:
+              When a request is received, the evaluation engine processes it through the following rules:
             </p>
+            <ul className="docs-ul">
+              <li className="docs-li"><strong>Environment Selection:</strong> The environment (<code>DEVELOPMENT</code>, <code>STAGING</code>, or <code>PRODUCTION</code>) is identified automatically by checking the hash of the supplied <code>X-API-Key</code>.</li>
+              <li className="docs-li"><strong>Immediate State Override:</strong> If the feature is disabled in the targeted environment, the evaluation returns <code>false</code> immediately.</li>
+              <li className="docs-li"><strong>Staging & Development:</strong> Enabled features in <code>DEVELOPMENT</code> and <code>STAGING</code> evaluate to <code>true</code> immediately.</li>
+              <li className="docs-li"><strong>Production Rollouts:</strong> In <code>PRODUCTION</code>, if the rollout percentage is 100%, the evaluation returns <code>true</code>. For percentages less than 100%, the engine buckets users deterministically:</li>
+            </ul>
+
             <div className="docs-code-container">
               <div className="docs-code-header">
-                <span className="docs-code-filename">Evaluation Core Logic</span>
+                <span className="docs-code-filename">Evaluation Core Hashing Logic</span>
               </div>
               <div className="docs-code-body">
                 <pre>
@@ -470,6 +498,102 @@ if (enabled) {
                     <span className="keyword">int</span> bucket = Math.floorMod(evaluationHash, 100);<br /><br />
                     <span className="comment">// User is exposed if bucket index falls below rollout target percentage</span><br />
                     <span className="keyword">return</span> bucket &lt; rolloutPercentage;<br />
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <h3 className="docs-subtitle">HTTP Evaluation Endpoint</h3>
+            <p className="docs-p">
+              Developers can integrate directly with the HTTP API using standard tools.
+            </p>
+            <ul className="docs-ul">
+              <li className="docs-li"><strong>Method:</strong> <span className="docs-badge post">POST</span></li>
+              <li className="docs-li"><strong>URL:</strong> <code>https://featureforge-api.onrender.com/api/v1/evaluate</code></li>
+              <li className="docs-li"><strong>Required Headers:</strong></li>
+              <ul className="docs-ul" style={{ marginTop: '4px', paddingLeft: '20px' }}>
+                <li className="docs-li"><code>Content-Type: application/json</code></li>
+                <li className="docs-li"><code>X-API-Key: YOUR_ENVIRONMENT_API_KEY</code> (Obtained from the Environments dashboard page)</li>
+              </ul>
+            </ul>
+
+            <p className="docs-p" style={{ marginTop: '16px' }}><strong>Request Body Structure:</strong></p>
+            <div className="docs-code-container">
+              <div className="docs-code-header">
+                <span className="docs-code-filename">Request JSON Payload</span>
+              </div>
+              <div className="docs-code-body">
+                <pre>
+                  <code>
+                    {`{\n  "featureKey": "INDEPENDENCE_DAY_HERO",\n  "user": "user_123"\n}`}
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <p className="docs-p" style={{ marginTop: '16px' }}><strong>Response Body Structure (200 OK):</strong></p>
+            <div className="docs-code-container">
+              <div className="docs-code-header">
+                <span className="docs-code-filename">Response JSON Payload</span>
+              </div>
+              <div className="docs-code-body">
+                <pre>
+                  <code>
+                    {`{\n  "enabled": true\n}`}
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <h3 className="docs-subtitle">Error Handling</h3>
+            <p className="docs-p">
+              The API returns standard <code>400 Bad Request</code> status codes for failure scenarios:
+            </p>
+            <ul className="docs-ul">
+              <li className="docs-li"><strong>Invalid API Key:</strong> Returns <code>{"{\"success\": false, \"message\": \"Invalid API key provided\"}"}</code> if the key is unrecognized.</li>
+              <li className="docs-li"><strong>Feature Not Found:</strong> Returns <code>{"{\"success\": false, \"message\": \"feature not found\"}"}</code> if the specified key does not exist.</li>
+            </ul>
+
+            <h3 className="docs-subtitle">Direct HTTP Integration Example</h3>
+            <div className="docs-code-container">
+              <div className="docs-code-header">
+                <span className="docs-code-filename">cURL request</span>
+              </div>
+              <div className="docs-code-body">
+                <pre>
+                  <code>
+                    curl -X POST https://featureforge-api.onrender.com/api/v1/evaluate \<br />
+                    &nbsp;&nbsp;-H "Content-Type: application/json" \<br />
+                    &nbsp;&nbsp;-H "X-API-Key: YOUR_ENVIRONMENT_API_KEY" \<br />
+                    &nbsp;&nbsp;-d '{`{"featureKey": "INDEPENDENCE_DAY_HERO", "user": "user_123"}`}'
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <h3 className="docs-subtitle">Java SDK Integration Example</h3>
+            <p className="docs-p">
+              For Java applications, use our official Java SDK client to handle evaluates safely. Download details can be found on our <a href="https://github.com/harsh-799/feature-forge-sdk" target="_blank" rel="noopener noreferrer" className="auth-redirect-link">GitHub Repository</a>.
+            </p>
+            <div className="docs-code-container">
+              <div className="docs-code-header">
+                <span className="docs-code-filename">Java Integration Code</span>
+              </div>
+              <div className="docs-code-body">
+                <pre>
+                  <code>
+                    <span className="keyword">import</span> com.featureforge.sdk.FeatureForgeClient;<br />
+                    <span className="keyword">import</span> com.featureforge.sdk.exception.FeatureForgeException;<br /><br />
+                    FeatureForgeClient client = <span className="keyword">new</span> FeatureForgeClient(<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span className="string">"YOUR_ENVIRONMENT_API_KEY"</span>,<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span className="string">"https://featureforge-api.onrender.com"</span><br />
+                    );<br /><br />
+                    <span className="keyword">try</span> &#123;<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span className="keyword">boolean</span> enabled = client.isEnabled(<span className="string">"INDEPENDENCE_DAY_HERO"</span>, <span className="string">"user_123"</span>);<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;System.out.println(<span className="string">"Feature active: "</span> + enabled);<br />
+                    &#125; <span className="keyword">catch</span> (FeatureForgeException e) &#123;<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;System.err.println(<span className="string">"API Error "</span> + e.getStatusCode() + <span className="string">": "</span> + e.getMessage());<br />
+                    &#125;
                   </code>
                 </pre>
               </div>
@@ -641,7 +765,7 @@ public class Example {
     public static void main(String[] args) {
         FeatureForgeClient client = new FeatureForgeClient(
             "YOUR_API_KEY",
-            "YOUR_FEATUREFORGE_BACKEND_URL"
+            "https://featureforge-api.onrender.com"
         );
 
         boolean enabled = client.isEnabled(
@@ -664,7 +788,7 @@ public class Example {
                     &nbsp;&nbsp;&nbsp;&nbsp;<span className="keyword">public static void</span> <span className="method">main</span>(String[] args) &#123;<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="type">FeatureForgeClient</span> client = <span className="keyword">new</span> <span className="type">FeatureForgeClient</span>(<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="string">"YOUR_API_KEY"</span>,<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="string">"YOUR_FEATUREFORGE_BACKEND_URL"</span><br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="string">"https://featureforge-api.onrender.com"</span><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);<br /><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="keyword">boolean</span> enabled = client.<span className="method">isEnabled</span>(<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="string">"INDEPENDENCE_DAY_HERO"</span>,<br />
@@ -835,7 +959,7 @@ try {
                 <pre>
                   <code>
                     POST /api/v1/evaluate HTTP/1.1<br />
-                    Host: YOUR_FEATUREFORGE_BACKEND_URL<br />
+                    Host: featureforge-api.onrender.com<br />
                     Content-Type: application/json<br />
                     X-API-Key: ff_dev_3b901f4c718a2bc490d1<br /><br />
                     &#123;<br />

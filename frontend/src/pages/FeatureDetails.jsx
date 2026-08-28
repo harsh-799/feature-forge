@@ -1042,118 +1042,120 @@ export default function FeatureDetails() {
                 )}
 
                 {/* Scheduling Area */}
-                <div className="schedule-container">
-                  {!isProdEnabled ? (
-                    <>
-                      <h4 className="schedule-header">Schedule a Release</h4>
-                      <p className="schedule-subheader">Set a future time and rollout percentage to automatically enable this feature flag in production.</p>
-                    </>
-                  ) : (
-                    <>
-                      <h4 className="schedule-header">Schedule a Production Change</h4>
-                      <p className="schedule-subheader">Plan a progressive rollout modification or feature deactivation in production for a future time.</p>
-                    </>
-                  )}
+                {isAdmin && (
+                  <div className="schedule-container">
+                    {!isProdEnabled ? (
+                      <>
+                        <h4 className="schedule-header">Schedule a Release</h4>
+                        <p className="schedule-subheader">Set a future time and rollout percentage to automatically enable this feature flag in production.</p>
+                      </>
+                    ) : (
+                      <>
+                        <h4 className="schedule-header">Schedule a Production Change</h4>
+                        <p className="schedule-subheader">Plan a progressive rollout modification or feature deactivation in production for a future time.</p>
+                      </>
+                    )}
 
-                  <form onSubmit={handleScheduleSubmit} className="activation-form schedule-form-element">
-                    {/* Action Selector: only visible if active (isProdEnabled is true) */}
-                    {isProdEnabled && (
+                    <form onSubmit={handleScheduleSubmit} className="activation-form schedule-form-element">
+                      {/* Action Selector: only visible if active (isProdEnabled is true) */}
+                      {isProdEnabled && (
+                        <div className="details-form-group">
+                          <label htmlFor="scheduleActionInput" className="details-form-label">ACTION</label>
+                          <select
+                            id="scheduleActionInput"
+                            value={scheduleAction}
+                            onChange={(e) => handleActionChange(e.target.value)}
+                            className="details-form-input"
+                            disabled={isScheduling || !isAdmin}
+                          >
+                            <option value="UPDATE_ROLLOUT">Update Rollout</option>
+                            <option value="DEACTIVATE">Deactivate Feature</option>
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Rollout Percentage: visible for ACTIVATE and UPDATE_ROLLOUT */}
+                      {scheduleAction !== 'DEACTIVATE' && (
+                        <div className="details-form-group">
+                          <label htmlFor="scheduleRolloutInput" className="details-form-label">
+                            {scheduleAction === 'ACTIVATE' ? 'ROLLOUT PERCENTAGE' : 'TARGET ROLLOUT'}
+                          </label>
+                          <div className="activation-input-row">
+                            <input
+                              type="range"
+                              id="scheduleRolloutInput"
+                              min="1"
+                              max="100"
+                              value={scheduleRollout || 1}
+                              onChange={(e) => setScheduleRollout(parseInt(e.target.value, 10))}
+                              className="rollout-slider-range"
+                              disabled={isScheduling || !isAdmin}
+                              style={{
+                                background: `linear-gradient(to right, #FF6B00 0%, #FF6B00 ${scheduleRollout || 1}%, #E5E2DA ${scheduleRollout || 1}%, #E5E2DA 100%)`
+                              }}
+                            />
+                            <span className="slider-percentage-badge">{scheduleRollout || 1}%</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Date Picker */}
                       <div className="details-form-group">
-                        <label htmlFor="scheduleActionInput" className="details-form-label">ACTION</label>
-                        <select
-                          id="scheduleActionInput"
-                          value={scheduleAction}
-                          onChange={(e) => handleActionChange(e.target.value)}
+                        <label htmlFor="scheduleDateInput" className="details-form-label">
+                          {!isProdEnabled ? 'RELEASE DATE' : 'DATE'}
+                        </label>
+                        <input
+                          type="date"
+                          id="scheduleDateInput"
+                          value={scheduleDate}
+                          min={todayStr}
+                          onChange={(e) => setScheduleDate(e.target.value)}
                           className="details-form-input"
                           disabled={isScheduling || !isAdmin}
-                        >
-                          <option value="UPDATE_ROLLOUT">Update Rollout</option>
-                          <option value="DEACTIVATE">Deactivate Feature</option>
-                        </select>
+                          required
+                        />
                       </div>
-                    )}
 
-                    {/* Rollout Percentage: visible for ACTIVATE and UPDATE_ROLLOUT */}
-                    {scheduleAction !== 'DEACTIVATE' && (
+                      {/* Time Picker */}
                       <div className="details-form-group">
-                        <label htmlFor="scheduleRolloutInput" className="details-form-label">
-                          {scheduleAction === 'ACTIVATE' ? 'ROLLOUT PERCENTAGE' : 'TARGET ROLLOUT'}
+                        <label htmlFor="scheduleTimeInput" className="details-form-label">
+                          {!isProdEnabled ? 'RELEASE TIME' : 'TIME'}
                         </label>
-                        <div className="activation-input-row">
-                          <input
-                            type="range"
-                            id="scheduleRolloutInput"
-                            min="1"
-                            max="100"
-                            value={scheduleRollout || 1}
-                            onChange={(e) => setScheduleRollout(parseInt(e.target.value, 10))}
-                            className="rollout-slider-range"
-                            disabled={isScheduling || !isAdmin}
-                            style={{
-                              background: `linear-gradient(to right, #FF6B00 0%, #FF6B00 ${scheduleRollout || 1}%, #E5E2DA ${scheduleRollout || 1}%, #E5E2DA 100%)`
-                            }}
-                          />
-                          <span className="slider-percentage-badge">{scheduleRollout || 1}%</span>
+                        <input
+                          type="time"
+                          id="scheduleTimeInput"
+                          value={scheduleTime}
+                          onChange={(e) => setScheduleTime(e.target.value)}
+                          className="details-form-input"
+                          disabled={isScheduling || !isAdmin}
+                          required
+                        />
+                      </div>
+
+                      {/* Helper note about scheduler cycle timing */}
+                      <p className="schedule-timing-note">
+                        Actions execute on the first scheduler cycle (up to 10 seconds delay) after the selected time.
+                      </p>
+
+                      {/* Submit Button / Locked overlay */}
+                      {isAdmin ? (
+                        <button
+                          type="submit"
+                          className="action-primary-btn"
+                          disabled={isScheduling}
+                          style={{ marginTop: '8px' }}
+                        >
+                          {isScheduling ? 'Scheduling...' : !isProdEnabled ? 'Schedule Release' : 'Schedule Change'}
+                        </button>
+                      ) : (
+                        <div className="locked-action-overlay" style={{ marginTop: '12px' }}>
+                          <FiLock size={14} style={{ marginRight: '6px' }} />
+                          <span>Scheduling production actions requires Admin authority.</span>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Date Picker */}
-                    <div className="details-form-group">
-                      <label htmlFor="scheduleDateInput" className="details-form-label">
-                        {!isProdEnabled ? 'RELEASE DATE' : 'DATE'}
-                      </label>
-                      <input
-                        type="date"
-                        id="scheduleDateInput"
-                        value={scheduleDate}
-                        min={todayStr}
-                        onChange={(e) => setScheduleDate(e.target.value)}
-                        className="details-form-input"
-                        disabled={isScheduling || !isAdmin}
-                        required
-                      />
-                    </div>
-
-                    {/* Time Picker */}
-                    <div className="details-form-group">
-                      <label htmlFor="scheduleTimeInput" className="details-form-label">
-                        {!isProdEnabled ? 'RELEASE TIME' : 'TIME'}
-                      </label>
-                      <input
-                        type="time"
-                        id="scheduleTimeInput"
-                        value={scheduleTime}
-                        onChange={(e) => setScheduleTime(e.target.value)}
-                        className="details-form-input"
-                        disabled={isScheduling || !isAdmin}
-                        required
-                      />
-                    </div>
-
-                    {/* Helper note about scheduler cycle timing */}
-                    <p className="schedule-timing-note">
-                      Actions execute on the first scheduler cycle (up to 10 seconds delay) after the selected time.
-                    </p>
-
-                    {/* Submit Button / Locked overlay */}
-                    {isAdmin ? (
-                      <button
-                        type="submit"
-                        className="action-primary-btn"
-                        disabled={isScheduling}
-                        style={{ marginTop: '8px' }}
-                      >
-                        {isScheduling ? 'Scheduling...' : !isProdEnabled ? 'Schedule Release' : 'Schedule Change'}
-                      </button>
-                    ) : (
-                      <div className="locked-action-overlay" style={{ marginTop: '12px' }}>
-                        <FiLock size={14} style={{ marginRight: '6px' }} />
-                        <span>Scheduling production actions requires Admin authority.</span>
-                      </div>
-                    )}
-                  </form>
-                </div>
+                      )}
+                    </form>
+                  </div>
+                )}
 
                 {/* Upcoming Scheduled Changes Section */}
                 <div className="upcoming-schedules-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>

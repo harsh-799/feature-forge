@@ -971,6 +971,9 @@ export default function FeatureDetails() {
                                 value={actRollout}
                                 onChange={(e) => setActRollout(parseInt(e.target.value))}
                                 className="rollout-slider-range"
+                                style={{
+                                  background: `linear-gradient(to right, #FF6B00 0%, #FF6B00 ${actRollout}%, #E5E2DA ${actRollout}%, #E5E2DA 100%)`
+                                }}
                               />
                               <span className="slider-percentage-badge">{actRollout}%</span>
                             </div>
@@ -1133,9 +1136,6 @@ export default function FeatureDetails() {
                     )}
                   </form>
                 </div>
-
-                {/* Visual separator/divider for Upcoming Schedules */}
-                <div className="schedule-divider" />
 
                 {/* Upcoming Scheduled Changes Section */}
                 <div className="upcoming-schedules-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>

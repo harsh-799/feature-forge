@@ -75,9 +75,7 @@ export default function Navbar() {
       </nav>
 
       <div className={`header-right ${isMenuOpen ? 'open' : ''} ${isAuthenticated ? 'logged-in' : ''}`}>
-        {authState === 'initializing' ? (
-          <div style={{ width: '100px', height: '40px' }} />
-        ) : isAuthenticated ? (
+        {authState === 'initializing' ? null : isAuthenticated ? (
           <Link to="/app/overview" className="btn-get-started-pill" onClick={() => setIsMenuOpen(false)}>
             <span className="btn-text-crop roll-up">
               <span className="link-text-container">

@@ -28,36 +28,7 @@ function ProtectedRoute({ children }) {
   const { authState } = useAuth();
 
   if (authState === 'initializing') {
-    return (
-      <div className="initializing-spinner-container" style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        backgroundColor: '#0a0a0c',
-        color: '#FAF8F5',
-        fontFamily: 'system-ui, sans-serif'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="spinner" style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid rgba(250, 248, 245, 0.1)',
-            borderTop: '3px solid #ff7a00',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }}></div>
-          <p style={{ margin: 0, fontSize: '14px', letterSpacing: '0.05em', color: '#888' }}>INITIALIZING...</p>
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (authState === 'unauthenticated') {

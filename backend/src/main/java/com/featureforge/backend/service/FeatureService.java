@@ -722,9 +722,18 @@ public class FeatureService {
             );
         }
 
-        if (feature.getStatus() == FeatureStatus.IN_PRODUCTION) {
+        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository
+                .findByFeature_IdAndEnvironment_Name(
+                        feature.getId(),
+                        EnvironmentName.PRODUCTION
+                ).orElseThrow(
+                () -> new InvalidEnvironmentException("Production environment configuration not found for this feature.")
+        );
+
+
+        if (feature.getStatus() == FeatureStatus.IN_PRODUCTION && featureEnvironmentConfig.isEnabled()) {
             throw new FeatureInProductionException(
-                    "Cannot delete an active production feature. Disable the feature before attempting to delete it."
+                    "Disable the feature before deleting it."
             );
         }
 

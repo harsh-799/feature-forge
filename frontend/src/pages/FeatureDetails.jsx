@@ -18,7 +18,8 @@ import {
   activateFeatureStaging,
   deactivateFeatureStaging,
   deleteFeature,
-  scheduleProductionAction
+  scheduleProductionAction,
+  deleteProductionSchedule
 } from '../api/featureApi'
 import { getErrorMessage } from '../api/authApi'
 import { toast } from 'react-toastify'
@@ -86,6 +87,7 @@ export default function FeatureDetails() {
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
   const [isScheduling, setIsScheduling] = useState(false);
+  const [scheduleToCancel, setScheduleToCancel] = useState(null);
 
   // Custom confirmation modal
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
@@ -430,6 +432,22 @@ export default function FeatureDetails() {
       toast.error(msg);
     } finally {
       setIsScheduling(false);
+    }
+  };
+
+  const handleCancelSchedule = async () => {
+    if (!scheduleToCancel) return;
+    const scheduleId = scheduleToCancel.id;
+    setScheduleToCancel(null);
+    setIsSubmitting(true);
+    try {
+      await deleteProductionSchedule(id, scheduleId, { workspaceId: currentWorkspaceId });
+      toast.success('Scheduled action cancelled successfully.');
+      await loadFeatureDetails(false);
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Failed to cancel scheduled action.'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1162,9 +1180,21 @@ export default function FeatureDetails() {
                               </div>
                             )}
 
-                            <div className="schedule-item-time">
-                              <span className="schedule-time-label">Scheduled for</span>
-                              <span className="schedule-time-value">{formatScheduleTime(change.scheduledAt)}</span>
+                            <div className="schedule-item-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '4px' }}>
+                              <div className="schedule-item-time" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <span className="schedule-time-label">Scheduled for</span>
+                                <span className="schedule-time-value">{formatScheduleTime(change.scheduledAt)}</span>
+                              </div>
+
+                              {isAdmin && (
+                                <button
+                                  type="button"
+                                  onClick={() => setScheduleToCancel(change)}
+                                  className="schedule-cancel-action-btn"
+                                >
+                                  Cancel Schedule
+                                </button>
+                              )}
                             </div>
                           </div>
                         ))
@@ -1251,6 +1281,44 @@ export default function FeatureDetails() {
                 style={{ padding: '8px 16px', fontSize: '13px', backgroundColor: '#EF4444', borderColor: '#EF4444' }}
               >
                 {isSubmitting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Cancel Schedule Confirmation Modal */}
+      {scheduleToCancel && createPortal(
+        <div className="modal-overlay" onClick={() => !isSubmitting && setScheduleToCancel(null)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+            <div className="modal-header">
+              <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Cancel Scheduled Action?</h3>
+              <button className="modal-close-btn" onClick={() => !isSubmitting && setScheduleToCancel(null)} disabled={isSubmitting}>
+                <FiX size={16} />
+              </button>
+            </div>
+            <div className="modal-body" style={{ padding: '8px 0 20px 0' }}>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-primary)', lineHeight: '1.5', margin: 0 }}>
+                Are you sure you want to cancel the scheduled <strong>{getActionLabel(scheduleToCancel.action)}</strong> action? This will prevent it from executing in production.
+              </p>
+            </div>
+            <div className="modal-actions-row" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+              <button
+                onClick={() => setScheduleToCancel(null)}
+                className="rejection-cancel-btn"
+                disabled={isSubmitting}
+                style={{ padding: '8px 16px', fontSize: '13px' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCancelSchedule}
+                className="rejection-submit-btn"
+                disabled={isSubmitting}
+                style={{ padding: '8px 16px', fontSize: '13px', backgroundColor: '#EF4444', borderColor: '#EF4444' }}
+              >
+                {isSubmitting ? 'Cancelling...' : 'Cancel Schedule'}
               </button>
             </div>
           </div>

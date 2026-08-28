@@ -1804,3 +1804,23 @@ select.details-form-input {
   color: var(--accent);
   box-shadow: 0 0 10px rgba(249, 115, 22, 0.04);
 }
+
+.schedule-cancel-action-btn {
+  background: none;
+  border: none;
+  color: #EF4444;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--sans);
+}
+
+.schedule-cancel-action-btn:hover {
+  background-color: rgba(239, 68, 68, 0.05);
+  text-decoration: underline;
+}

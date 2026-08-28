@@ -101,6 +101,13 @@ export const scheduleProductionAction = async (featureId, data) => {
   });
 };
 
+export const deleteProductionSchedule = async (featureId, scheduleId, data) => {
+  return request(`/features/${featureId}/production/schedule/${scheduleId}`, {
+    method: 'DELETE',
+    body: JSON.stringify(data)
+  });
+};
+
 export const activateFeatureDevelopment = async (featureId, data) => {
   return request(`/features/${featureId}/development/activate`, {
     method: 'PATCH',

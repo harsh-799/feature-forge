@@ -1,14 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiAlertCircle, FiCheck, FiX } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { register, getErrorMessage } from '../api/authApi'
 import { getRedirectUrl } from '../utils/navigation'
+import { useAuth } from '../components/auth/AuthContext'
 import AuthLayout from '../components/auth/AuthLayout'
 import './Login.css' // Import shared login styling for consistency
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { authState } = useAuth();
+
+  useEffect(() => {
+    if (authState === 'authenticated') {
+      navigate('/app/overview', { replace: true });
+    }
+  }, [authState, navigate]);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

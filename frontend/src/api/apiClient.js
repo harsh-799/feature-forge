@@ -38,7 +38,11 @@ export const request = async (path, options = {}) => {
 
   // Handle unauthorized response globally, excluding login and register endpoints to prevent loops on bad credentials
   if (response.status === 401 && !url.endsWith('/auth/login') && !url.endsWith('/auth/register')) {
-    notify401();
+    const requestToken = headers['Authorization']?.replace('Bearer ', '');
+    const currentToken = localStorage.getItem('token');
+    if (!requestToken || requestToken === currentToken) {
+      notify401();
+    }
     const errorData = await response.json().catch(() => ({}));
     throw { response: { data: errorData, status: 401 } };
   }

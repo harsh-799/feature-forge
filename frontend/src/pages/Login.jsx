@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiAlertCircle, FiArrowLeft } from 'react-icons/fi'
 import { toast } from 'react-toastify'
@@ -12,7 +12,14 @@ import './Login.css'
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, authState } = useAuth();
+
+  useEffect(() => {
+    if (authState === 'authenticated') {
+      const redirectUrl = getRedirectUrl();
+      navigate(redirectUrl || '/app/overview', { replace: true });
+    }
+  }, [authState, navigate]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -45,20 +45,24 @@ export const AuthProvider = ({ children }) => {
       try {
         // Validate token against backend by listing workspaces
         await listWorkspaces();
-        if (active) setAuthState('authenticated');
+        if (active && localStorage.getItem('token') === token) {
+          setAuthState('authenticated');
+        }
       } catch (error) {
-        if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('userEmail');
-          localStorage.removeItem('userFullname');
-          localStorage.removeItem('currentWorkspaceId');
-          localStorage.removeItem('currentWorkspaceName');
-          localStorage.removeItem('currentWorkspaceRole');
-          localStorage.removeItem('currentUserWorkspaceRole');
-          if (active) setAuthState('unauthenticated');
-        } else {
-          // Keep token for non-401 errors (transient network issue) but default to unauthenticated state
-          if (active) setAuthState('unauthenticated');
+        if (active && localStorage.getItem('token') === token) {
+          if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userFullname');
+            localStorage.removeItem('currentWorkspaceId');
+            localStorage.removeItem('currentWorkspaceName');
+            localStorage.removeItem('currentWorkspaceRole');
+            localStorage.removeItem('currentUserWorkspaceRole');
+            setAuthState('unauthenticated');
+          } else {
+            // Keep token for non-401 errors (transient network issue) but default to unauthenticated state
+            setAuthState('unauthenticated');
+          }
         }
       }
     };

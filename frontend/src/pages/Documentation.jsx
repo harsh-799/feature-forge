@@ -14,6 +14,7 @@ const SECTIONS = [
   { id: 'environments', label: 'Environments' },
   { id: 'feature-exposure', label: 'Feature Exposure' },
   { id: 'controlled-rollouts', label: 'Controlled Rollouts' },
+  { id: 'scheduled-releases', label: 'Scheduled Releases' },
   { id: 'realtime-evaluation', label: 'Real-time Evaluation' },
   { id: 'kill-switch', label: 'Kill Switch & Rollback' },
   { id: 'audit-logs', label: 'Audit Logs' },
@@ -423,6 +424,25 @@ if (enabled) {
 
             <p className="docs-p">
               Exposure checks are deterministic. FeatureForge groups requests into buckets based on the hashing configuration of the user identifier. This guarantees that a specific user gets a consistent experience (always seeing either the new feature or the legacy version) unless you adjust the rollout percentage upward.
+            </p>
+          </section>
+
+          {/* SECTION 7.5: SCHEDULED RELEASES */}
+          <section id="scheduled-releases" className="docs-section">
+            <h2 className="docs-title">Scheduled Releases</h2>
+            <p className="docs-p">
+              To automate release planning, FeatureForge supports scheduling future production actions in advance. This ensures release events execute precisely when needed without manual intervention.
+            </p>
+            <p className="docs-p">
+              The scheduling system supports three primary action types:
+            </p>
+            <ul className="docs-ul">
+              <li className="docs-li"><strong>Activate Feature:</strong> Enables an inactive production feature flag, initializing exposure with a customized rollout percentage (e.g. 10%).</li>
+              <li className="docs-li"><strong>Update Rollout:</strong> Modifies the active feature flag's production rollout percentage (e.g., ramping up exposure from 10% to 50% or 100%).</li>
+              <li className="docs-li"><strong>Deactivate Feature:</strong> Disables user exposure instantly by toggling the flag off in production.</li>
+            </ul>
+            <p className="docs-p">
+              Upcoming scheduled changes are displayed in a clean queue in the dashboard's Release Controls panel. Administrators can review the queued schedule configurations or click the **Cancel Schedule** button to cancel any pending action before its execution.
             </p>
           </section>
 

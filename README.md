@@ -24,6 +24,7 @@ Merge behind flag ──> Build / Deploy ──> 0% Users Exposed ──> Tweak 
 
 - **Isolated Environments:** Maintain separate configurations for `DEVELOPMENT` (100% exposure for easy sandboxing), `STAGING` (100% quality assurance testing), and `PRODUCTION` environments.
 - **Controlled Rollouts:** Scale feature exposure in Production dynamically (e.g., 1%, 10%, 25%, 50%, 100%) to mitigate release risks.
+- **Scheduled Releases:** Plan and automate production releases by scheduling flag activation, rollout percentage adjustments, or flag deactivation actions to execute at any future date and time.
 - **Deterministic Hashing:** Group users into buckets based on the hashing code of their identifier to guarantee a consistent user experience.
 - **Instant Kill Switch:** Toggling a flag off inside the dashboard immediately redirects evaluations to return `false` without Git merges or CI/CD rebuilds.
 - **Compliance Audit Logs:** Complete traceability tracking operator accounts, action details, target environments, and timestamps.
@@ -73,6 +74,17 @@ Java Application ──> FeatureForge Java SDK ──> POST /api/v1/evaluate + X
 Below is the database entity relational layout of the FeatureForge platform. It models users, workspaces, invitations, environment setups, audit logs, and environment-specific feature flag configurations.
 
 ![FeatureForge Database Schema](docs/image.png)
+
+## Scheduled Releases
+
+To automate releases in Production, FeatureForge supports scheduling future release actions to execute at a precise date and time. This avoids manual overhead during off-hours or marketing events.
+
+Supported actions include:
+1. **Activate Feature:** Toggles a production flag from inactive to active, setting an initial rollout percentage (e.g. 10%).
+2. **Update Rollout:** Adjusts the rollout percentage segment on an already active production flag (e.g. scaling exposure from 10% to 50%).
+3. **Deactivate Feature:** Immediately toggles a production flag from active to inactive, acting as a scheduled kill switch or retirement.
+
+Pending actions can be reviewed in the Release Controls card, and administrators can cancel scheduled changes at any time prior to execution.
 
 ---
 

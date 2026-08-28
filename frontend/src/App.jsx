@@ -33,6 +33,10 @@ function ProtectedRoute({ children }) {
   }
 
   if (authState === 'unauthenticated') {
+    const token = localStorage.getItem('token');
+    if (token) {
+      return null; // Prevent race condition redirect while state is updating
+    }
     const currentPath = window.location.pathname + window.location.search;
     return <Navigate to={`/login?redirect=${encodeURIComponent(currentPath)}`} replace />;
   }

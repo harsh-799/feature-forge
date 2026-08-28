@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers("/api/v1/evaluate").permitAll()
                 .requestMatchers("/health").permitAll()
+                .requestMatchers("/auth/forgot-password").permitAll()
+                .requestMatchers("/auth/reset-password").permitAll()
                 .anyRequest().authenticated()
         );
 

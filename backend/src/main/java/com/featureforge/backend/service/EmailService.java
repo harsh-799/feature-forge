@@ -10,6 +10,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
@@ -35,6 +36,10 @@ public class EmailService {
 
     @Value("${brevo.sender-name}")
     private String senderName;
+
+    @Value("${brevo.frontend-url}")
+    private String frontendUrl;
+
 
     private HttpHeaders createHeaders() {
         HttpHeaders headers = new HttpHeaders();
@@ -112,6 +117,44 @@ public class EmailService {
             throw new EmailSendingException("Failed to load email template: " + e.getMessage());
         } catch (Exception e) {
             throw new EmailSendingException("An unexpected error occurred while sending email: " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendPasswordResetEmail(String resetToken, String email) {
+        try {
+
+            ClassPathResource resource = new ClassPathResource("static/forgotpassword.html");
+
+            String htmlContent = new String(
+                    resource.getInputStream().readAllBytes(),
+                    StandardCharsets.UTF_8
+            );
+
+            String resetLink = frontendUrl +
+                    "/reset-password" +
+                    "?token=" +
+                    resetToken;
+
+            htmlContent = htmlContent.replace("{{resetLink}}",resetLink);
+
+            String body = createEmailBody(
+                    email,
+                    "Password Reset Verification Link – FeatureForge",
+                    htmlContent
+            );
+
+            HttpEntity<String> request =
+                    new HttpEntity<>(body, createHeaders());
+
+            restTemplate.postForEntity(
+                    BREVO_API_URL,
+                    request,
+                    String.class
+            );
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

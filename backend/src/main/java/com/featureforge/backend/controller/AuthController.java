@@ -1,15 +1,18 @@
 package com.featureforge.backend.controller;
 
 import com.featureforge.backend.dto.request.ChangePasswordRequest;
+import com.featureforge.backend.dto.request.ResetPasswordRequest;
 import com.featureforge.backend.dto.request.LoginRequest;
 import com.featureforge.backend.dto.request.RegisterRequest;
 import com.featureforge.backend.dto.response.ChangePasswordResponse;
 import com.featureforge.backend.dto.response.LoginResponse;
+import com.featureforge.backend.dto.response.ResetPasswordResponse;
 import com.featureforge.backend.dto.response.RegisterResponse;
 import com.featureforge.backend.service.AuthService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +37,20 @@ public class AuthController {
     @PatchMapping("/change-password")
     public ResponseEntity<ChangePasswordResponse> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.changePassword(request));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResetPasswordResponse> forgotPassword(@RequestParam @NotBlank @Email String email) {
+        ResetPasswordResponse resp = authService.generateToken(email);
+        return ResponseEntity.status(HttpStatus.OK).body(resp);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResetPasswordResponse> validateTokenAndResetPassword(
+            @RequestBody ResetPasswordRequest resetPasswordRequest,
+            @RequestParam(name = "token") String token) {
+        ResetPasswordResponse resp = authService.resetPassword(resetPasswordRequest, token);
+        return ResponseEntity.status(HttpStatus.OK).body(resp);
     }
 
 }

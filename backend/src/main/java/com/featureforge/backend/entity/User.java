@@ -31,6 +31,10 @@ public class User {
     @Builder.Default
     private Boolean active = true;
 
+    private String passwordResetTokenHash = null;
+    private LocalDateTime passwordResetTokenIssuedAt = null;
+    private LocalDateTime passwordResetTokenExpiresAt = null;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

@@ -721,7 +721,7 @@ export default function FeatureDetails() {
           </div>
 
           {/* Delete Feature Card */}
-          {isAdminOrDev && (
+          {isAdminOrDev && !(feature.status === 'IN_PRODUCTION' && activeRole === 'DEVELOPER') && (
             <div className="details-section-card delete-feature-card" style={{ marginTop: '24px' }}>
               <h3 style={{ marginBottom: '4px' }}>Delete Feature</h3>
               <p className="section-subtitle" style={{ marginBottom: '16px' }}>

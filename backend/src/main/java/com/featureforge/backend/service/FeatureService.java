@@ -722,19 +722,21 @@ public class FeatureService {
             );
         }
 
-        FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository
-                .findByFeature_IdAndEnvironment_Name(
-                        feature.getId(),
-                        EnvironmentName.PRODUCTION
-                ).orElseThrow(
-                () -> new InvalidEnvironmentException("Production environment configuration not found for this feature.")
-        );
+        if (feature.getStatus() == FeatureStatus.IN_PRODUCTION) {
 
+            if (member.getRole() == Role.DEVELOPER)
+                throw new AccessDeniedException("Unauthorized Access: You do not have permission to perform this action");
+            
+            FeatureEnvironmentConfig featureEnvironmentConfig = featureEnvironmentConfigRepository
+                    .findByFeature_IdAndEnvironment_Name(
+                            feature.getId(),
+                            EnvironmentName.PRODUCTION
+                    ).orElseThrow(
+                            () -> new InvalidEnvironmentException("Production environment configuration not found for this feature.")
+                    );
 
-        if (feature.getStatus() == FeatureStatus.IN_PRODUCTION && featureEnvironmentConfig.isEnabled()) {
-            throw new FeatureInProductionException(
-                    "Disable the feature before deleting it."
-            );
+            if (featureEnvironmentConfig.isEnabled())
+                throw new FeatureInProductionException("Disable the feature before deleting it.");
         }
 
         featureEnvironmentConfigRepository.deleteByFeature(feature);

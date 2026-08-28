@@ -383,5 +383,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(InvalidScheduleStatusException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidScheduleStatusException(InvalidScheduleStatusException ex) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
 
 }

@@ -34,9 +34,11 @@ public class FeatureSchedule {
     private LocalDateTime scheduledAt;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ScheduleStatus status;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ScheduledAction action;
 
     @CreationTimestamp

@@ -787,7 +787,7 @@ public class FeatureService {
         for (FeatureSchedule featureSchedule : featureScheduleList) {
             FeatureScheduleDetailsResponse featureScheduleDetailsResponse = FeatureScheduleDetailsResponse
                     .builder()
-                    .id(feature.getId())
+                    .id(featureSchedule.getId())
                     .action(featureSchedule.getAction())
                     .rolloutPercentage(featureSchedule.getRolloutPercentage())
                     .scheduledAt(featureSchedule.getScheduledAt())

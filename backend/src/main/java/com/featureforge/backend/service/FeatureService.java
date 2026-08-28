@@ -1076,4 +1076,69 @@ public class FeatureService {
                 .features(featureSummaryResponsesList)
                 .build();
     }
+
+    @Transactional
+    public FeatureProductionScheduleDeleteResponse deleteScheduledFeatureInProduction(int featureId, int scheduleId, DeleteScheduledFeatureRequest deleteScheduledFeatureRequest) {
+
+        User loggedInUser = fetchAuthenticatedUser();
+
+        WorkspaceMembership member = workspaceMembershipRepository
+                .findByWorkspace_IdAndUser(
+                        deleteScheduledFeatureRequest.getWorkspaceId(),
+                        loggedInUser
+                )
+                .orElseThrow(
+                        () -> new AccessDeniedException(
+                                "Access denied: You are not a member of this workspace."
+                        )
+                );
+
+        if (member.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException(
+                    "Unauthorized Access: You do not have permission to perform this action"
+            );
+        }
+
+        Feature feature = featureRepository
+                .findById(featureId)
+                .orElseThrow(
+                        () -> new FeatureNotFoundException("Feature not found")
+                );
+
+        if (!feature.getWorkspace().getId().equals(member.getWorkspace().getId())) {
+            throw new WorkspaceMismatchException(
+                    "Access denied. Feature is not associated with your workspace."
+            );
+        }
+
+        if (feature.getStatus() != FeatureStatus.IN_PRODUCTION) {
+            throw new InvalidFeatureStatusException(
+                    "Feature is not in PRODUCTION."
+            );
+        }
+
+        FeatureSchedule schedule = featureScheduleRepository
+                .findByIdAndFeature_Id(scheduleId, featureId)
+                .orElseThrow(
+                        () -> new FeatureScheduleNotFoundException(
+                                "Scheduled action not found for this feature."
+                        )
+                );
+
+        if (schedule.getStatus() != ScheduleStatus.PENDING) {
+            throw new InvalidScheduleStatusException(
+                    "Only pending scheduled actions can be cancelled."
+            );
+        }
+
+        featureScheduleRepository.delete(schedule);
+
+        FeatureProductionScheduleDeleteResponse response = new FeatureProductionScheduleDeleteResponse();
+        response.setSuccess(true);
+        response.setMessage("Scheduled action cancelled successfully.");
+        response.setFeatureId(feature.getId());
+
+        return response;
+
+    }
 }

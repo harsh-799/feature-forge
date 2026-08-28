@@ -77,6 +77,15 @@ public class FeatureController {
         return ResponseEntity.status(HttpStatus.OK).body(featureService.scheduleFeatureInProduction(featureId, featureProductionScheduleRequest));
     }
 
+    @DeleteMapping("/{featureId}/production/schedule/{scheduleId}")
+    public ResponseEntity<FeatureProductionScheduleDeleteResponse> deleteSchedule(
+            @PathVariable(name = "featureId") int featureId,
+            @PathVariable(name = "scheduleId") int scheduleId,
+            @Valid @RequestBody DeleteScheduledFeatureRequest deleteScheduledFeatureRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(featureService.deleteScheduledFeatureInProduction(featureId,  scheduleId, deleteScheduledFeatureRequest));
+    }
+
     @PatchMapping("/{featureId}/edit")
     public ResponseEntity<FeatureUpdationResponse> update(@PathVariable(name = "featureId") int featureId,
                                                           @Valid @RequestBody FeatureUpdationRequest featureUpdationRequest) {

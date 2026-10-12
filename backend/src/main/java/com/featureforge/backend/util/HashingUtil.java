@@ -8,9 +8,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 
 @Component
-public class ApiKeyManager {
+public class HashingUtil {
 
-    public String hashApiKey(String rawApiKey) {
+    public String hash(String rawApiKey) {
 
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

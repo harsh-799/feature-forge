@@ -11,7 +11,7 @@ import com.featureforge.backend.dto.response.RegisterResponse;
 import com.featureforge.backend.entity.User;
 import com.featureforge.backend.exception.*;
 import com.featureforge.backend.repository.UserRepository;
-import com.featureforge.backend.util.ApiKeyManager;
+import com.featureforge.backend.util.HashingUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,7 +35,7 @@ public class AuthService {
     private AuthenticationManager authenticationManager;
     private JwtService jwtService;
     private EmailService emailService;
-    private ApiKeyManager apiKeyManager;
+    private HashingUtil hashingUtil;
 
     public RegisterResponse register(RegisterRequest registerRequest) {
 
@@ -121,7 +121,7 @@ public class AuthService {
             }
 
             String resetToken = UUID.randomUUID().toString();
-            String resetHashToken = apiKeyManager.hashApiKey(resetToken);
+            String resetHashToken = hashingUtil.hash(resetToken);
 
             LocalDateTime current = LocalDateTime.now();
 
@@ -162,7 +162,7 @@ public class AuthService {
             );
         }
 
-        String hashToken = apiKeyManager.hashApiKey(rawToken);
+        String hashToken = hashingUtil.hash(rawToken);
 
         if (!user.getPasswordResetTokenHash().equals(hashToken))
             throw new InvalidPasswordResetTokenException("Invalid or expired password reset token.");

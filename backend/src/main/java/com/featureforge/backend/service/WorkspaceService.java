@@ -10,9 +10,8 @@ import com.featureforge.backend.enums.InvitationStatus;
 import com.featureforge.backend.enums.Role;
 import com.featureforge.backend.exception.*;
 import com.featureforge.backend.repository.*;
-import com.featureforge.backend.util.ApiKeyManager;
+import com.featureforge.backend.util.HashingUtil;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class WorkspaceService {
     private final UserRepository userRepository;
     private final WorkspaceInvitationRepository workspaceInvitationRepository;
     private final EnvironmentRepository environmentRepository;
-    private final ApiKeyManager apiKeyManager;
+    private final HashingUtil hashingUtil;
     private final FeatureRepository featureRepository;
     private final FeatureEnvironmentConfigRepository featureEnvironmentConfigRepository;
     private final ActivityLogRepository activityLogRepository;
@@ -60,7 +59,7 @@ public class WorkspaceService {
         environment.setName(environmentName);
 
         String apiKey = "ff_" + UUID.randomUUID();
-        String hashedApiKey = apiKeyManager.hashApiKey(apiKey);
+        String hashedApiKey = hashingUtil.hash(apiKey);
 
         environment.setApiKeyHash(hashedApiKey);
 
@@ -528,7 +527,7 @@ public class WorkspaceService {
                 );
 
         String newApiKey = "ff_" + UUID.randomUUID();
-        String newHashedApiKey = apiKeyManager.hashApiKey(newApiKey);
+        String newHashedApiKey = hashingUtil.hash(newApiKey);
 
         environment.setApiKeyHash(newHashedApiKey);
 

@@ -338,6 +338,15 @@
   background-color: #22C55E;
 }
 
+.card-toggle-pill:disabled {
+  cursor: wait;
+}
+
+.card-toggle-pill.pending {
+  cursor: wait;
+  pointer-events: none;
+}
+
 .card-toggle-thumb {
   width: 18px;
   height: 18px;
@@ -347,10 +356,37 @@
   left: 3px;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-toggle-pill.on .card-toggle-thumb {
   transform: translateX(22px);
+}
+
+.toggle-thumb-spinner {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  border-top-color: #5A5852;
+  border-radius: 50%;
+  animation: toggle-spinner-spin 0.65s linear infinite;
+  box-sizing: border-box;
+}
+
+.card-toggle-pill.on .toggle-thumb-spinner {
+  border: 1.5px solid rgba(34, 197, 94, 0.25);
+  border-top-color: #16A34A;
+}
+
+@keyframes toggle-spinner-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .card-progress-bar-container {

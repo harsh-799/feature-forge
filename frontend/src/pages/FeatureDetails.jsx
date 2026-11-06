@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate, useOutletContext } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { FiArrowLeft, FiCheckCircle, FiActivity, FiAlertTriangle, FiSliders, FiLock, FiX } from 'react-icons/fi'
@@ -93,8 +93,9 @@ export default function FeatureDetails() {
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  // Environment config toggle state
-  const [isTogglingEnv, setIsTogglingEnv] = useState(false);
+  // Environment config toggle state: per-environment pending set & sequence tracker
+  const [pendingEnvs, setPendingEnvs] = useState(() => new Set());
+  const envToggleSeqRef = useRef({});
 
   // Authority flags: Based on activeRole
   const isAdminOrDev = activeRole === 'ADMIN' || activeRole === 'DEVELOPER';
@@ -452,8 +453,30 @@ export default function FeatureDetails() {
   };
 
   const handleToggleEnvironment = async (envName, currentEnabled) => {
-    if (isTogglingEnv) return;
-    setIsTogglingEnv(true);
+    if (pendingEnvs.has(envName)) return;
+
+    const targetEnabled = !currentEnabled;
+    const currentSeq = (envToggleSeqRef.current[envName] || 0) + 1;
+    envToggleSeqRef.current[envName] = currentSeq;
+
+    // 1. Mark this specific environment as pending
+    setPendingEnvs((prev) => {
+      const next = new Set(prev);
+      next.add(envName);
+      return next;
+    });
+
+    // 2. Optimistic UI update: flip enabled state immediately in feature.environments
+    setFeature((prev) => {
+      if (!prev || !prev.environments) return prev;
+      return {
+        ...prev,
+        environments: prev.environments.map((e) =>
+          e.name === envName ? { ...e, enabled: targetEnabled } : e
+        )
+      };
+    });
+
     try {
       let response;
       if (envName === 'DEVELOPMENT') {
@@ -470,17 +493,48 @@ export default function FeatureDetails() {
         }
       }
 
+      if (envToggleSeqRef.current[envName] !== currentSeq) return;
+
       if (response && response.success) {
         toast.success(response.message || `${envName} environment configuration updated successfully.`);
+        // Background sync to pull any server-computed fields
+        await loadFeatureDetails(false);
       } else {
+        // Rollback on unsuccessful response
+        setFeature((prev) => {
+          if (!prev || !prev.environments) return prev;
+          return {
+            ...prev,
+            environments: prev.environments.map((e) =>
+              e.name === envName ? { ...e, enabled: currentEnabled } : e
+            )
+          };
+        });
         toast.error(response?.message || `Failed to update ${envName} environment.`);
       }
-      await loadFeatureDetails(false);
     } catch (err) {
-      const msg = getErrorMessage(err);
-      toast.error(msg);
+      if (envToggleSeqRef.current[envName] === currentSeq) {
+        // Rollback on error
+        setFeature((prev) => {
+          if (!prev || !prev.environments) return prev;
+          return {
+            ...prev,
+            environments: prev.environments.map((e) =>
+              e.name === envName ? { ...e, enabled: currentEnabled } : e
+            )
+          };
+        });
+        const msg = getErrorMessage(err);
+        toast.error(msg);
+      }
     } finally {
-      setIsTogglingEnv(false);
+      if (envToggleSeqRef.current[envName] === currentSeq) {
+        setPendingEnvs((prev) => {
+          const next = new Set(prev);
+          next.delete(envName);
+          return next;
+        });
+      }
     }
   };
 
@@ -624,14 +678,21 @@ export default function FeatureDetails() {
                     <span className="env-name">DEVELOPMENT</span>
                   </div>
                   {isAdminOrDev && feature.status === 'IN_DEVELOPMENT' ? (
-                    <label className="toggle-switch-container" title="Toggle Development Flag">
+                    <label
+                      className={`toggle-switch-container ${pendingEnvs.has('DEVELOPMENT') ? 'pending' : ''}`}
+                      title={pendingEnvs.has('DEVELOPMENT') ? 'Updating Development Flag...' : 'Toggle Development Flag'}
+                    >
                       <input
                         type="checkbox"
                         checked={isDevEnabled}
-                        disabled={isTogglingEnv}
+                        disabled={pendingEnvs.has('DEVELOPMENT')}
                         onChange={() => handleToggleEnvironment('DEVELOPMENT', isDevEnabled)}
                       />
-                      <span className="toggle-switch-slider"></span>
+                      <span className="toggle-switch-slider">
+                        {pendingEnvs.has('DEVELOPMENT') && (
+                          <span className="env-toggle-spinner" aria-hidden="true" />
+                        )}
+                      </span>
                     </label>
                   ) : (
                     <span className={`env-status-badge ${isDevEnabled ? 'active' : 'inactive'}`}>
@@ -662,14 +723,21 @@ export default function FeatureDetails() {
                     <span className="env-name">STAGING / QA</span>
                   </div>
                   {(isAdminOrDev || isQA) && feature.status === 'READY_FOR_QA' ? (
-                    <label className="toggle-switch-container" title="Toggle Staging Flag">
+                    <label
+                      className={`toggle-switch-container ${pendingEnvs.has('STAGING') ? 'pending' : ''}`}
+                      title={pendingEnvs.has('STAGING') ? 'Updating Staging Flag...' : 'Toggle Staging Flag'}
+                    >
                       <input
                         type="checkbox"
                         checked={isStagingEnabled}
-                        disabled={isTogglingEnv}
+                        disabled={pendingEnvs.has('STAGING')}
                         onChange={() => handleToggleEnvironment('STAGING', isStagingEnabled)}
                       />
-                      <span className="toggle-switch-slider"></span>
+                      <span className="toggle-switch-slider">
+                        {pendingEnvs.has('STAGING') && (
+                          <span className="env-toggle-spinner" aria-hidden="true" />
+                        )}
+                      </span>
                     </label>
                   ) : (
                     <span className={`env-status-badge ${isStagingEnabled ? 'active' : 'inactive'}`}>

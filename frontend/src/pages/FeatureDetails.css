@@ -1318,6 +1318,49 @@ input:disabled+.toggle-switch-slider {
   cursor: not-allowed;
 }
 
+.toggle-switch-container.pending {
+  cursor: wait;
+}
+
+.toggle-switch-container.pending input {
+  cursor: wait;
+}
+
+.toggle-switch-container.pending .toggle-switch-slider {
+  cursor: wait;
+  opacity: 0.9;
+}
+
+.env-toggle-spinner {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  border-top-color: #5A5852;
+  border-radius: 50%;
+  animation: env-toggle-spin 0.65s linear infinite;
+  box-sizing: border-box;
+  top: 6.5px;
+  left: 6.5px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+input:checked + .toggle-switch-slider .env-toggle-spinner {
+  left: 26.5px;
+  border: 1.5px solid rgba(249, 115, 22, 0.25);
+  border-top-color: var(--accent, #F97316);
+}
+
+@keyframes env-toggle-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Tablet and Mobile Responsiveness Adjustments */
 
 @media (max-width: 768px) {

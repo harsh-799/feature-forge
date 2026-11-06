@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { FiPlus } from 'react-icons/fi'
 import {
@@ -34,6 +34,19 @@ export default function FeatureFlags() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Per-feature pending states to prevent duplicate conflicting requests
+  const [pendingFeatureIds, setPendingFeatureIds] = useState(() => new Set());
+  // Request sequence counter per feature to ensure older requests cannot overwrite newer state
+  const toggleSequenceRef = useRef({});
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const canCreate = activeRole === 'ADMIN' || activeRole === 'DEVELOPER';
   const isAdmin = activeRole === 'ADMIN';
@@ -78,63 +91,122 @@ export default function FeatureFlags() {
   };
 
   const handleToggle = async (feature) => {
-    const currentEnabled = feature.isEnabled;
-    const targetEnabled = !currentEnabled;
+    const featureId = feature.featureId;
+
+    // Prevent conflicting requests for the same feature while one is already pending
+    if (pendingFeatureIds.has(featureId)) {
+      return;
+    }
+
+    const previousEnabled = Boolean(feature.isEnabled);
+    const targetEnabled = !previousEnabled;
+
+    // Increment request sequence for this feature to prevent race conditions
+    const currentSeq = (toggleSequenceRef.current[featureId] || 0) + 1;
+    toggleSequenceRef.current[featureId] = currentSeq;
+
+    // 1. Mark as pending for this specific feature
+    setPendingFeatureIds((prev) => {
+      const next = new Set(prev);
+      next.add(featureId);
+      return next;
+    });
+
+    // 2. Optimistic UI update: immediately flip isEnabled in local state
+    setFeatures((prevFeatures) =>
+      prevFeatures.map((f) =>
+        f.featureId === featureId ? { ...f, isEnabled: targetEnabled } : f
+      )
+    );
 
     try {
       let response;
       if (selectedEnv === 'PRODUCTION') {
         if (targetEnabled) {
-          response = await activateFeatureProduction(feature.featureId, {
+          response = await activateFeatureProduction(featureId, {
             workspaceId: currentWorkspaceId,
             rolloutPercentage: 100
           });
         } else {
-          response = await deactivateFeatureProduction(feature.featureId, {
+          response = await deactivateFeatureProduction(featureId, {
             workspaceId: currentWorkspaceId
           });
         }
       } else if (selectedEnv === 'STAGING') {
         if (targetEnabled) {
-          response = await activateFeatureStaging(feature.featureId, {
+          response = await activateFeatureStaging(featureId, {
             workspaceId: currentWorkspaceId
           });
         } else {
-          response = await deactivateFeatureStaging(feature.featureId, {
+          response = await deactivateFeatureStaging(featureId, {
             workspaceId: currentWorkspaceId
           });
         }
       } else {
         // DEVELOPMENT
         if (targetEnabled) {
-          response = await activateFeatureDevelopment(feature.featureId, {
+          response = await activateFeatureDevelopment(featureId, {
             workspaceId: currentWorkspaceId
           });
         } else {
-          response = await deactivateFeatureDevelopment(feature.featureId, {
+          response = await deactivateFeatureDevelopment(featureId, {
             workspaceId: currentWorkspaceId
           });
         }
       }
 
+      if (!isMountedRef.current) return;
+      if (toggleSequenceRef.current[featureId] !== currentSeq) return;
+
       if (response && response.success) {
         toast.success(response.message || `Feature flag ${targetEnabled ? 'enabled' : 'disabled'} successfully!`);
 
-        // Update local features state
+        // Synchronize with any server-returned feature attributes if present
         setFeatures((prevFeatures) =>
           prevFeatures.map((f) => {
-            if (f.featureId === feature.featureId) {
-              return { ...f, isEnabled: targetEnabled };
+            if (f.featureId === featureId) {
+              const updated = { ...f, isEnabled: targetEnabled };
+              if (response.rolloutPercentage !== undefined && response.rolloutPercentage !== null) {
+                updated.rolloutPercentage = response.rolloutPercentage;
+              }
+              if (response.feature) {
+                Object.assign(updated, response.feature);
+                updated.isEnabled = targetEnabled;
+              }
+              return updated;
             }
             return f;
           })
         );
       } else {
+        // Server returned unsuccessful status: rollback to previous confirmed state
+        setFeatures((prevFeatures) =>
+          prevFeatures.map((f) =>
+            f.featureId === featureId ? { ...f, isEnabled: previousEnabled } : f
+          )
+        );
         toast.error(response?.message || 'Failed to update feature flag state.');
       }
     } catch (err) {
-      const msg = getErrorMessage(err);
-      toast.error(msg);
+      if (!isMountedRef.current) return;
+      if (toggleSequenceRef.current[featureId] === currentSeq) {
+        // Rollback to previous confirmed state on network or server error
+        setFeatures((prevFeatures) =>
+          prevFeatures.map((f) =>
+            f.featureId === featureId ? { ...f, isEnabled: previousEnabled } : f
+          )
+        );
+        const msg = getErrorMessage(err);
+        toast.error(msg);
+      }
+    } finally {
+      if (isMountedRef.current && toggleSequenceRef.current[featureId] === currentSeq) {
+        setPendingFeatureIds((prev) => {
+          const next = new Set(prev);
+          next.delete(featureId);
+          return next;
+        });
+      }
     }
   };
 
@@ -203,6 +275,7 @@ export default function FeatureFlags() {
         debouncedKeyword={debouncedKeyword}
         keyword={keyword}
         statusFilter={statusFilter}
+        pendingFeatureIds={pendingFeatureIds}
       />
 
       {/* Pagination Controls */}

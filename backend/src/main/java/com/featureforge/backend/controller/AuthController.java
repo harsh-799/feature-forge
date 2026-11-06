@@ -44,7 +44,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .sameSite("None")
-                .maxAge(Duration.ofMinutes(15))
+                .maxAge(Duration.ofDays(3))
                 .build();
 
         LoginResponse response = LoginResponse.builder()

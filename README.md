@@ -69,6 +69,27 @@ Java Application ──> FeatureForge Java SDK ──> POST /api/v1/evaluate + X
 
 ---
 
+## Security Architecture
+
+FeatureForge implements an HttpOnly cookie-based authentication architecture with stateless CSRF protection to secure authenticated dashboard and API operations.
+
+### Authentication
+- **HttpOnly JWT Cookies (`__Host-ACCESS-TOKEN`):** Authentication tokens are stored in `HttpOnly`, `Secure`, `SameSite=None`, `Path=/` cookies to prevent direct access through client-side JavaScript and mitigate token theft via Cross-Site Scripting (XSS).
+- **Bearer Header Fallback:** The backend authentication filter extracts the JWT from the `__Host-ACCESS-TOKEN` cookie while retaining backward compatibility with `Authorization: Bearer <token>` headers for programmatic API clients and SDK integrations.
+- **Token Expiration:** Access tokens maintain a limited lifetime (15 minutes in cookies) to reduce the exposure window of compromised credentials.
+
+### CSRF Protection
+- **Stateless CSRF Tokens (`__Host-XSRF-TOKEN`):** Uses cryptographically signed CSRF tokens containing a 32-byte secure random nonce, an expiration timestamp, and an HMAC-SHA256 signature (`nonce.expiry.signature`), avoiding server-side session storage.
+- **In-Memory Token Handling:** The backend sets the signed token in an `HttpOnly`, `Secure` cookie (`__Host-XSRF-TOKEN`) and exposes it through `GET /auth/csrf`. The frontend retrieves the token and stores it strictly in React memory—never in `localStorage` or `sessionStorage`.
+- **Custom Request Headers (`X-XSRF-TOKEN`):** The frontend centralized API client automatically includes the `X-XSRF-TOKEN` header on all state-changing requests (`POST`, `PUT`, `PATCH`, `DELETE`). Safe methods (`GET`, `HEAD`, `OPTIONS`) do not require the CSRF header.
+- **Asynchronous, Non-Blocking Initialization:** CSRF token retrieval is triggered asynchronously following login and on page refresh, ensuring navigation to the dashboard and safe read requests are never blocked. State-changing requests automatically await the centralized initialization promise if it is still pending.
+- **Cookie-Based Validation:** The backend validates the CSRF token signature, expiry, and cookie-to-header match before processing protected requests.
+- **Automatic Refresh on Expiry:** If a state-changing request encounters a 403 caused by an expired CSRF token, the client automatically requests a fresh token and retries the request once, without retrying genuine authorization failures.
+
+This approach provides CSRF protection without maintaining server-side CSRF token sessions.
+
+---
+
 ## Database Schema
 
 Below is the database entity relational layout of the FeatureForge platform. It models users, workspaces, invitations, environment setups, audit logs, and environment-specific feature flag configurations.
@@ -242,6 +263,7 @@ cd feature-forge
    DATABASE_USERNAME=your_database_username
    DATABASE_PASSWORD=your_database_password
    JWT_SECRET=your_jwt_secret
+   CSRF_SECRET=your_csrf_secret
    BREVO_API_KEY=your_brevo_api_key
    BREVO_SENDER_EMAIL=no-reply@featureforge.com
    BREVO_SENDER_NAME=FeatureForge

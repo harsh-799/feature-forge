@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiCalendar, FiInbox } from 'react-icons/fi';
 
@@ -9,7 +8,8 @@ export default function FeatureList({
   handleToggle,
   debouncedKeyword,
   keyword,
-  statusFilter
+  statusFilter,
+  pendingFeatureIds = new Set()
 }) {
   const getFeatureKey = (feature) => {
     if (feature.key) return feature.key;
@@ -73,6 +73,7 @@ export default function FeatureList({
     <div className="features-grid-list">
       {features.map((feature) => {
         const isEnabled = feature.isEnabled || false;
+        const isPending = pendingFeatureIds.has(feature.featureId);
 
         return (
           <div key={feature.featureId} className="feature-item-card">
@@ -103,9 +104,15 @@ export default function FeatureList({
                   </span>
                   <button
                     onClick={() => handleToggle(feature)}
-                    className={`card-toggle-pill ${isEnabled ? 'on' : 'off'}`}
+                    className={`card-toggle-pill ${isEnabled ? 'on' : 'off'}${isPending ? ' pending' : ''}`}
+                    disabled={isPending}
+                    aria-busy={isPending}
+                    aria-label={`Toggle ${feature.name} ${isEnabled ? 'off' : 'on'}`}
+                    title={isPending ? 'Updating feature state...' : `Toggle ${feature.name}`}
                   >
-                    <div className="card-toggle-thumb"></div>
+                    <div className="card-toggle-thumb">
+                      {isPending && <span className="toggle-thumb-spinner" aria-hidden="true" />}
+                    </div>
                   </button>
                 </div>
               </div>

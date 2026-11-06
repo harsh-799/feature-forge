@@ -1,6 +1,8 @@
 package com.featureforge.backend.config;
 
 import com.featureforge.backend.filter.JwtAuthenticationFilter;
+import com.featureforge.backend.security.CustomCsrfTokenRepository;
+import com.featureforge.backend.security.CustomCsrfTokenRequestHandler;
 import com.featureforge.backend.service.CustomUserDetailsService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomCsrfTokenRepository csrfTokenRepository;
+    private final CustomCsrfTokenRequestHandler csrfTokenRequestHandler;
 
     @Value("${featureforge.frontend-url}")
     private String frontendUrl;
@@ -47,7 +51,15 @@ public class SecurityConfig {
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(csrfTokenRepository)
+                .csrfTokenRequestHandler(csrfTokenRequestHandler)
+                .ignoringRequestMatchers(
+                        "/auth/login",
+                        "/auth/register",
+                        "/auth/forgot-password"
+                )
+        );
         http.httpBasic(basic -> basic.disable());
         http.formLogin(formLogin -> formLogin.disable());
 

@@ -35,7 +35,29 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequest));
+
+        LoginResponse loginResponse = authService.login(loginRequest);
+
+        ResponseCookie cookie = ResponseCookie
+                .from("__Host-ACCESS-TOKEN", loginResponse.getToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(Duration.ofMinutes(15))
+                .build();
+
+        LoginResponse response = LoginResponse.builder()
+                .status(loginResponse.isStatus())
+                .message(loginResponse.getMessage())
+                .fullName(loginResponse.getFullName())
+                .email(loginResponse.getEmail())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(response);
     }
 
     @PatchMapping("/change-password")

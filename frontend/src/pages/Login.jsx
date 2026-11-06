@@ -64,10 +64,8 @@ export default function Login() {
     try {
       const response = await apiLogin({ email, password });
 
-      // Persist authenticating JWT token if returned
-      if (response.token) {
-        login(response.token, response.email || email, response.fullName || response.fullname || '');
-      }
+      // Trigger asynchronous CSRF initialization and update auth state without blocking navigation
+      login(response.email || email, response.fullName || response.fullname || '');
 
       toast.success(response.message || 'Successfully signed in.');
 
@@ -139,6 +137,10 @@ export default function Login() {
   };
 
   const isFormValid = email.trim().length > 0 && /\S+@\S+\.\S+/.test(email) && password.length > 0;
+
+  if (authState === 'initializing') {
+    return null;
+  }
 
   return (
     <AuthLayout>

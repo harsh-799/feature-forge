@@ -1,4 +1,4 @@
-import { request } from './apiClient';
+import { request, fetchCsrfToken } from './apiClient';
 
 export const login = async (credentials) => {
   return request('/auth/login', {
@@ -34,6 +34,10 @@ export const resetPassword = async (token, resetData) => {
   });
 };
 
+export const getCsrfToken = async () => {
+  return fetchCsrfToken();
+};
+
 export const getErrorMessage = (error) => {
   if (error.response && error.response.data) {
     const data = error.response.data;
@@ -47,4 +51,4 @@ export const getErrorMessage = (error) => {
   return error.message || 'Something went wrong. Please try again.';
 };
 
-export default { login, register, changePassword, forgotPassword, resetPassword, getErrorMessage };
+export default { login, register, changePassword, forgotPassword, resetPassword, getCsrfToken, getErrorMessage };

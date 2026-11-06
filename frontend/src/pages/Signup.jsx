@@ -120,6 +120,10 @@ export default function Signup() {
     password.length <= 15 &&
     confirmPassword === password;
 
+  if (authState === 'initializing') {
+    return null;
+  }
+
   return (
     <AuthLayout>
       <div className={`auth-form-container ${isExiting ? 'exit-to-signup' : 'enter-form'}`}>

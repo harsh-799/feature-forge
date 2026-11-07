@@ -396,10 +396,8 @@ public class WorkspaceService {
 
         Workspace workspace = loggedInMembership.getWorkspace();
 
-        String normalizedKeyword = (keyword == null) ? "" : keyword.trim();
-
         List<WorkspaceMembership> workspaceMembershipList = workspaceMembershipRepository
-                .findMembers(workspaceId, role, normalizedKeyword);
+                .findMembers(workspaceId, role, keyword);
 
         List<WorkspaceMemberDetails> membersData = new ArrayList<>();
 

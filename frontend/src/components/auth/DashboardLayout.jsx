@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { 
   FiFolder, 
   FiCheck, 
@@ -116,7 +116,12 @@ export default function DashboardLayout() {
             localStorage.setItem('currentWorkspaceRole', list[0].role || 'DEVELOPER');
           }
         } else {
-          navigateRef.current('/app/onboarding');
+          setActiveWorkspace(null);
+          localStorage.removeItem('currentWorkspaceId');
+          localStorage.removeItem('currentWorkspaceName');
+          localStorage.removeItem('currentWorkspaceRole');
+          localStorage.removeItem('currentUserWorkspaceRole');
+          navigateRef.current('/app/onboarding', { replace: true });
         }
       } catch (err) {
         console.error('Failed to load workspaces:', err);
@@ -269,6 +274,11 @@ export default function DashboardLayout() {
         </div>
       </div>
     );
+  }
+
+  // Enforce rule: users without any workspace cannot access dashboard pages
+  if (!workspaces || workspaces.length === 0) {
+    return <Navigate to="/app/onboarding" replace />;
   }
 
   const displayName = fullname || (userEmail ? userEmail.split('@')[0] : 'Developer');

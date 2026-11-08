@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiAlertCircle, FiCheck, FiX } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { register, getErrorMessage } from '../api/authApi'
+import { listWorkspaces } from '../api/workspaceApi'
 import { getRedirectUrl } from '../utils/navigation'
 import { useAuth } from '../components/auth/AuthContext'
 import AuthLayout from '../components/auth/AuthLayout'
@@ -14,7 +15,27 @@ export default function Signup() {
 
   useEffect(() => {
     if (authState === 'authenticated') {
-      navigate('/app/overview', { replace: true });
+      const redirectUrl = getRedirectUrl();
+      if (redirectUrl) {
+        navigate(redirectUrl, { replace: true });
+        return;
+      }
+
+      listWorkspaces()
+        .then((workspaces) => {
+          if (workspaces && workspaces.length > 0) {
+            localStorage.setItem('currentWorkspaceId', workspaces[0].workspaceId);
+            localStorage.setItem('currentWorkspaceName', workspaces[0].workspaceName);
+            localStorage.setItem('currentWorkspaceRole', workspaces[0].role || 'DEVELOPER');
+            localStorage.setItem('currentUserWorkspaceRole', workspaces[0].role);
+            navigate('/app/overview', { replace: true });
+          } else {
+            navigate('/app/onboarding', { replace: true });
+          }
+        })
+        .catch(() => {
+          navigate('/app/onboarding', { replace: true });
+        });
     }
   }, [authState, navigate]);
   const [fullName, setFullName] = useState('');

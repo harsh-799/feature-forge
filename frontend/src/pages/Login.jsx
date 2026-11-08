@@ -17,7 +17,26 @@ export default function Login() {
   useEffect(() => {
     if (authState === 'authenticated') {
       const redirectUrl = getRedirectUrl();
-      navigate(redirectUrl || '/app/overview', { replace: true });
+      if (redirectUrl) {
+        navigate(redirectUrl, { replace: true });
+        return;
+      }
+
+      listWorkspaces()
+        .then((workspaces) => {
+          if (workspaces && workspaces.length > 0) {
+            localStorage.setItem('currentWorkspaceId', workspaces[0].workspaceId);
+            localStorage.setItem('currentWorkspaceName', workspaces[0].workspaceName);
+            localStorage.setItem('currentWorkspaceRole', workspaces[0].role || 'DEVELOPER');
+            localStorage.setItem('currentUserWorkspaceRole', workspaces[0].role);
+            navigate('/app/overview', { replace: true });
+          } else {
+            navigate('/app/onboarding', { replace: true });
+          }
+        })
+        .catch(() => {
+          navigate('/app/onboarding', { replace: true });
+        });
     }
   }, [authState, navigate]);
 
@@ -64,15 +83,21 @@ export default function Login() {
     try {
       const response = await apiLogin({ email, password });
 
+      // Clean up any stale workspace info from previous users in localStorage
+      localStorage.removeItem('currentWorkspaceId');
+      localStorage.removeItem('currentWorkspaceName');
+      localStorage.removeItem('currentWorkspaceRole');
+      localStorage.removeItem('currentUserWorkspaceRole');
+
       // Trigger asynchronous CSRF initialization and update auth state without blocking navigation
       login(response.email || email, response.fullName || response.fullname || '');
 
       toast.success(response.message || 'Successfully signed in.');
 
-      // Redirect check
+      // Redirect check: prioritize invitation / return redirect URL
       const redirectUrl = getRedirectUrl();
       if (redirectUrl) {
-        navigate(redirectUrl);
+        navigate(redirectUrl, { replace: true });
         return;
       }
 
@@ -83,9 +108,9 @@ export default function Login() {
         localStorage.setItem('currentWorkspaceName', workspaces[0].workspaceName);
         localStorage.setItem('currentWorkspaceRole', workspaces[0].role || 'DEVELOPER');
         localStorage.setItem('currentUserWorkspaceRole', workspaces[0].role);
-        navigate('/app/overview');
+        navigate('/app/overview', { replace: true });
       } else {
-        navigate('/app/onboarding');
+        navigate('/app/onboarding', { replace: true });
       }
     } catch (err) {
       const msg = getErrorMessage(err);

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
@@ -27,13 +27,14 @@ import { AuthProvider, useAuth } from './components/auth/AuthContext'
 // Authentication Guard Component
 function ProtectedRoute({ children }) {
   const { authState } = useAuth();
+  const location = useLocation();
 
   if (authState === 'initializing') {
     return null;
   }
 
   if (authState === 'unauthenticated') {
-    const currentPath = window.location.pathname + window.location.search;
+    const currentPath = location.pathname + location.search;
     return <Navigate to={`/login?redirect=${encodeURIComponent(currentPath)}`} replace />;
   }
 

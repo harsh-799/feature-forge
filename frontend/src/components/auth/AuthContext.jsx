@@ -63,6 +63,14 @@ export const AuthProvider = ({ children }) => {
       }
     }
 
+    const prevEmail = localStorage.getItem('userEmail');
+    if (email && prevEmail && prevEmail.toLowerCase() !== email.toLowerCase()) {
+      localStorage.removeItem('currentWorkspaceId');
+      localStorage.removeItem('currentWorkspaceName');
+      localStorage.removeItem('currentWorkspaceRole');
+      localStorage.removeItem('currentUserWorkspaceRole');
+    }
+
     if (email) localStorage.setItem('userEmail', email);
     if (fullname) localStorage.setItem('userFullname', fullname);
 

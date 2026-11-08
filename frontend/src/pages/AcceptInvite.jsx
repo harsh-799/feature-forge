@@ -12,7 +12,7 @@ export default function AcceptInvite() {
   const [isLoading, setIsLoading] = useState(false);
 
   const searchParams = new URLSearchParams(location.search);
-  const token = searchParams.get('token');
+  const token = searchParams.get('token') || searchParams.get('acceptToken');
 
   const handleAccept = async () => {
     if (!token) {
@@ -41,7 +41,7 @@ export default function AcceptInvite() {
         console.error('Error refreshing workspace list after accept:', err);
       }
 
-      navigate('/app/overview');
+      navigate('/app/overview', { replace: true });
     } catch (err) {
       const msg = getErrorMessage(err);
       toast.error(msg);

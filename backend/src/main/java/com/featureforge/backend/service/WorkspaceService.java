@@ -391,11 +391,6 @@ public class WorkspaceService {
                         () -> new AccessDeniedException("You don't have access to this workspace.")
                 );
 
-        if (loggedInMembership.getRole() != Role.ADMIN)
-            throw new InsufficientPrivilegesException("Only admins can view all the members of workspace.");
-
-        Workspace workspace = loggedInMembership.getWorkspace();
-
         List<WorkspaceMembership> workspaceMembershipList = workspaceMembershipRepository
                 .findMembers(workspaceId, role, keyword);
 

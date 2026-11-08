@@ -72,6 +72,11 @@ export default function DashboardLayout() {
   const dropdownRef = useRef(null);
   const profileRef = useRef(null);
   const optionsRef = useRef(null);
+  const navigateRef = useRef(navigate);
+
+  useEffect(() => {
+    navigateRef.current = navigate;
+  }, [navigate]);
 
   // Prevent background page scrolling when mobile sidebar drawer is open
   useEffect(() => {
@@ -111,7 +116,7 @@ export default function DashboardLayout() {
             localStorage.setItem('currentWorkspaceRole', list[0].role || 'DEVELOPER');
           }
         } else {
-          navigate('/app/onboarding');
+          navigateRef.current('/app/onboarding');
         }
       } catch (err) {
         console.error('Failed to load workspaces:', err);
@@ -121,7 +126,7 @@ export default function DashboardLayout() {
     };
 
     fetchWorkspacesData();
-  }, [navigate]);
+  }, []);
 
   // Click outside handlers
   useEffect(() => {

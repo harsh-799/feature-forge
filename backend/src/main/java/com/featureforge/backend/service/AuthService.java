@@ -88,6 +88,9 @@ public class AuthService {
             throw new InvalidCurrentPasswordException("Current password is incorrect");
         }
 
+        if (request.getCurrentPassword().equals(request.getNewPassword()))
+            throw new PasswordUnchangedException("Password must be different from the current one.");
+
         loggedInUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(loggedInUser);
 

@@ -95,10 +95,12 @@ const isStateChangingMethod = (method) => {
  * Public endpoints where CSRF token is not required or not yet initialized
  */
 const isCsrfExemptEndpoint = (url) => {
+  const pathname = url.split('?')[0];
   return (
-    url.endsWith('/auth/login') ||
-    url.endsWith('/auth/register') ||
-    url.endsWith('/auth/forgot-password')
+    pathname.endsWith('/auth/login') ||
+    pathname.endsWith('/auth/register') ||
+    pathname.endsWith('/auth/forgot-password') ||
+    pathname.endsWith('/auth/reset-password')
   );
 };
 

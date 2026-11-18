@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
@@ -25,10 +27,20 @@ public class CustomCsrfTokenRepository implements CsrfTokenRepository {
     private static final Duration TOKEN_EXPIRY = Duration.ofMinutes(15);
 
     private final CsrfTokenService csrfTokenService;
+
+    private String currentUserIdentifier() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            return "anonymous";
+        }
+
+        return auth.getName(); // returns the email, via CustomUserDetails.getUsername()
+    }
     @Override
     public CsrfToken generateToken(HttpServletRequest request) {
 
-        String token = csrfTokenService.generateNewCsrfToken();
+        String token = csrfTokenService.generateNewCsrfToken(currentUserIdentifier());
 
         return new DefaultCsrfToken(
                 HEADER_NAME,
@@ -76,7 +88,7 @@ public class CustomCsrfTokenRepository implements CsrfTokenRepository {
 
         String token = csrfCookie.getValue();
 
-        if (!csrfTokenService.validateCsrfToken(token)) {
+        if (!csrfTokenService.validateCsrfToken(token, currentUserIdentifier())) {
             return null;
         }
 

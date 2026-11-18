@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -60,6 +61,9 @@ public class SecurityConfig {
                         "/auth/forgot-password"
                 )
         );
+
+        http.addFilterBefore(jwtAuthenticationFilter, CsrfFilter.class);
+
         http.httpBasic(basic -> basic.disable());
         http.formLogin(formLogin -> formLogin.disable());
 

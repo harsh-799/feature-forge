@@ -22,7 +22,7 @@ public class CsrfTokenService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final Duration TOKEN_EXPIRY = Duration.ofMinutes(15);
 
-    public String generateNewCsrfToken() {
+    public String generateNewCsrfToken(String userIdentifier) {
 
         byte[] randomBytes = new byte[32];
 
@@ -36,15 +36,15 @@ public class CsrfTokenService {
                 .plus(TOKEN_EXPIRY)
                 .getEpochSecond();
 
-        String data = nonce + ":" + expiry + ":";
+        String data = nonce + ":" + expiry + ":" + userIdentifier;
         String signature = hashingUtil.hmac(data, CSRF_SECRET_KEY);
 
         return nonce + "." + expiry + "." + signature;
     }
 
-    public boolean validateCsrfToken(String token) {
+    public boolean validateCsrfToken(String token, String userIdentifier) {
 
-        if (token == null || token.isBlank()) {
+        if (token == null || token.isBlank() || userIdentifier == null) {
             return false;
         }
 
@@ -72,7 +72,7 @@ public class CsrfTokenService {
             }
 
             // Recalculate signature
-            String data = nonce + ":" + expiry + ":";
+            String data = nonce + ":" + expiry + ":" + userIdentifier;
             String expectedSignature = hashingUtil.hmac(data, CSRF_SECRET_KEY);
 
             // Constant-time signature comparison
